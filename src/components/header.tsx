@@ -29,28 +29,30 @@ export function Header({ items }: HeaderProps) {
                 'bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur',
             )}
         >
-            <NavigationMenu className="w-full max-w-full justify-between p-2">
+            <NavigationMenu className="relative w-full max-w-full justify-between p-2">
                 <div className="hover:bg-accent flex cursor-pointer rounded-md px-2 py-1 duration-100">
                     <Icon />
                 </div>
-                <NavigationMenuList className="hidden items-center gap-1 md:flex">
-                    {items.map((item) => (
-                        <NavigationMenuLink
-                            asChild
-                            className={navigationMenuTriggerStyle()}
-                        >
-                            <Link
-                                className={buttonVariants({
-                                    variant: 'ghost',
-                                    size: 'sm',
-                                })}
-                                href={item.href}
+                <div className="absolute left-1/2 -translate-x-1/2 transform">
+                    <NavigationMenuList className="hidden items-center gap-1 md:flex">
+                        {items.map((item) => (
+                            <NavigationMenuLink
+                                asChild
+                                className={navigationMenuTriggerStyle()}
                             >
-                                {item.label}
-                            </Link>
-                        </NavigationMenuLink>
-                    ))}
-                </NavigationMenuList>
+                                <Link
+                                    className={buttonVariants({
+                                        variant: 'ghost',
+                                        size: 'sm',
+                                    })}
+                                    href={item.href}
+                                >
+                                    {item.label}
+                                </Link>
+                            </NavigationMenuLink>
+                        ))}
+                    </NavigationMenuList>
+                </div>
                 <div className="flex items-center gap-2">
                     <Button size="sm">Login</Button>
                     <Button size="sm" variant="secondary">
