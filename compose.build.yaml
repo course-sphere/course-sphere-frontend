@@ -1,5 +1,3 @@
 services:
   frontend:
     image: ${REGISTRY}/frontend:latest
-    profiles:
-      - build
