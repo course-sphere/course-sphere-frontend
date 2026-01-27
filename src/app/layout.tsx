@@ -31,10 +31,6 @@ export default function RootLayout({
                 <Header
                     items={[
                         {
-                            label: 'Home',
-                            href: '/',
-                        },
-                        {
                             label: 'Courses',
                             href: '/',
                         },
