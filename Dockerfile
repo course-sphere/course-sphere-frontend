@@ -3,7 +3,7 @@ FROM oven/bun:latest AS base
 FROM base AS install
 WORKDIR /app
 COPY package.json bun.lock ./
-RUN bun install --frozen-lockfile
+RUN bun install --no-save --frozen-lockfile
 
 FROM base AS builder
 
@@ -23,7 +23,8 @@ WORKDIR /app
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN adduser --system --uid 1001 nextjs
+RUN groupadd --system --gid 1001 nodejs && \
+    useradd --system --uid 1001 --no-log-init -g nodejs nextjs
 
 COPY --from=builder /app/public ./public
 
@@ -36,5 +37,4 @@ EXPOSE 3000
 
 ENV PORT=3000
 
-ENV HOSTNAME="0.0.0.0"
 CMD ["bun", "run", "server.js"]
