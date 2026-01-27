@@ -19,7 +19,9 @@ export interface HeaderProps {
 }
 
 export function Header({ items }: HeaderProps) {
-    const [isFloating, setIsFloating] = useState(false);
+    const [isFloating, setIsFloating] = useState(
+        typeof window !== 'undefined' ? window.scrollY > 10 : false,
+    );
     const tickingRef = useRef(false);
 
     useEffect(() => {
@@ -33,9 +35,6 @@ export function Header({ items }: HeaderProps) {
         };
 
         window.addEventListener('scroll', onScroll, { passive: true });
-        setIsFloating(
-            typeof window !== 'undefined' ? window.scrollY > 10 : false,
-        );
 
         return () => window.removeEventListener('scroll', onScroll);
     }, []);
