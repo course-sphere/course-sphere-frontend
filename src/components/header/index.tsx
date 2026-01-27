@@ -43,14 +43,15 @@ export function Header({ items }: HeaderProps) {
 
     return (
         <header
-            className={`z-50 transition-all duration-200 ${
+            className={cn(
+                'z-50 transition-all duration-200',
                 isFloating
                     ? 'fixed top-5 left-1/2 w-full -translate-x-1/2 transform px-10'
-                    : 'relative top-0 left-0 w-full px-0'
-            }`}
+                    : 'relative top-0 left-0 w-full px-0',
+            )}
         >
             <div
-                className={`mx-auto w-full transition-all duration-200 ${isFloating ? 'max-w-6xl rounded-lg border px-6 shadow-lg' : 'max-w-full rounded-none border-0 px-4 shadow-none'} bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur`}
+                className={`mx-auto w-full px-2 transition-all duration-200 ${isFloating ? 'max-w-6xl rounded-lg border shadow-lg' : 'max-w-full rounded-none border-0 shadow-none'} bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur`}
             >
                 <NavigationMenu
                     className={cn(
@@ -58,7 +59,7 @@ export function Header({ items }: HeaderProps) {
                         isFloating ? 'max-w-full' : 'max-w-6xl',
                     )}
                 >
-                    <div className="flex cursor-pointer rounded-md px-2 py-1 duration-100">
+                    <div className="flex cursor-pointer space-x-4 rounded-md px-2 py-1 duration-100">
                         <Logo className="size-6" />
                         <NavigationMenuList className="hidden items-center gap-1 lg:flex">
                             {items.map((item) => (
