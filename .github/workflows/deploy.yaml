@@ -33,6 +33,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+    env:
+      REGISTRY: ghcr.io/${{ github.repository }}
     steps:
       - name: Checkout Develop
         uses: actions/checkout@v3
