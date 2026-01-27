@@ -4,8 +4,7 @@ import { AuthUIProvider } from '@daveyplate/better-auth-ui';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { ReactNode } from 'react';
-
-import { authClient } from '@/lib/auth-client';
+import { authClient } from '@/lib/api-client';
 
 export function Providers({ children }: { children: ReactNode }) {
     const router = useRouter();
