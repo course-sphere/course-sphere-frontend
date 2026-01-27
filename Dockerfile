@@ -14,6 +14,9 @@ COPY --from=install /app/node_modules ./node_modules
 COPY . .
 RUN bun run build
 
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_TELEMETRY_DISABLED=1
 
 FROM base AS runner
 WORKDIR /app
