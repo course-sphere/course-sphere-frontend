@@ -13,6 +13,8 @@ import {
 import { cn } from '@/lib/utils';
 import { MobileHeader } from './mobile-header';
 import { SearchInput } from './search-input';
+import { AuthSection } from './auth-section';
+import { SignedIn, SignedOut, UserButton } from '@daveyplate/better-auth-ui';
 
 export interface HeaderProps {
     items: { label: string; href: string }[];
@@ -83,6 +85,24 @@ export function Header({ items }: HeaderProps) {
                         <SearchInput isLoading={false} onSearch={console.log} />
                     </div>
 
+                    <div className="hidden space-x-3 lg:block">
+                        <SignedOut>
+                            <AuthSection />
+                        </SignedOut>
+                        <SignedIn>
+                            <UserButton
+                                className="size-10"
+                                classNames={{
+                                    content: {
+                                        menuItem:
+                                            'focus:text-primary focus:bg-primary/10',
+                                    },
+                                }}
+                                size="icon"
+                                align="end"
+                            />
+                        </SignedIn>
+                    </div>
                     <MobileHeader items={items} />
                 </NavigationMenu>
             </div>

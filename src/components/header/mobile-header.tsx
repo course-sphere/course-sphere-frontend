@@ -12,13 +12,11 @@ import {
 import { AuthSection } from './auth-section';
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
+import { SignedIn, SignedOut, UserButton } from '@daveyplate/better-auth-ui';
 
 export function MobileHeader({ items }: HeaderProps) {
     return (
         <Sheet>
-            <div className="hidden space-x-3 lg:block">
-                <AuthSection />
-            </div>
             <SheetTrigger asChild>
                 <Button size="icon" variant="outline" className="lg:hidden">
                     <MenuIcon className="size-4" />
@@ -46,7 +44,21 @@ export function MobileHeader({ items }: HeaderProps) {
                     ))}
                 </div>
                 <SheetFooter>
-                    <AuthSection />
+                    <SignedOut>
+                        <AuthSection />
+                    </SignedOut>
+                    <SignedIn>
+                        <UserButton
+                            classNames={{
+                                content: {
+                                    menuItem:
+                                        'focus:text-primary focus:bg-primary/10',
+                                },
+                            }}
+                            size="lg"
+                            align="end"
+                        />
+                    </SignedIn>
                 </SheetFooter>
             </SheetContent>
         </Sheet>
