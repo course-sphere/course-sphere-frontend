@@ -10,7 +10,8 @@ jobs:
       contents: read
       packages: write
     env:
-      REGISTRY: ghcr.io/${{ github.repository }}
+      REGISTRY: ghcr.io/course-sphere
+      NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
     steps:
       - name: Checkout Develop
         uses: actions/checkout@v3
@@ -34,7 +35,7 @@ jobs:
       contents: read
       packages: write
     env:
-      REGISTRY: ghcr.io/${{ github.repository }}
+      REGISTRY: ghcr.io/course-sphere
     steps:
       - name: Checkout Develop
         uses: actions/checkout@v3
