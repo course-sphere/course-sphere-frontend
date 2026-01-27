@@ -35,6 +35,7 @@ jobs:
       packages: write
     env:
       REGISTRY: ghcr.io/course-sphere
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
     steps:
       - name: Checkout Develop
         uses: actions/checkout@v3
