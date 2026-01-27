@@ -16,11 +16,11 @@ import { Logo } from '@/components/logo';
 export function MobileHeader({ items }: HeaderProps) {
     return (
         <Sheet>
-            <div className="hidden space-x-3 md:block">
+            <div className="hidden space-x-3 lg:block">
                 <AuthSection />
             </div>
             <SheetTrigger asChild>
-                <Button size="icon" variant="outline" className="md:hidden">
+                <Button size="icon" variant="outline" className="lg:hidden">
                     <MenuIcon className="size-4" />
                 </Button>
             </SheetTrigger>
