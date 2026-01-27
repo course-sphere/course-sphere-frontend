@@ -1,9 +1,21 @@
 import { CourseCard, type CourseCardProps } from '@/components/course-card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, School } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import {
+    ArrowRight,
+    Award,
+    Briefcase,
+    Clock,
+    Globe,
+    School,
+    Users,
+    Zap,
+} from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 
-const allCourses: CourseCardProps[] = [
+const courses: CourseCardProps[] = [
     {
         id: '1',
         title: 'Web Development Mastery',
@@ -48,49 +60,43 @@ const allCourses: CourseCardProps[] = [
         reviews: 728,
         price: 69.99,
     },
+];
+
+const features = [
     {
-        id: '5',
-        title: 'Advanced React Patterns',
-        tags: ['Web Development'],
-        thumbnail: '/placeholder.jpg',
-        instructor: 'Alex Johnson',
-        students: 9200,
-        rating: 4.8,
-        reviews: 945,
-        price: 79.99,
+        icon: Award,
+        title: 'Learn from the Best',
+        description:
+            'Get taught by industry experts with years of real-world experience',
     },
     {
-        id: '6',
-        title: 'Python for Machine Learning',
-        tags: ['Data Science'],
-        thumbnail: '/placeholder.jpg',
-        instructor: 'Sarah Chen',
-        students: 7650,
-        rating: 4.9,
-        reviews: 723,
-        price: 89.99,
+        icon: Clock,
+        title: 'Learn at Your Pace',
+        description:
+            'Access lifetime course materials and learn whenever it suits you',
     },
     {
-        id: '7',
-        title: 'React Native Mastery',
-        thumbnail: '/placeholder.jpg',
-        tags: ['Mobile'],
-        instructor: 'Mike Rodriguez',
-        students: 5120,
-        rating: 4.7,
-        reviews: 456,
-        price: 79.99,
+        icon: Users,
+        title: 'Community Support',
+        description:
+            'Connect with thousands of learners and get help when you need it',
     },
     {
-        id: '8',
-        title: 'Figma Design Systems',
-        tags: ['Design'],
-        thumbnail: '/placeholder.jpg',
-        instructor: 'Emma Wilson',
-        students: 4890,
-        rating: 4.8,
-        reviews: 612,
-        price: 69.99,
+        icon: Zap,
+        title: 'Practical Projects',
+        description:
+            'Build real-world projects that you can showcase in your portfolio',
+    },
+    {
+        icon: Briefcase,
+        title: 'Earn Certificates',
+        description:
+            'Get recognized with shareable certificates upon course completion',
+    },
+    {
+        icon: Globe,
+        title: 'Global Reach',
+        description: 'Learn from instructors and students around the world',
     },
 ];
 
@@ -163,6 +169,73 @@ export default function Home() {
                                 fill
                             />
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <section
+                id="courses"
+                className="bg-background px-4 py-20 sm:px-6 lg:px-8"
+            >
+                <div className="mx-auto max-w-7xl">
+                    <div className="mb-12 space-y-4 text-center">
+                        <Badge variant="secondary">Popular Courses</Badge>
+                        <h2 className="text-foreground text-3xl font-bold sm:text-4xl">
+                            Learn from Industry Experts
+                        </h2>
+                        <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
+                            Explore our handpicked collection of courses
+                            designed to help you advance your career
+                        </p>
+                    </div>
+
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                        {courses.map((course) => (
+                            <CourseCard key={course.id} {...course} />
+                        ))}
+                    </div>
+
+                    <div className="mt-12 text-center">
+                        <Button size="lg" variant="outline" asChild>
+                            <Link href="/courses">View All Courses</Link>
+                        </Button>
+                    </div>
+                </div>
+            </section>
+
+            <section
+                id="features"
+                className="bg-card border-border border-y px-4 py-20 sm:px-6 lg:px-8"
+            >
+                <div className="mx-auto max-w-7xl">
+                    <div className="mb-12 space-y-4 text-center">
+                        <Badge variant="secondary">Why Choose Us</Badge>
+                        <h2 className="text-foreground text-3xl font-bold sm:text-4xl">
+                            Everything You Need to Succeed
+                        </h2>
+                        <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
+                            We provide comprehensive tools and resources to
+                            ensure your learning journey is successful
+                        </p>
+                    </div>
+
+                    <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                        {features.map((feature, index) => (
+                            <Card
+                                key={index}
+                                className="p-6 transition-shadow hover:shadow-lg"
+                            >
+                                <div className="bg-primary/10 mb-4 flex h-12 w-12 items-center justify-center rounded-lg">
+                                    <feature.icon className="text-primary h-6 w-6" />
+                                </div>
+                                <h3 className="text-foreground mb-2 text-lg font-semibold">
+                                    {feature.title}
+                                </h3>
+                                <p className="text-muted-foreground text-sm leading-relaxed">
+                                    {feature.description}
+                                </p>
+                            </Card>
+                        ))}
                     </div>
                 </div>
             </section>
