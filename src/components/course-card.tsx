@@ -9,7 +9,6 @@ import {
     CardHeader,
     CardTitle,
 } from './ui/card';
-import { useRouter } from 'next/navigation';
 import { Button } from './ui/button';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -40,7 +39,7 @@ export function CourseCard({
     return (
         <Card className="flex max-w-lg flex-col overflow-hidden transition-shadow hover:shadow-lg">
             <CardHeader>
-                <CardTitle className="relative h-[200px]">
+                <CardTitle className="relative h-50">
                     <Image
                         className="object-cover"
                         src={thumbnail}
