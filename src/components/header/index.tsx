@@ -50,7 +50,7 @@ export function Header({ items }: HeaderProps) {
             }`}
         >
             <div
-                className={`mx-auto w-full transition-all duration-200 ${isFloating ? 'max-w-6xl rounded-lg border px-6 shadow-lg' : 'max-w-full rounded-none border-0 px-4 shadow-none'} bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur`}
+                className={`px-2 mx-auto w-full transition-all duration-200 ${isFloating ? 'max-w-6xl rounded-lg border shadow-lg' : 'max-w-full rounded-none border-0 shadow-none'} bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur`}
             >
                 <NavigationMenu
                     className={cn(
