@@ -11,6 +11,8 @@ import {
 } from './ui/card';
 import { useRouter } from 'next/navigation';
 import { Button } from './ui/button';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export interface CourseCardProps {
     id: string;
@@ -35,16 +37,16 @@ export function CourseCard({
     students,
     price,
 }: CourseCardProps) {
-    const router = useRouter();
-
     return (
-        <Card
-            onClick={() => router.push(`/course/${id}`)}
-            className="flex max-w-lg flex-col overflow-hidden transition-shadow hover:shadow-lg"
-        >
+        <Card className="flex max-w-lg flex-col overflow-hidden transition-shadow hover:shadow-lg">
             <CardHeader>
-                <CardTitle>
-                    <img src={thumbnail} />
+                <CardTitle className="relative h-[200px]">
+                    <Image
+                        className="object-cover"
+                        src={thumbnail}
+                        alt={title}
+                        fill
+                    />
                 </CardTitle>
             </CardHeader>
 
@@ -52,19 +54,15 @@ export function CourseCard({
                 <div>
                     <div className="mb-3 flex flex-wrap gap-2">
                         {tags.map((tag) => (
-                            <Badge
-                                key={tag}
-                                variant="outline"
-                                className="text-xs"
-                            >
+                            <Badge key={tag} variant="outline">
                                 {tag}
                             </Badge>
                         ))}
                     </div>
-                    <h3 className="text-foreground line-clamp-2 leading-snug font-semibold">
+                    <h3 className="text-foreground line-clamp-2 text-xl leading-snug font-semibold">
                         {title}
                     </h3>
-                    <p className="text-muted-foreground mt-2 text-xs">
+                    <p className="text-muted-foreground mt-2">
                         by {instructor}
                     </p>
                 </div>
@@ -72,12 +70,12 @@ export function CourseCard({
                 <div className="border-border space-y-3 border-t pt-3">
                     <div className="flex items-center gap-2">
                         <div className="flex items-center gap-1">
-                            <Star className="text-blue-700 fill-blue-700 h-3 w-3" />
-                            <span className="text-foreground text-xs font-medium">
+                            <Star className="h-3 w-3 fill-blue-700 text-blue-700" />
+                            <span className="text-foreground font-medium">
                                 {rating}
                             </span>
                         </div>
-                        <span className="text-muted-foreground text-xs">
+                        <span className="text-muted-foreground">
                             ({reviews})
                         </span>
                     </div>
@@ -89,11 +87,11 @@ export function CourseCard({
                 </div>
             </CardContent>
             <CardFooter className="border-border flex items-center justify-between">
-                <span className="text-foreground text-sm font-bold">
+                <span className="text-foreground text-lg font-bold">
                     {price}
                 </span>
-                <Button variant="outline" size="sm">
-                    Explore
+                <Button className="bg-blue-700" size="lg" asChild>
+                    <Link href={`/course/${id}`}> Explore</Link>
                 </Button>
             </CardFooter>
         </Card>
