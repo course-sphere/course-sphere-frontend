@@ -3,7 +3,8 @@ import axios, {
     type AxiosResponse,
     type InternalAxiosRequestConfig,
 } from 'axios';
-import { config } from './config';
+import { authConfig, config } from './config';
+import { createAuthClient } from 'better-auth/react';
 
 export const apiClient = axios.create(config);
 
@@ -26,3 +27,5 @@ apiClient.interceptors.response.use(
         return Promise.reject(error);
     },
 );
+
+export const authClient = createAuthClient(authConfig);
