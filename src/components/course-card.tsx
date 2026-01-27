@@ -90,7 +90,7 @@ export function CourseCard({
                 <span className="text-foreground text-lg font-bold">
                     {price}
                 </span>
-                <Button className="bg-blue-700" size="lg" asChild>
+                <Button size="lg" asChild>
                     <Link href={`/course/${id}`}> Explore</Link>
                 </Button>
             </CardFooter>
