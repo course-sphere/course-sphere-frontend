@@ -1,0 +1,14 @@
+services:
+  frontend:
+    container_name: course-sphere-frontend
+    image: ${REGISTRY}/frontend:latest
+    restart: always
+    networks:
+      - network
+    profiles:
+      - deploy
+
+networks:
+  network:
+    name: course-sphere-network
+    external: true
