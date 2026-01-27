@@ -1,18 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import {
-    Sheet,
-    SheetContent,
-    SheetFooter,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
-} from '@/components/ui/sheet';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { Icon } from '@/components/icon';
 import Link from 'next/link';
-import { MenuIcon } from 'lucide-react';
 import {
     NavigationMenu,
     NavigationMenuLink,
@@ -20,8 +11,8 @@ import {
     navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
 import { cn } from '@/lib/utils';
-import { AuthSection } from './auth-section';
 import { MobileHeader } from './mobile-header';
+import { SearchInput } from './search-input';
 
 export interface HeaderProps {
     items: { label: string; href: string }[];
@@ -68,9 +59,6 @@ export function Header({ items }: HeaderProps) {
                 >
                     <div className="hover:bg-accent flex cursor-pointer rounded-md px-2 py-1 duration-100">
                         <Icon />
-                    </div>
-
-                    <div className="absolute left-1/2 -translate-x-1/2 transform">
                         <NavigationMenuList className="hidden items-center gap-1 md:flex">
                             {items.map((item) => (
                                 <NavigationMenuLink
@@ -90,6 +78,10 @@ export function Header({ items }: HeaderProps) {
                                 </NavigationMenuLink>
                             ))}
                         </NavigationMenuList>
+                    </div>
+
+                    <div className="absolute left-1/2 -translate-x-1/2 transform">
+                        <SearchInput isLoading={false} onSearch={console.log} />
                     </div>
 
                     <MobileHeader items={items} />
