@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/sheet';
 import { AuthSection } from './auth-section';
 import Link from 'next/link';
-import { Icon } from '@/components/icon';
+import { Logo } from '@/components/logo';
 
 export function MobileHeader({ items }: HeaderProps) {
     return (
@@ -28,7 +28,7 @@ export function MobileHeader({ items }: HeaderProps) {
             <SheetContent side="left">
                 <SheetHeader>
                     <SheetTitle>
-                        <Icon />
+                        <Logo />
                     </SheetTitle>
                 </SheetHeader>
                 <div className="grid gap-y-2 overflow-y-auto px-4 pt-12 pb-5">

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { buttonVariants } from '@/components/ui/button';
-import { Icon } from '@/components/icon';
+import { Logo } from '@/components/logo';
 import Link from 'next/link';
 import {
     NavigationMenu,
@@ -57,7 +57,7 @@ export function Header({ items }: HeaderProps) {
                     )}
                 >
                     <div className="hover:bg-accent flex cursor-pointer rounded-md px-2 py-1 duration-100">
-                        <Icon />
+                        <Logo className="size-6" />
                         <NavigationMenuList className="hidden items-center gap-1 md:flex">
                             {items.map((item) => (
                                 <NavigationMenuLink
