@@ -43,14 +43,15 @@ export function Header({ items }: HeaderProps) {
 
     return (
         <header
-            className={`z-50 transition-all duration-200 ${
+            className={cn(
+                'z-50 transition-all duration-200',
                 isFloating
                     ? 'fixed top-5 left-1/2 w-full -translate-x-1/2 transform px-10'
-                    : 'relative top-0 left-0 w-full px-0'
-            }`}
+                    : 'relative top-0 left-0 w-full px-0',
+            )}
         >
             <div
-                className={`px-2 mx-auto w-full transition-all duration-200 ${isFloating ? 'max-w-6xl rounded-lg border shadow-lg' : 'max-w-full rounded-none border-0 shadow-none'} bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur`}
+                className={`mx-auto w-full px-2 transition-all duration-200 ${isFloating ? 'max-w-6xl rounded-lg border shadow-lg' : 'max-w-full rounded-none border-0 shadow-none'} bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur`}
             >
                 <NavigationMenu
                     className={cn(
