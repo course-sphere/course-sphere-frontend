@@ -691,3 +691,409 @@ export function getCourseById(id: string) {
 export function getCoursesByCategory(category: string) {
     return courses.filter((course) => course.category === category);
 }
+
+export const learningPaths = [
+    {
+        id: '1',
+        title: 'Full-Stack Web Developer',
+        category: 'Web Development',
+        description:
+            'Master modern web development from frontend to backend. Learn React, Node.js, databases, and deployment to build production-ready applications.',
+        level: 'Beginner → Advanced',
+        duration: '120+ hours',
+        students: 24500,
+        progress: 45,
+        modules: [
+            {
+                id: 'module-1',
+                title: 'Frontend Foundations',
+                description: 'Master HTML, CSS, and JavaScript',
+                lessons: [
+                    {
+                        id: 'lesson-1',
+                        title: 'HTML & CSS Fundamentals',
+                        type: 'video' as const,
+                        duration: '10 hours',
+                        completed: true,
+                    },
+                    {
+                        id: 'lesson-2',
+                        title: 'JavaScript Essentials',
+                        type: 'video' as const,
+                        duration: '12 hours',
+                        completed: true,
+                    },
+                    {
+                        id: 'lesson-3',
+                        title: 'DOM Manipulation',
+                        type: 'exercise' as const,
+                        duration: '8 hours',
+                        completed: false,
+                    },
+                ],
+            },
+            {
+                id: 'module-2',
+                title: 'React Deep Dive',
+                description: 'Advanced React patterns and hooks',
+                lessons: [
+                    {
+                        id: 'lesson-4',
+                        title: 'React Fundamentals',
+                        type: 'video' as const,
+                        duration: '10 hours',
+                        completed: false,
+                    },
+                    {
+                        id: 'lesson-5',
+                        title: 'Advanced Hooks',
+                        type: 'exercise' as const,
+                        duration: '8 hours',
+                        completed: false,
+                    },
+                    {
+                        id: 'lesson-6',
+                        title: 'State Management',
+                        type: 'exercise' as const,
+                        duration: '10 hours',
+                        completed: false,
+                    },
+                ],
+            },
+            {
+                id: 'module-3',
+                title: 'Backend Development',
+                description: 'Node.js, Express, and API design',
+                lessons: [
+                    {
+                        id: 'lesson-7',
+                        title: 'Node.js Basics',
+                        type: 'video' as const,
+                        duration: '8 hours',
+                        completed: false,
+                    },
+                    {
+                        id: 'lesson-8',
+                        title: 'Express.js & APIs',
+                        type: 'exercise' as const,
+                        duration: '12 hours',
+                        completed: false,
+                    },
+                    {
+                        id: 'lesson-9',
+                        title: 'RESTful Design',
+                        type: 'video' as const,
+                        duration: '6 hours',
+                        completed: false,
+                    },
+                ],
+            },
+            {
+                id: 'module-4',
+                title: 'Database & Deployment',
+                description: 'PostgreSQL, MongoDB, and cloud deployment',
+                lessons: [
+                    {
+                        id: 'lesson-10',
+                        title: 'PostgreSQL Fundamentals',
+                        type: 'video' as const,
+                        duration: '10 hours',
+                        completed: false,
+                    },
+                    {
+                        id: 'lesson-11',
+                        title: 'Database Design',
+                        type: 'exercise' as const,
+                        duration: '8 hours',
+                        completed: false,
+                    },
+                    {
+                        id: 'lesson-12',
+                        title: 'Deployment & DevOps',
+                        type: 'exercise' as const,
+                        duration: '12 hours',
+                        completed: false,
+                    },
+                ],
+            },
+            {
+                id: 'module-5',
+                title: 'Capstone Project',
+                description: 'Build a complete full-stack application',
+                lessons: [
+                    {
+                        id: 'lesson-13',
+                        title: 'Project Planning',
+                        type: 'video' as const,
+                        duration: '6 hours',
+                        completed: false,
+                    },
+                    {
+                        id: 'lesson-14',
+                        title: 'Development Sprint',
+                        type: 'project' as const,
+                        duration: '40 hours',
+                        completed: false,
+                    },
+                    {
+                        id: 'lesson-15',
+                        title: 'Production Deployment',
+                        type: 'project' as const,
+                        duration: '8 hours',
+                        completed: false,
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        id: '2',
+        title: 'Data Science & Analytics',
+        category: 'Data Science',
+        description:
+            'Learn Python, data analysis, visualization, and machine learning to extract insights from data and build predictive models.',
+        level: 'Beginner → Advanced',
+        duration: '140+ hours',
+        students: 18900,
+        progress: 0,
+        modules: [
+            {
+                id: 'module-1',
+                title: 'Python Fundamentals',
+                description: 'Python programming basics',
+                lessons: [
+                    {
+                        id: 'lesson-1',
+                        title: 'Python Syntax',
+                        type: 'video' as const,
+                        duration: '8 hours',
+                        completed: false,
+                    },
+                    {
+                        id: 'lesson-2',
+                        title: 'Data Structures',
+                        type: 'exercise' as const,
+                        duration: '10 hours',
+                        completed: false,
+                    },
+                ],
+            },
+            {
+                id: 'module-2',
+                title: 'Data Analysis with Pandas',
+                description: 'Work with datasets efficiently',
+                lessons: [
+                    {
+                        id: 'lesson-3',
+                        title: 'Pandas Basics',
+                        type: 'video' as const,
+                        duration: '10 hours',
+                        completed: false,
+                    },
+                    {
+                        id: 'lesson-4',
+                        title: 'Data Cleaning',
+                        type: 'exercise' as const,
+                        duration: '12 hours',
+                        completed: false,
+                    },
+                    {
+                        id: 'lesson-5',
+                        title: 'Data Exploration',
+                        type: 'exercise' as const,
+                        duration: '8 hours',
+                        completed: false,
+                    },
+                ],
+            },
+            {
+                id: 'module-3',
+                title: 'Data Visualization',
+                description: 'Create compelling visualizations',
+                lessons: [
+                    {
+                        id: 'lesson-6',
+                        title: 'Matplotlib & Seaborn',
+                        type: 'video' as const,
+                        duration: '10 hours',
+                        completed: false,
+                    },
+                    {
+                        id: 'lesson-7',
+                        title: 'Advanced Visualizations',
+                        type: 'exercise' as const,
+                        duration: '8 hours',
+                        completed: false,
+                    },
+                ],
+            },
+            {
+                id: 'module-4',
+                title: 'Machine Learning',
+                description: 'Build predictive models',
+                lessons: [
+                    {
+                        id: 'lesson-8',
+                        title: 'ML Fundamentals',
+                        type: 'video' as const,
+                        duration: '12 hours',
+                        completed: false,
+                    },
+                    {
+                        id: 'lesson-9',
+                        title: 'Supervised Learning',
+                        type: 'exercise' as const,
+                        duration: '15 hours',
+                        completed: false,
+                    },
+                    {
+                        id: 'lesson-10',
+                        title: 'Unsupervised Learning',
+                        type: 'exercise' as const,
+                        duration: '12 hours',
+                        completed: false,
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        id: '3',
+        title: 'UI/UX Design Fundamentals',
+        category: 'Design',
+        description:
+            'Create beautiful, user-centered digital experiences. Learn design principles, tools, and workflows used by leading companies.',
+        level: 'Beginner → Intermediate',
+        duration: '90+ hours',
+        students: 16200,
+        progress: 0,
+        modules: [
+            {
+                id: 'module-1',
+                title: 'Design Principles',
+                description: 'Fundamentals of good design',
+                lessons: [
+                    {
+                        id: 'lesson-1',
+                        title: 'Design Fundamentals',
+                        type: 'video' as const,
+                        duration: '8 hours',
+                        completed: false,
+                    },
+                    {
+                        id: 'lesson-2',
+                        title: 'Color & Typography',
+                        type: 'exercise' as const,
+                        duration: '10 hours',
+                        completed: false,
+                    },
+                ],
+            },
+            {
+                id: 'module-2',
+                title: 'Figma Mastery',
+                description: 'Master design tools',
+                lessons: [
+                    {
+                        id: 'lesson-3',
+                        title: 'Figma Basics',
+                        type: 'video' as const,
+                        duration: '8 hours',
+                        completed: false,
+                    },
+                    {
+                        id: 'lesson-4',
+                        title: 'Components & Systems',
+                        type: 'exercise' as const,
+                        duration: '12 hours',
+                        completed: false,
+                    },
+                ],
+            },
+            {
+                id: 'module-3',
+                title: 'User Research',
+                description: 'Understand your users',
+                lessons: [
+                    {
+                        id: 'lesson-5',
+                        title: 'Research Methods',
+                        type: 'video' as const,
+                        duration: '6 hours',
+                        completed: false,
+                    },
+                    {
+                        id: 'lesson-6',
+                        title: 'User Testing',
+                        type: 'exercise' as const,
+                        duration: '8 hours',
+                        completed: false,
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        id: '4',
+        title: 'Mobile App Development',
+        category: 'Mobile',
+        description:
+            'Build cross-platform mobile applications with React Native and Expo. Deploy to iOS and Android platforms.',
+        level: 'Intermediate → Advanced',
+        duration: '110+ hours',
+        students: 14300,
+        progress: 0,
+        modules: [
+            {
+                id: 'module-1',
+                title: 'React Native Basics',
+                description: 'Get started with React Native',
+                lessons: [
+                    {
+                        id: 'lesson-1',
+                        title: 'Setup & Environment',
+                        type: 'video' as const,
+                        duration: '4 hours',
+                        completed: false,
+                    },
+                    {
+                        id: 'lesson-2',
+                        title: 'Core Components',
+                        type: 'exercise' as const,
+                        duration: '10 hours',
+                        completed: false,
+                    },
+                ],
+            },
+            {
+                id: 'module-2',
+                title: 'Navigation & State',
+                description: 'App architecture and navigation',
+                lessons: [
+                    {
+                        id: 'lesson-3',
+                        title: 'React Navigation',
+                        type: 'video' as const,
+                        duration: '8 hours',
+                        completed: false,
+                    },
+                    {
+                        id: 'lesson-4',
+                        title: 'State Management',
+                        type: 'exercise' as const,
+                        duration: '10 hours',
+                        completed: false,
+                    },
+                ],
+            },
+        ],
+    },
+];
+
+export function getLearningPathById(id: string) {
+    return learningPaths.find((path) => path.id === id);
+}
+
+export function getLearningPathsByCategory(category: string) {
+    return learningPaths.filter((path) => path.category === category);
+}
