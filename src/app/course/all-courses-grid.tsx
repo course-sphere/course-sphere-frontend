@@ -2,7 +2,6 @@
 
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
     Select,
     SelectContent,
@@ -10,16 +9,17 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { allCourses, categories, levels } from '@/constant/sample-data';
+import { categories, courses, levels } from '@constant/sample-data';
 import { Star, Users } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useState } from 'react';
 
 export function AllCoursesGrid() {
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [selectedLevel, setSelectedLevel] = useState('All');
 
-    const filteredCourses = allCourses.filter((course) => {
+    const filteredCourses = courses.filter((course) => {
         const categoryMatch =
             selectedCategory === 'All' || course.category === selectedCategory;
         const levelMatch =
@@ -83,74 +83,73 @@ export function AllCoursesGrid() {
 
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {filteredCourses.map((course) => (
-                        <Card
-                            key={course.id}
-                            className="flex flex-col overflow-hidden transition hover:-translate-y-0.5 hover:shadow-lg"
-                        >
-                            <div className="relative h-40">
-                                <Image
-                                    className="object-cover"
-                                    src={course.image}
-                                    alt={course.title}
-                                    fill
-                                    sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-                                />
-                            </div>
-
-                            <div className="flex flex-1 flex-col space-y-4 p-5">
-                                <div>
-                                    <div className="mb-3 flex flex-wrap gap-2">
-                                        <Badge
-                                            variant="outline"
-                                            className="text-xs"
-                                        >
-                                            {course.category}
-                                        </Badge>
-                                        <Badge
-                                            variant="secondary"
-                                            className="text-xs"
-                                        >
-                                            {course.level}
-                                        </Badge>
-                                    </div>
-                                    <h3 className="text-foreground line-clamp-2 leading-snug font-semibold">
-                                        {course.title}
-                                    </h3>
-                                    <p className="text-muted-foreground mt-2 text-xs">
-                                        by {course.instructor}
-                                    </p>
+                        <Link key={course.id} href={`/course/${course.id}`}>
+                            <Card className="flex flex-col overflow-hidden transition hover:-translate-y-0.5 hover:shadow-lg">
+                                <div className="relative h-40">
+                                    <Image
+                                        className="object-cover"
+                                        src={course.image}
+                                        alt={course.title}
+                                        fill
+                                        sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                                    />
                                 </div>
 
-                                <div className="border-border space-y-3 border-t pt-3">
-                                    <div className="flex items-center gap-2">
-                                        <div className="flex items-center gap-1">
-                                            <Star className="fill-primary text-primary h-3 w-3" />
-                                            <span className="text-foreground text-xs font-medium">
-                                                {course.rating}
+                                <div className="flex flex-1 flex-col space-y-4 p-5">
+                                    <div>
+                                        <div className="mb-3 flex flex-wrap gap-2">
+                                            <Badge
+                                                variant="outline"
+                                                className="text-xs"
+                                            >
+                                                {course.category}
+                                            </Badge>
+                                            <Badge
+                                                variant="secondary"
+                                                className="text-xs"
+                                            >
+                                                {course.level}
+                                            </Badge>
+                                        </div>
+                                        <h3 className="text-foreground line-clamp-2 leading-snug font-semibold">
+                                            {course.title}
+                                        </h3>
+                                        <p className="text-muted-foreground mt-2 text-xs">
+                                            by {course.instructor}
+                                        </p>
+                                    </div>
+
+                                    <div className="border-border space-y-3 border-t pt-3">
+                                        <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-1">
+                                                <Star className="fill-primary text-primary h-3 w-3" />
+                                                <span className="text-foreground text-xs font-medium">
+                                                    {course.rating}
+                                                </span>
+                                            </div>
+                                            <span className="text-muted-foreground text-xs">
+                                                ({course.ratingCount})
                                             </span>
                                         </div>
+
+                                        <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                                            <Users className="h-3 w-3" />
+                                            {course.students.toLocaleString()}{' '}
+                                            students
+                                        </div>
+                                    </div>
+
+                                    <div className="border-border flex items-center justify-between border-t pt-4">
+                                        <span className="text-foreground text-sm font-bold">
+                                            {course.price}
+                                        </span>
                                         <span className="text-muted-foreground text-xs">
-                                            ({course.reviews})
+                                            Explore →
                                         </span>
                                     </div>
-
-                                    <div className="text-muted-foreground flex items-center gap-2 text-xs">
-                                        <Users className="h-3 w-3" />
-                                        {course.students.toLocaleString()}{' '}
-                                        students
-                                    </div>
                                 </div>
-
-                                <div className="border-border flex items-center justify-between border-t pt-4">
-                                    <span className="text-foreground text-sm font-bold">
-                                        {course.price}
-                                    </span>
-                                    <Button variant="outline" size="sm">
-                                        Explore
-                                    </Button>
-                                </div>
-                            </div>
-                        </Card>
+                            </Card>
+                        </Link>
                     ))}
                 </div>
             </div>
