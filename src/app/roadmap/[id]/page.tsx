@@ -78,7 +78,6 @@ export default async function LearningPathPage(props: LearningPathPageProps) {
                     },
                 ]}
             />
-            <Footer />
         </div>
     );
 }

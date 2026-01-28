@@ -20,6 +20,7 @@ import {
     BarChart3,
     ArrowRight,
 } from 'lucide-react';
+import Link from 'next/link';
 
 const allPaths = [
     {
@@ -157,7 +158,7 @@ export function AllLearningPathsGrid() {
                     </div>
                 </div>
 
-                <div className="grid gap-6 md:grid-cols-2">
+                <div className="grid gap-6 md:grid-cols-3">
                     {filteredPaths.map((path) => {
                         const PathIcon = path.icon;
                         return (
@@ -167,7 +168,7 @@ export function AllLearningPathsGrid() {
                             >
                                 <div className="flex h-full flex-col p-6">
                                     <div className="mb-4 flex items-start gap-4">
-                                        <div className="bg-primary/10 flex-shrink-0 rounded-lg p-3">
+                                        <div className="bg-primary/10 shrink-0 rounded-lg p-3">
                                             <PathIcon className="text-primary h-6 w-6" />
                                         </div>
                                         <div>
@@ -183,7 +184,7 @@ export function AllLearningPathsGrid() {
                                         </div>
                                     </div>
 
-                                    <p className="text-foreground mb-6 flex-grow text-sm">
+                                    <p className="text-foreground mb-6 grow text-sm">
                                         {path.description}
                                     </p>
 
@@ -221,15 +222,10 @@ export function AllLearningPathsGrid() {
                                     </div>
 
                                     <div className="mt-auto flex gap-3">
-                                        <Button className="flex-1">
-                                            Start Path
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            className="flex-1 bg-transparent"
-                                            size="sm"
-                                        >
-                                            <ArrowRight className="h-4 w-4" />
+                                        <Button className="flex-1" asChild>
+                                            <Link href={`/roadmap/${path.id}`}>
+                                                Explore
+                                            </Link>
                                         </Button>
                                     </div>
                                 </div>
