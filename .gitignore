@@ -41,3 +41,7 @@ yarn-error.log*
 next-env.d.ts
 
 .ai/
+AGENTS.md
+.ai-devkit.json
+docs/
+.agent/
