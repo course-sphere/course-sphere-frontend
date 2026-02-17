@@ -12,6 +12,7 @@ jobs:
     env:
       REGISTRY: ghcr.io/course-sphere
       NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+      NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
     steps:
       - name: Checkout Develop
         uses: actions/checkout@v3
