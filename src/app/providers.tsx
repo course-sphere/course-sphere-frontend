@@ -15,6 +15,13 @@ export function Providers({ children }: { children: ReactNode }) {
             navigate={router.push}
             replace={router.replace}
             redirectTo={process.env.NEXT_PUBLIC_APP_URL}
+            avatar={true}
+            deleteUser={{
+                verification: true,
+            }}
+            nameRequired={true}
+            emailVerification={true}
+            twoFactor={['totp']}
             social={{
                 providers: ['google', 'microsoft', 'github'],
             }}
