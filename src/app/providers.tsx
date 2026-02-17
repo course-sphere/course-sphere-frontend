@@ -15,6 +15,7 @@ export function Providers({ children }: { children: ReactNode }) {
             navigate={router.push}
             replace={router.replace}
             redirectTo={process.env.NEXT_PUBLIC_APP_URL}
+            emailVerification={true}
             social={{
                 providers: ['google', 'microsoft', 'github'],
             }}
