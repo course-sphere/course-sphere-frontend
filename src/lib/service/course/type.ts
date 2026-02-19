@@ -57,7 +57,7 @@ export const coursePricingSchema = z
     .superRefine((data, ctx) => {
         if (!data.is_free && data.price < 9.99) {
             ctx.addIssue({
-                code: 'custom', // Đã fix Deprecated
+                code: 'custom',
                 message: 'Minimum price for a paid course is $9.99',
                 path: ['price'],
             });
@@ -83,6 +83,25 @@ export const prerequisiteSchema = z.object({
     course_id: z.string(),
     course_title: z.string(),
 });
+
+// --- SCHEMA STEP 4: GOALS & PREREQUISITES ---
+export const courseGoalsSchema = z.object({
+    prerequisites: z.array(prerequisiteSchema).default([]),
+
+    requirements: z
+        .array(z.string().min(1, 'Requirement cannot be empty'))
+        .default([]),
+
+    learning_objectives: z
+        .array(z.string().min(1, 'Objective cannot be empty'))
+        .min(3, 'At least 3 learning objectives required'),
+
+    target_audience: z
+        .array(z.string().min(1, 'Target audience cannot be empty'))
+        .default([]),
+});
+
+export type CourseGoalsFormData = z.infer<typeof courseGoalsSchema>;
 
 export const categorySchema = z.object({
     category: z.array(
