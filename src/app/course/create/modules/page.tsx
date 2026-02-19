@@ -49,10 +49,7 @@ import { getCurrentUser } from '@/lib/fake-data';
 import { PhaseIndicator } from '@/components/course-builder/phase-indicator';
 import { PHASES } from '@/components/course-builder/constant';
 import { Module, ModuleFormValues, moduleSchema } from '@/lib/service/module';
-
-const generateId = (prefix: string) => {
-    return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-};
+import { generateId } from '@/lib/utils';
 
 export default function ModuleBuilderPage() {
     const router = useRouter();

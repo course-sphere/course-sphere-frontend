@@ -5,6 +5,9 @@ import { useParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
 
+import { VideoEditor } from '@/components/course-builder/editors/video-editor';
+import { ReadingEditor } from '@/components/course-builder/editors/reading-editor';
+
 import { DashboardSidebar } from '@/components/dashboard/sidebar';
 import { DashboardHeader } from '@/components/dashboard/header';
 import { Button } from '@/components/ui/button';
@@ -62,6 +65,9 @@ import {
 } from '@/lib/service/lesson';
 import { Module } from '@/lib/service/module';
 import { generateId } from '@/lib/utils';
+import { CodingEditor } from '@/components/course-builder/editors/coding-editor';
+import { FileEditor } from '@/components/course-builder/editors/file-editor';
+import { QuizEditor } from '@/components/course-builder/editors/quiz-editor';
 
 export default function LessonManagerPage() {
     const params = useParams<{ moduleId: string }>();
@@ -198,6 +204,49 @@ export default function LessonManagerPage() {
         }
     };
 
+    const handleSaveMaterial = (formData: Record<string, any>) => {
+        if (!activeLessonId || !activeMaterialType) return;
+
+        const newLessons = lessons.map((lesson) => {
+            if (lesson.id !== activeLessonId) return lesson;
+
+            let updatedItems = [...lesson.items];
+
+            const { title, is_required, is_preview, ...specificData } =
+                formData;
+
+            if (editingMaterial) {
+                updatedItems = updatedItems.map((item) => {
+                    if (item.id === editingMaterial.id) {
+                        return {
+                            ...item,
+                            title,
+                            is_required,
+                            is_preview,
+                            [`${activeMaterialType}_data`]: specificData,
+                        };
+                    }
+                    return item;
+                });
+            } else {
+                const newItem: DraftLessonItem = {
+                    id: generateId('item'),
+                    item_type: activeMaterialType,
+                    sort_order: lesson.items.length + 1,
+                    title,
+                    is_required,
+                    is_preview,
+                    [`${activeMaterialType}_data`]: specificData,
+                };
+                updatedItems.push(newItem);
+            }
+            return { ...lesson, items: updatedItems };
+        });
+
+        saveToLocal(newLessons);
+        setIsMaterialSheetOpen(false);
+    };
+
     if (isLoading)
         return (
             <div className="flex min-h-screen items-center justify-center">
@@ -313,6 +362,7 @@ export default function LessonManagerPage() {
                 onOpenChange={setIsMaterialSheetOpen}
                 type={activeMaterialType}
                 initialData={editingMaterial}
+                onSave={handleSaveMaterial}
             />
         </div>
     );
@@ -328,6 +378,7 @@ interface LessonCardProps {
     onEditMaterial: (item: DraftLessonItem) => void;
     onDeleteMaterial: (itemId: string) => void;
 }
+
 function LessonCard({
     lesson,
     dragHandleProps,
@@ -494,7 +545,19 @@ function LessonCard({
     );
 }
 
-function LessonFormDialog({ open, onOpenChange, initialData, onSubmit }: any) {
+interface LessonFormDialogProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    initialData: DraftLesson | null;
+    onSubmit: (title: string) => void;
+}
+
+function LessonFormDialog({
+    open,
+    onOpenChange,
+    initialData,
+    onSubmit,
+}: LessonFormDialogProps) {
     const form = useForm({ defaultValues: { title: '' } });
     useEffect(() => {
         if (open) form.reset({ title: initialData?.title || '' });
@@ -540,26 +603,76 @@ function LessonFormDialog({ open, onOpenChange, initialData, onSubmit }: any) {
     );
 }
 
-function MaterialSheet({ open, onOpenChange, type, initialData }: any) {
+interface MaterialSheetProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    type: LessonItemType | null;
+    initialData: DraftLessonItem | null;
+    onSave: (data: Record<string, any>) => void;
+}
+
+function MaterialSheet({
+    open,
+    onOpenChange,
+    type,
+    initialData,
+    onSave,
+}: MaterialSheetProps) {
+    const renderEditor = () => {
+        const props = {
+            initialData,
+            onSave,
+            onCancel: () => onOpenChange(false),
+        };
+
+        switch (type) {
+            case 'video':
+                return <VideoEditor {...props} />;
+            case 'reading':
+                return <ReadingEditor {...props} />;
+            case 'coding':
+                return <CodingEditor {...props} />;
+            case 'quiz':
+                return <QuizEditor {...props} />;
+            case 'file':
+                return <FileEditor {...props} />;
+            default:
+                return (
+                    <div className="bg-muted/30 text-muted-foreground mt-10 rounded-xl border-2 border-dashed p-4 text-center">
+                        Editor for{' '}
+                        <strong className="text-primary uppercase">
+                            {type}
+                        </strong>{' '}
+                        is under construction.
+                    </div>
+                );
+        }
+    };
+
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="min-w-125 overflow-y-auto sm:max-w-150">
-                <SheetHeader className="mb-6">
-                    <SheetTitle>
-                        {initialData ? 'Edit' : 'Create'}{' '}
-                        {type
-                            ? type.charAt(0).toUpperCase() + type.slice(1)
-                            : 'Content'}
-                    </SheetTitle>
-                    <SheetDescription>
-                        Configure the settings and content for this material.
-                    </SheetDescription>
-                </SheetHeader>
+            <SheetContent className="bg-background z-100 flex h-dvh w-full flex-col overflow-hidden border-none p-0 sm:max-w-[100vw]">
+                <div className="border-border bg-card relative shrink-0 border-b px-8 py-5">
+                    <SheetHeader className="space-y-1 pr-8 text-left">
+                        <SheetTitle className="text-2xl font-bold">
+                            {initialData ? 'Edit' : 'Create'}{' '}
+                            <span className="text-primary">
+                                {type
+                                    ? type.charAt(0).toUpperCase() +
+                                      type.slice(1)
+                                    : 'Content'}
+                            </span>
+                        </SheetTitle>
+                        <SheetDescription className="text-base">
+                            Configure the settings and build your content here.
+                        </SheetDescription>
+                    </SheetHeader>
+                </div>
 
-                <div className="bg-muted/30 text-muted-foreground mt-10 rounded-xl border-2 border-dashed p-4 text-center">
-                    Khu vực Form dành cho{' '}
-                    <strong className="text-primary uppercase">{type}</strong>{' '}
-                    sẽ được thiết kế ở bước tiếp theo.
+                <div className="bg-muted/20 flex-1 overflow-y-auto p-6 md:p-10">
+                    <div className="bg-card border-border mx-auto max-w-5xl rounded-2xl border p-6 shadow-sm md:p-8">
+                        {renderEditor()}
+                    </div>
                 </div>
             </SheetContent>
         </Sheet>
