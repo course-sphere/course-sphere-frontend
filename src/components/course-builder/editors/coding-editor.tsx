@@ -1,7 +1,10 @@
 'use client';
 
-import { UseFormReturn } from 'react-hook-form';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
+    Form,
     FormControl,
     FormDescription,
     FormField,
@@ -18,13 +21,16 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { Code, Trophy, Calendar } from 'lucide-react';
-import type { CourseModuleFormData } from '@/lib/schemas/course';
 
-interface CodingEditorProps {
-    form: UseFormReturn<CourseModuleFormData>;
-    basePath: string;
-}
+import { CodeEditor } from '@/components/ui/code-editor';
+import {
+    codingMaterialSchema,
+    type CodingMaterialFormValues,
+    type DraftLessonItem,
+} from '@/lib/service/lesson';
 
 const LANGUAGES = [
     { value: 'javascript', label: 'JavaScript' },
@@ -35,169 +41,278 @@ const LANGUAGES = [
     { value: 'csharp', label: 'C#' },
     { value: 'go', label: 'Go' },
     { value: 'rust', label: 'Rust' },
-    { value: 'html', label: 'HTML/CSS' },
-    { value: 'sql', label: 'SQL' },
 ];
 
-export function CodingEditor({ form, basePath }: CodingEditorProps) {
+interface CodingEditorProps {
+    initialData: DraftLessonItem | null;
+    onSave: (data: CodingMaterialFormValues) => void;
+    onCancel: () => void;
+}
+
+export function CodingEditor({
+    initialData,
+    onSave,
+    onCancel,
+}: CodingEditorProps) {
+    const form = useForm<CodingMaterialFormValues>({
+        resolver: zodResolver(codingMaterialSchema),
+        defaultValues: {
+            title: initialData?.title || '',
+            is_required: initialData?.is_required ?? true,
+            is_preview: initialData?.is_preview ?? false,
+            description: initialData?.coding_data?.description || '',
+            instructions: initialData?.coding_data?.instructions || '',
+            starter_code: initialData?.coding_data?.starter_code || '',
+            language: initialData?.coding_data?.language || 'javascript',
+            max_score: initialData?.coding_data?.max_score || 100,
+            due_days: initialData?.coding_data?.due_days || 7,
+        },
+    });
+
+    useEffect(() => {
+        if (initialData) {
+            form.reset({
+                title: initialData.title,
+                is_required: initialData.is_required,
+                is_preview: initialData.is_preview,
+                ...initialData.coding_data,
+            });
+        }
+    }, [initialData, form]);
+
+    const selectedLanguage = form.watch('language');
+
     return (
-        <div className="space-y-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-orange-500">
-                <Code className="h-4 w-4" />
-                Coding Assignment Settings
-            </div>
-
-            <FormField
-                control={form.control}
-                name={`${basePath}.description` as never}
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Description</FormLabel>
-                        <FormControl>
-                            <Textarea
-                                placeholder="Describe what students need to build or solve..."
-                                className="min-h-24 resize-none rounded-lg"
-                                {...field}
-                                value={(field.value as string) || ''}
-                            />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
-
-            <FormField
-                control={form.control}
-                name={`${basePath}.instructions` as never}
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Instructions</FormLabel>
-                        <FormControl>
-                            <Textarea
-                                placeholder="Step-by-step instructions for completing this assignment..."
-                                className="min-h-32 resize-none rounded-lg"
-                                {...field}
-                                value={(field.value as string) || ''}
-                            />
-                        </FormControl>
-                        <FormDescription>
-                            Be specific about requirements, constraints, and
-                            expected output
-                        </FormDescription>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
-
-            <div className="grid grid-cols-2 gap-4">
-                <FormField
-                    control={form.control}
-                    name={`${basePath}.language` as never}
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Programming Language</FormLabel>
-                            <Select
-                                onValueChange={field.onChange}
-                                value={(field.value as string) || 'javascript'}
-                            >
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSave)} className="space-y-6">
+                {/* BASE FIELDS */}
+                <div className="bg-muted/30 border-border space-y-4 rounded-xl border p-4">
+                    <FormField
+                        control={form.control}
+                        name="title"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Assignment Title</FormLabel>
                                 <FormControl>
-                                    <SelectTrigger className="h-10 rounded-lg">
-                                        <SelectValue placeholder="Select language" />
-                                    </SelectTrigger>
+                                    <Input
+                                        placeholder="e.g., Two Sum Problem"
+                                        className="bg-background"
+                                        {...field}
+                                    />
                                 </FormControl>
-                                <SelectContent className="rounded-xl">
-                                    {LANGUAGES.map((lang) => (
-                                        <SelectItem
-                                            key={lang.value}
-                                            value={lang.value}
-                                        >
-                                            {lang.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <div className="flex items-center gap-6 pt-2">
+                        <FormField
+                            control={form.control}
+                            name="is_required"
+                            render={({ field }) => (
+                                <FormItem className="flex items-center gap-2 space-y-0">
+                                    <FormControl>
+                                        <Switch
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                        />
+                                    </FormControl>
+                                    <FormLabel className="cursor-pointer font-normal">
+                                        Required to complete
+                                    </FormLabel>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="is_preview"
+                            render={({ field }) => (
+                                <FormItem className="flex items-center gap-2 space-y-0">
+                                    <FormControl>
+                                        <Switch
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                        />
+                                    </FormControl>
+                                    <FormLabel className="cursor-pointer font-normal">
+                                        Free preview
+                                    </FormLabel>
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                </div>
 
-                <FormField
-                    control={form.control}
-                    name={`${basePath}.max_score` as never}
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className="flex items-center gap-1.5">
-                                <Trophy className="h-3.5 w-3.5" />
-                                Max Score
-                            </FormLabel>
-                            <FormControl>
-                                <Input
-                                    type="number"
-                                    placeholder="100"
-                                    className="h-10 rounded-lg"
-                                    {...field}
-                                    value={(field.value as number) || 100}
-                                    onChange={(e) =>
-                                        field.onChange(Number(e.target.value))
-                                    }
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-            </div>
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-sm font-medium text-orange-500">
+                        <Code className="h-4 w-4" /> Assignment Details
+                    </div>
 
-            <FormField
-                control={form.control}
-                name={`${basePath}.due_days` as never}
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel className="flex items-center gap-1.5">
-                            <Calendar className="h-3.5 w-3.5" />
-                            Days to Complete
-                        </FormLabel>
-                        <FormControl>
-                            <Input
-                                type="number"
-                                placeholder="7"
-                                className="h-10 w-32 rounded-lg"
-                                {...field}
-                                value={(field.value as number) || 7}
-                                onChange={(e) =>
-                                    field.onChange(Number(e.target.value))
-                                }
-                            />
-                        </FormControl>
-                        <FormDescription>
-                            Days students have to submit after unlocking
-                        </FormDescription>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
+                    <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                            control={form.control}
+                            name="language"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Target Language</FormLabel>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        value={field.value}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger className="rounded-lg">
+                                                <SelectValue placeholder="Select language" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent className="z-200 rounded-xl">
+                                            {LANGUAGES.map((lang) => (
+                                                <SelectItem
+                                                    key={lang.value}
+                                                    value={lang.value}
+                                                >
+                                                    {lang.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="max_score"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="flex items-center gap-1.5">
+                                        <Trophy className="h-3.5 w-3.5" /> Max
+                                        Score
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="number"
+                                            className="rounded-lg"
+                                            {...field}
+                                            onChange={(e) =>
+                                                field.onChange(
+                                                    Number(e.target.value),
+                                                )
+                                            }
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
 
-            <FormField
-                control={form.control}
-                name={`${basePath}.starter_code` as never}
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Starter Code (Optional)</FormLabel>
-                        <FormControl>
-                            <Textarea
-                                placeholder="// Provide starter code template here..."
-                                className="min-h-32 resize-none rounded-lg font-mono text-sm"
-                                {...field}
-                                value={(field.value as string) || ''}
-                            />
-                        </FormControl>
-                        <FormDescription>
-                            Code template students will start with
-                        </FormDescription>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
-        </div>
+                    <FormField
+                        control={form.control}
+                        name="description"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Short Description</FormLabel>
+                                <FormControl>
+                                    <Textarea
+                                        placeholder="Brief overview of the problem..."
+                                        className="h-16 resize-none rounded-lg"
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="instructions"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>
+                                    Detailed Instructions (Markdown)
+                                </FormLabel>
+                                <FormControl>
+                                    <Textarea
+                                        placeholder="Step-by-step requirements..."
+                                        className="h-32 resize-none rounded-lg font-mono text-sm"
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="starter_code"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="flex items-center justify-between">
+                                    <span>Starter Code (Optional)</span>
+                                    <span className="text-muted-foreground text-xs font-normal">
+                                        Students will see this when they open
+                                        the assignment
+                                    </span>
+                                </FormLabel>
+                                <FormControl>
+                                    <CodeEditor
+                                        language={selectedLanguage}
+                                        value={field.value || ''}
+                                        onChange={field.onChange}
+                                        height="300px"
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="due_days"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="flex items-center gap-1.5">
+                                    <Calendar className="h-3.5 w-3.5" /> Days to
+                                    Complete
+                                </FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="number"
+                                        className="w-32 rounded-lg"
+                                        {...field}
+                                        onChange={(e) =>
+                                            field.onChange(
+                                                Number(e.target.value),
+                                            )
+                                        }
+                                    />
+                                </FormControl>
+                                <FormDescription>
+                                    Days students have to submit after
+                                    unlocking.
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+
+                <div className="border-border flex justify-end gap-3 border-t pt-4">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={onCancel}
+                        className="rounded-xl"
+                    >
+                        Cancel
+                    </Button>
+                    <Button type="submit" className="rounded-xl">
+                        Save Assignment
+                    </Button>
+                </div>
+            </form>
+        </Form>
     );
 }
