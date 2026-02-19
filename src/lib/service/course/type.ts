@@ -47,6 +47,38 @@ export const courseMediaSchema = z.object({
 
 export type CourseMediaFormData = z.infer<typeof courseMediaSchema>;
 
+//create course pricing Schema
+export const coursePricingSchema = z
+    .object({
+        is_free: z.boolean().default(false),
+        price: z.coerce.number().min(0).default(0),
+        discount_price: z.coerce.number().min(0).optional().or(z.literal('')),
+    })
+    .superRefine((data, ctx) => {
+        if (!data.is_free && data.price < 9.99) {
+            ctx.addIssue({
+                code: 'custom', // Đã fix Deprecated
+                message: 'Minimum price for a paid course is $9.99',
+                path: ['price'],
+            });
+        }
+        // discount must be less than original price
+        if (
+            !data.is_free &&
+            typeof data.discount_price === 'number' &&
+            data.discount_price >= data.price
+        ) {
+            ctx.addIssue({
+                code: 'custom',
+                message:
+                    'Discount price must be strictly less than the original price',
+                path: ['discount_price'],
+            });
+        }
+    });
+
+export type CoursePricingFormData = z.infer<typeof coursePricingSchema>;
+
 export const prerequisiteSchema = z.object({
     course_id: z.string(),
     course_title: z.string(),
