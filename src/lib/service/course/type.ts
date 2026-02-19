@@ -7,7 +7,7 @@ export const tagSchema = z.object({
     text: z.string(),
 });
 
-// create course basic info schema
+// create course basic info schema (sub step in step 1)
 export const courseBasicInfoSchema = z.object({
     title: z
         .string()
@@ -24,7 +24,7 @@ export const courseBasicInfoSchema = z.object({
 
 export type CourseBasicInfoFormData = z.infer<typeof courseBasicInfoSchema>;
 
-// create course media schema
+// create course media schema (sub step in step 1)
 const YOUTUBE_REGEX = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
 
 export const courseMediaSchema = z.object({
@@ -47,7 +47,7 @@ export const courseMediaSchema = z.object({
 
 export type CourseMediaFormData = z.infer<typeof courseMediaSchema>;
 
-//create course pricing Schema
+//create course pricing Schema (sub step in step 1)
 export const coursePricingSchema = z
     .object({
         is_free: z.boolean().default(false),
@@ -84,7 +84,7 @@ export const prerequisiteSchema = z.object({
     course_title: z.string(),
 });
 
-// --- SCHEMA STEP 4: GOALS & PREREQUISITES ---
+// schema for goal & prerequisites (sub step in step 1)
 export const courseGoalsSchema = z.object({
     prerequisites: z.array(prerequisiteSchema).default([]),
 
@@ -103,45 +103,60 @@ export const courseGoalsSchema = z.object({
 
 export type CourseGoalsFormData = z.infer<typeof courseGoalsSchema>;
 
-export const categorySchema = z.object({
-    category: z.array(
-        z.object({
-            id: z.string(),
-            text: z.string(),
-        }),
-    ),
-});
-
-export const courseMetadataSchema = z.object({
-    // Basic Information
-    title: z
-        .string()
-        .min(5, 'Title must be at least 5 characters')
-        .max(100, 'Title too long'),
-    subtitle: z.string().max(200).optional(),
-    description: z
-        .string()
-        .min(50, 'Description must be at least 50 characters')
-        .max(5000),
-    category: categorySchema,
-    level: z.enum(['beginner', 'intermediate', 'advanced']),
-    // Media
-    thumbnail_url: z.string().optional(),
-    promo_video_url: z.string().url().optional().or(z.literal('')),
-    // Pricing
-    is_free: z.boolean().default(false),
-    price: z.number().min(0).default(0),
-    discount_price: z.number().min(0).optional(),
-    // Prerequisites & Learning Goals
-    prerequisites: z.array(prerequisiteSchema).default([]),
-    requirements: z.array(z.string()).default([]),
-    learning_objectives: z
-        .array(z.string())
-        .min(3, 'At least 3 learning objectives required'),
-    target_audience: z.array(z.string()).default([]),
-});
+// schema for step 1: Course Metadata (Send to BE)
+export const courseMetadataSchema = z
+    .object({
+        ...courseBasicInfoSchema.shape,
+        ...courseMediaSchema.shape,
+        ...courseGoalsSchema.shape,
+        is_free: z.boolean().default(false),
+        price: z.coerce.number().min(0).default(0),
+        discount_price: z.coerce.number().min(0).optional().or(z.literal('')),
+    })
+    .superRefine((data, ctx) => {
+        if (!data.is_free && data.price < 9.99) {
+            ctx.addIssue({
+                code: 'custom',
+                message: 'Minimum price is $9.99',
+                path: ['price'],
+            });
+        }
+        if (
+            !data.is_free &&
+            typeof data.discount_price === 'number' &&
+            data.discount_price >= data.price
+        ) {
+            ctx.addIssue({
+                code: 'custom',
+                message: 'Discount must be less than price',
+                path: ['discount_price'],
+            });
+        }
+    });
 
 export type CourseMetadataFormData = z.infer<typeof courseMetadataSchema>;
+
+export function getDefaultMetadataData(): CourseMetadataFormData {
+    return {
+        title: '',
+        subtitle: '',
+        description: '',
+        category: [],
+        level: 'beginner',
+
+        thumbnail_url: '',
+        promo_video_url: '',
+
+        is_free: false,
+        price: 0,
+        discount_price: undefined,
+
+        prerequisites: [],
+        requirements: [],
+        learning_objectives: ['', '', ''],
+        target_audience: [],
+    };
+}
 
 //------------------------
 export type CourseLesson = {
