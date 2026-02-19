@@ -1,7 +1,10 @@
 'use client';
 
-import { UseFormReturn } from 'react-hook-form';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
+    Form,
     FormControl,
     FormDescription,
     FormField,
@@ -11,108 +14,188 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { FileText, Clock } from 'lucide-react';
-import type { CourseModuleFormData } from '@/lib/schemas/course';
+
+import {
+    readingMaterialSchema,
+    type ReadingMaterialFormValues,
+    type DraftLessonItem,
+} from '@/lib/service/lesson';
 
 interface ReadingEditorProps {
-    form: UseFormReturn<CourseModuleFormData>;
-    basePath: string;
+    initialData: DraftLessonItem | null;
+    onSave: (data: ReadingMaterialFormValues) => void;
+    onCancel: () => void;
 }
 
-export function ReadingEditor({ form, basePath }: ReadingEditorProps) {
-    const content =
-        (form.watch(`${basePath}.content` as any) as unknown as string) || '';
+export function ReadingEditor({
+    initialData,
+    onSave,
+    onCancel,
+}: ReadingEditorProps) {
+    const form = useForm<ReadingMaterialFormValues>({
+        resolver: zodResolver(readingMaterialSchema),
+        defaultValues: {
+            title: initialData?.title || '',
+            is_required: initialData?.is_required ?? true,
+            is_preview: initialData?.is_preview ?? false,
+            content: initialData?.reading_data?.content || '',
+            duration: initialData?.reading_data?.duration || 5,
+        },
+    });
+
+    useEffect(() => {
+        if (initialData) {
+            form.reset({
+                title: initialData.title,
+                is_required: initialData.is_required,
+                is_preview: initialData.is_preview,
+                ...initialData.reading_data,
+            });
+        }
+    }, [initialData, form]);
+
+    const content = form.watch('content');
     const wordCount = content.split(/\s+/).filter(Boolean).length;
-    const estimatedTime = Math.max(1, Math.round(wordCount / 200)); // ~200 words per minute
+    const estimatedTime = Math.max(1, Math.round(wordCount / 200));
 
     return (
-        <div className="space-y-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-green-500">
-                <FileText className="h-4 w-4" />
-                Reading Material
-            </div>
-
-            <FormField
-                control={form.control}
-                name={`${basePath}.content` as never}
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Content</FormLabel>
-                        <FormControl>
-                            <Textarea
-                                placeholder="Write your reading material here. You can use markdown for formatting..."
-                                className="min-h-48 resize-none rounded-lg font-mono text-sm"
-                                {...field}
-                                value={(field.value as string) || ''}
-                            />
-                        </FormControl>
-                        <FormDescription className="flex items-center justify-between">
-                            <span>Supports Markdown formatting</span>
-                            <span className="text-xs">
-                                {wordCount} words ({estimatedTime} min read)
-                            </span>
-                        </FormDescription>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
-
-            <FormField
-                control={form.control}
-                name={`${basePath}.duration` as never}
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel className="flex items-center gap-1.5">
-                            <Clock className="h-3.5 w-3.5" />
-                            Estimated Duration (minutes)
-                        </FormLabel>
-                        <FormControl>
-                            <Input
-                                type="number"
-                                placeholder={`Auto-estimated: ${estimatedTime} min`}
-                                className="h-10 w-40 rounded-lg"
-                                {...field}
-                                value={(field.value as number) || estimatedTime}
-                                onChange={(e) =>
-                                    field.onChange(Number(e.target.value))
-                                }
-                            />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
-
-            {/* Markdown Tips */}
-            <div className="bg-muted/50 rounded-lg p-3">
-                <p className="text-muted-foreground mb-2 text-xs font-medium">
-                    Markdown Tips:
-                </p>
-                <div className="text-muted-foreground grid grid-cols-2 gap-2 text-xs">
-                    <div>
-                        <code className="bg-muted rounded px-1"># Heading</code>
-                    </div>
-                    <div>
-                        <code className="bg-muted rounded px-1">**bold**</code>
-                    </div>
-                    <div>
-                        <code className="bg-muted rounded px-1">*italic*</code>
-                    </div>
-                    <div>
-                        <code className="bg-muted rounded px-1">`code`</code>
-                    </div>
-                    <div>
-                        <code className="bg-muted rounded px-1">
-                            - list item
-                        </code>
-                    </div>
-                    <div>
-                        <code className="bg-muted rounded px-1">
-                            [link](url)
-                        </code>
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSave)} className="space-y-6">
+                <div className="bg-muted/30 border-border space-y-4 rounded-xl border p-4">
+                    <FormField
+                        control={form.control}
+                        name="title"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Article Title</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        placeholder="e.g., Understanding the Basics"
+                                        className="bg-background"
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <div className="flex items-center gap-6 pt-2">
+                        <FormField
+                            control={form.control}
+                            name="is_required"
+                            render={({ field }) => (
+                                <FormItem className="flex items-center gap-2 space-y-0">
+                                    <FormControl>
+                                        <Switch
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                        />
+                                    </FormControl>
+                                    <FormLabel className="cursor-pointer font-normal">
+                                        Required to complete
+                                    </FormLabel>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="is_preview"
+                            render={({ field }) => (
+                                <FormItem className="flex items-center gap-2 space-y-0">
+                                    <FormControl>
+                                        <Switch
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                        />
+                                    </FormControl>
+                                    <FormLabel className="cursor-pointer font-normal">
+                                        Free preview
+                                    </FormLabel>
+                                </FormItem>
+                            )}
+                        />
                     </div>
                 </div>
-            </div>
-        </div>
+
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-sm font-medium text-green-500">
+                        <FileText className="h-4 w-4" /> Reading Content
+                    </div>
+
+                    <FormField
+                        control={form.control}
+                        name="content"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>
+                                    Content (Markdown supported)
+                                </FormLabel>
+                                <FormControl>
+                                    <Textarea
+                                        placeholder="Write your article here..."
+                                        className="h-64 resize-y font-mono text-sm"
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormDescription className="flex justify-between">
+                                    <span>
+                                        Supports basic Markdown (*italic*,
+                                        **bold**, # heading)
+                                    </span>
+                                    <span>
+                                        {wordCount} words (~{estimatedTime} min
+                                        read)
+                                    </span>
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="duration"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="flex items-center gap-1.5">
+                                    <Clock className="h-3.5 w-3.5" /> Est.
+                                    Duration (minutes)
+                                </FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="number"
+                                        className="w-32"
+                                        {...field}
+                                        onChange={(e) =>
+                                            field.onChange(
+                                                Number(e.target.value),
+                                            )
+                                        }
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+
+                <div className="border-border flex justify-end gap-3 border-t pt-4">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={onCancel}
+                        className="rounded-xl"
+                    >
+                        Cancel
+                    </Button>
+                    <Button type="submit" className="rounded-xl">
+                        Save Article
+                    </Button>
+                </div>
+            </form>
+        </Form>
     );
 }
