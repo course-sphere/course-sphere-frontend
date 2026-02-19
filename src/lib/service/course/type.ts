@@ -24,6 +24,29 @@ export const courseBasicInfoSchema = z.object({
 
 export type CourseBasicInfoFormData = z.infer<typeof courseBasicInfoSchema>;
 
+// create course media schema
+const YOUTUBE_REGEX = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
+
+export const courseMediaSchema = z.object({
+    thumbnail_url: z.string().optional(),
+    promo_video_url: z
+        .string()
+        .trim()
+        .optional()
+        .or(z.literal(''))
+        .refine(
+            (val) => {
+                if (!val) return true;
+                return YOUTUBE_REGEX.test(val);
+            },
+            {
+                message: 'Invalid YouTube URL format',
+            },
+        ),
+});
+
+export type CourseMediaFormData = z.infer<typeof courseMediaSchema>;
+
 export const prerequisiteSchema = z.object({
     course_id: z.string(),
     course_title: z.string(),
