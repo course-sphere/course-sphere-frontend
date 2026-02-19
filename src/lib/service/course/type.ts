@@ -50,9 +50,9 @@ export type CourseMediaFormData = z.infer<typeof courseMediaSchema>;
 //create course pricing Schema (sub step in step 1)
 export const coursePricingSchema = z
     .object({
-        is_free: z.boolean().default(false),
-        price: z.coerce.number().min(0).default(0),
-        discount_price: z.coerce.number().min(0).optional().or(z.literal('')),
+        is_free: z.boolean(),
+        price: z.number().min(0),
+        discount_price: z.number().min(0).optional(),
     })
     .superRefine((data, ctx) => {
         if (!data.is_free && data.price < 9.99) {
@@ -62,7 +62,6 @@ export const coursePricingSchema = z
                 path: ['price'],
             });
         }
-        // discount must be less than original price
         if (
             !data.is_free &&
             typeof data.discount_price === 'number' &&
@@ -86,32 +85,29 @@ export const prerequisiteSchema = z.object({
 
 // schema for goal & prerequisites (sub step in step 1)
 export const courseGoalsSchema = z.object({
-    prerequisites: z.array(prerequisiteSchema).default([]),
+    prerequisites: z.array(prerequisiteSchema),
 
-    requirements: z
-        .array(z.string().min(1, 'Requirement cannot be empty'))
-        .default([]),
+    requirements: z.array(z.string().min(1, 'Requirement cannot be empty')),
 
     learning_objectives: z
         .array(z.string().min(1, 'Objective cannot be empty'))
         .min(3, 'At least 3 learning objectives required'),
 
-    target_audience: z
-        .array(z.string().min(1, 'Target audience cannot be empty'))
-        .default([]),
+    target_audience: z.array(
+        z.string().min(1, 'Target audience cannot be empty'),
+    ),
 });
 
 export type CourseGoalsFormData = z.infer<typeof courseGoalsSchema>;
 
 // schema for step 1: Course Metadata (Send to BE)
-export const courseMetadataSchema = z
-    .object({
-        ...courseBasicInfoSchema.shape,
-        ...courseMediaSchema.shape,
-        ...courseGoalsSchema.shape,
-        is_free: z.boolean().default(false),
-        price: z.coerce.number().min(0).default(0),
-        discount_price: z.coerce.number().min(0).optional().or(z.literal('')),
+export const courseMetadataSchema = courseBasicInfoSchema
+    .extend(courseMediaSchema.shape)
+    .extend(courseGoalsSchema.shape)
+    .extend({
+        is_free: z.boolean(),
+        price: z.number().min(0),
+        discount_price: z.number().min(0).optional(),
     })
     .superRefine((data, ctx) => {
         if (!data.is_free && data.price < 9.99) {
@@ -157,7 +153,6 @@ export function getDefaultMetadataData(): CourseMetadataFormData {
         target_audience: [],
     };
 }
-
 //------------------------
 export type CourseLesson = {
     id: string;
