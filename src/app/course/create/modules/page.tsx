@@ -6,24 +6,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 
-import {
-    DndContext,
-    closestCenter,
-    KeyboardSensor,
-    PointerSensor,
-    useSensor,
-    useSensors,
-    DragEndEvent,
-} from '@dnd-kit/core';
-import {
-    arrayMove,
-    SortableContext,
-    sortableKeyboardCoordinates,
-    verticalListSortingStrategy,
-    useSortable,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-
 import { DashboardSidebar } from '@/components/dashboard/sidebar';
 import { DashboardHeader } from '@/components/dashboard/header';
 import { Button } from '@/components/ui/button';
@@ -50,6 +32,8 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+
+import { SortableList } from '@/components/ui/sortable-list';
 
 import {
     ArrowLeft,
@@ -78,11 +62,9 @@ export default function ModuleBuilderPage() {
     const [courseId, setCourseId] = useState<string | null>(null);
     const [modules, setModules] = useState<Module[]>([]);
 
-    // State cho Modal Tạo/Sửa
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingModule, setEditingModule] = useState<Module | null>(null);
 
-    // Load data ban đầu
     useEffect(() => {
         const storedCourseId = localStorage.getItem('course_draft_id');
         if (!storedCourseId) {
@@ -103,19 +85,12 @@ export default function ModuleBuilderPage() {
         localStorage.setItem('course_modules_data', JSON.stringify(newModules));
     };
 
-    const handleDragEnd = (event: DragEndEvent) => {
-        const { active, over } = event;
-        if (over && active.id !== over.id) {
-            const oldIndex = modules.findIndex((m) => m.id === active.id);
-            const newIndex = modules.findIndex((m) => m.id === over.id);
-
-            let newArray = arrayMove(modules, oldIndex, newIndex);
-            newArray = newArray.map((mod, index) => ({
-                ...mod,
-                sort_order: index + 1,
-            }));
-            saveToLocal(newArray);
-        }
+    const handleReorder = (reorderedModules: Module[]) => {
+        const updatedOrder = reorderedModules.map((mod, index) => ({
+            ...mod,
+            sort_order: index + 1,
+        }));
+        saveToLocal(updatedOrder);
     };
 
     const handleDelete = (id: string) => {
@@ -225,16 +200,88 @@ export default function ModuleBuilderPage() {
                                 </Button>
                             </div>
                         ) : (
-                            <ModuleDnDList
-                                modules={modules}
-                                onDragEnd={handleDragEnd}
-                                onEdit={openEditDialog}
-                                onDelete={handleDelete}
-                                onManageLessons={(id) =>
-                                    router.push(
-                                        `/course/create/modules/${id}/lessons`,
-                                    )
-                                }
+                            <SortableList
+                                items={modules}
+                                onReorder={handleReorder}
+                                renderItem={(module, dragHandleProps) => (
+                                    <div className="bg-card border-border flex items-center rounded-xl border p-3 shadow-sm transition-all hover:shadow-md">
+                                        <div
+                                            {...dragHandleProps}
+                                            className="text-muted-foreground hover:text-foreground cursor-grab px-2 py-2"
+                                        >
+                                            <GripVertical className="h-5 w-5" />
+                                        </div>
+
+                                        <div className="bg-primary/10 text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-lg font-bold">
+                                            {module.sort_order}
+                                        </div>
+
+                                        <div className="ml-4 flex-1 truncate">
+                                            <h3 className="truncate font-medium">
+                                                {module.title}
+                                            </h3>
+                                            {module.description && (
+                                                <p className="text-muted-foreground mt-0.5 truncate text-xs">
+                                                    {module.description}
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        <div className="ml-4 flex items-center gap-2 pr-2">
+                                            <Button
+                                                variant="secondary"
+                                                size="sm"
+                                                onClick={() =>
+                                                    router.push(
+                                                        `/course/create/modules/${module.id}/lessons`,
+                                                    )
+                                                }
+                                                className="rounded-lg"
+                                            >
+                                                <BookOpen className="mr-1.5 h-3.5 w-3.5" />{' '}
+                                                Manage Lessons
+                                            </Button>
+
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 rounded-lg"
+                                                    >
+                                                        <MoreVertical className="h-4 w-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent
+                                                    align="end"
+                                                    className="rounded-xl"
+                                                >
+                                                    <DropdownMenuItem
+                                                        onClick={() =>
+                                                            openEditDialog(
+                                                                module,
+                                                            )
+                                                        }
+                                                    >
+                                                        <Pencil className="mr-2 h-4 w-4" />{' '}
+                                                        Edit Module Info
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem
+                                                        onClick={() =>
+                                                            handleDelete(
+                                                                module.id,
+                                                            )
+                                                        }
+                                                        className="text-destructive focus:bg-destructive/10"
+                                                    >
+                                                        <Trash2 className="mr-2 h-4 w-4" />{' '}
+                                                        Delete Module
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </div>
+                                    </div>
+                                )}
                             />
                         )}
                     </div>
@@ -247,142 +294,6 @@ export default function ModuleBuilderPage() {
                 initialData={editingModule}
                 onSubmit={handleFormSubmit}
             />
-        </div>
-    );
-}
-
-function ModuleDnDList({
-    modules,
-    onDragEnd,
-    onEdit,
-    onDelete,
-    onManageLessons,
-}: {
-    modules: Module[];
-    onDragEnd: (e: DragEndEvent) => void;
-    onEdit: (m: Module) => void;
-    onDelete: (id: string) => void;
-    onManageLessons: (id: string) => void;
-}) {
-    const sensors = useSensors(
-        useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-        useSensor(KeyboardSensor, {
-            coordinateGetter: sortableKeyboardCoordinates,
-        }),
-    );
-
-    return (
-        <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={onDragEnd}
-        >
-            <SortableContext
-                items={modules.map((m) => m.id)}
-                strategy={verticalListSortingStrategy}
-            >
-                <div className="space-y-3">
-                    {modules.map((module) => (
-                        <SortableModuleItem
-                            key={module.id}
-                            module={module}
-                            onEdit={() => onEdit(module)}
-                            onDelete={() => onDelete(module.id)}
-                            onManageLessons={() => onManageLessons(module.id)}
-                        />
-                    ))}
-                </div>
-            </SortableContext>
-        </DndContext>
-    );
-}
-
-function SortableModuleItem({
-    module,
-    onEdit,
-    onDelete,
-    onManageLessons,
-}: {
-    module: Module;
-    onEdit: () => void;
-    onDelete: () => void;
-    onManageLessons: () => void;
-}) {
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging,
-    } = useSortable({ id: module.id });
-
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-        zIndex: isDragging ? 10 : 1,
-    };
-
-    return (
-        <div
-            ref={setNodeRef}
-            style={style}
-            className={`bg-card border-border flex items-center rounded-xl border p-3 shadow-sm transition-all ${isDragging ? 'ring-primary opacity-50 ring-2' : 'hover:shadow-md'}`}
-        >
-            <div
-                {...attributes}
-                {...listeners}
-                className="text-muted-foreground hover:text-foreground cursor-grab px-2 py-2"
-            >
-                <GripVertical className="h-5 w-5" />
-            </div>
-
-            <div className="bg-primary/10 text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-lg font-bold">
-                {module.sort_order}
-            </div>
-
-            <div className="ml-4 flex-1 truncate">
-                <h3 className="truncate font-medium">{module.title}</h3>
-                {module.description && (
-                    <p className="text-muted-foreground mt-0.5 truncate text-xs">
-                        {module.description}
-                    </p>
-                )}
-            </div>
-
-            <div className="ml-4 flex items-center gap-2 pr-2">
-                <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={onManageLessons}
-                    className="rounded-lg"
-                >
-                    <BookOpen className="mr-1.5 h-3.5 w-3.5" /> Manage Lessons
-                </Button>
-
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 rounded-lg"
-                        >
-                            <MoreVertical className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="rounded-xl">
-                        <DropdownMenuItem onClick={onEdit}>
-                            <Pencil className="mr-2 h-4 w-4" /> Edit Module Info
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            onClick={onDelete}
-                            className="text-destructive focus:bg-destructive/10"
-                        >
-                            <Trash2 className="mr-2 h-4 w-4" /> Delete Module
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
         </div>
     );
 }
