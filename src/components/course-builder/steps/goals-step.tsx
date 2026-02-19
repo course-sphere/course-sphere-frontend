@@ -38,7 +38,11 @@ import { fakeCourses } from '@/lib/fake-data';
 import { CourseGoalsFormData } from '@/lib/service/course';
 
 export function GoalsStep() {
-    const { control, watch } = useFormContext<CourseGoalsFormData>();
+    const {
+        control,
+        watch,
+        formState: { errors },
+    } = useFormContext<CourseGoalsFormData>();
 
     const {
         fields: objectiveFields,
@@ -125,7 +129,6 @@ export function GoalsStep() {
                                             )}
                                         </div>
                                     </FormControl>
-                                    {/* Offset FormMessage để thẳng hàng với Input */}
                                     <div className="pl-16">
                                         <FormMessage />
                                     </div>
@@ -133,11 +136,17 @@ export function GoalsStep() {
                             )}
                         />
                     ))}
+                    {errors.learning_objectives &&
+                        'message' in errors.learning_objectives && (
+                            <p className="text-destructive pl-16 text-[0.8rem] font-medium">
+                                {errors.learning_objectives.message as string}
+                            </p>
+                        )}
                     <Button
                         type="button"
                         variant="outline"
                         className="mt-2 w-full rounded-xl border-dashed bg-transparent"
-                        onClick={() => appendObjective('')} // Cực kỳ ngắn gọn
+                        onClick={() => appendObjective('')}
                     >
                         <Plus className="mr-2 h-4 w-4" /> Add Objective
                     </Button>
@@ -207,7 +216,6 @@ export function GoalsStep() {
                 </CardContent>
             </Card>
 
-            {/* --- Requirements --- */}
             <Card className="border-border rounded-2xl shadow-sm">
                 <CardHeader className="pb-4">
                     <CardTitle className="flex items-center gap-2 text-lg">

@@ -110,11 +110,13 @@ export default function CreateCoursePage() {
 
     const handleCreateCourse = async () => {
         const isStepValid = await validateCurrentStep();
-        if (!isStepValid) return;
-
+        if (!isStepValid) {
+            return;
+        }
         const isAllValid = await trigger();
-        if (!isAllValid) return;
-
+        if (!isAllValid) {
+            return;
+        }
         setIsSubmitting(true);
         try {
             const data = getValues();

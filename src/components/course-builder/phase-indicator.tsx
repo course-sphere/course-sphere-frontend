@@ -7,11 +7,16 @@ import { Phase, PHASE_ICONS } from './constant';
 interface PhaseIndicatorProps {
     phases: Phase[];
     currentPhase: number;
+    className?: string;
 }
 
-export function PhaseIndicator({ phases, currentPhase }: PhaseIndicatorProps) {
+export function PhaseIndicator({
+    phases,
+    currentPhase,
+    className,
+}: PhaseIndicatorProps) {
     return (
-        <div className="mb-8 w-full">
+        <div className={cn('mb-8 w-full', className)}>
             <div className="flex items-center justify-center gap-0">
                 {phases.map((phase, index) => {
                     const isCompleted = currentPhase > phase.id;
