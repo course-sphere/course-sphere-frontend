@@ -28,6 +28,17 @@ import {
     type DraftLessonItem,
 } from '@/lib/service/lesson';
 
+/*
+ * TODO: API INTEGRATION & UI REFACTOR (FILE EDITOR)
+ *
+ * 1. S3 DIRECT UPLOAD FLOW:
+ * - Request Presigned URL: GET /api/v1/s3/presign?filename={name}&contentType={type}
+ * - Upload to S3: PUT file directly to the received AWS S3 URL.
+ * - Map the final S3 URL, file size, and extension to the form state before submitting the Material payload to the backend.
+ *
+ * 2. FUTURE UI UPGRADE:
+ * - Replace the native <input type="file"> with a dedicated Dropzone component (e.g., from shadcn-awesome or react-dropzone) to handle drag-and-drop events, loading states, and MIME type validation more gracefully.
+ */
 interface FileEditorProps {
     initialData: DraftLessonItem | null;
     onSave: (data: FileMaterialFormValues) => void;

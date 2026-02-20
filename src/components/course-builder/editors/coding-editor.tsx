@@ -276,7 +276,6 @@ export function CodingEditor({
                                 <FormLabel className="flex items-center justify-between">
                                     <span className="flex items-center gap-1.5">
                                         Starter Code{' '}
-                                        <Sparkles className="h-3.5 w-3.5 text-yellow-500" />
                                     </span>
                                     <span className="text-muted-foreground text-xs font-normal">
                                         Students will see this when they open
