@@ -18,7 +18,6 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-import { StepIndicator } from '@/components/course-builder/step-indicator';
 import { PhaseIndicator } from '@/components/course-builder/phase-indicator';
 import { BasicInfoStep } from '@/components/course-builder/steps/basic-info-step';
 import { MediaStep } from '@/components/course-builder/steps/media-step';
@@ -97,18 +96,6 @@ export default function CreateCoursePage() {
         if (currentStep > 1) {
             setCurrentStep((prev) => prev - 1);
             window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    };
-
-    const handleStepClick = async (step: number) => {
-        if (step < currentStep) {
-            setCurrentStep(step);
-            return;
-        }
-
-        if (step === currentStep + 1) {
-            const isStepValid = await validateCurrentStep();
-            if (isStepValid) setCurrentStep(step);
         }
     };
 
@@ -204,13 +191,6 @@ export default function CreateCoursePage() {
                                 </p>
                             </div>
                             <PhaseIndicator phases={PHASES} currentPhase={1} />
-                            <div className="mb-10 px-4">
-                                <StepIndicator
-                                    steps={METADATA_STEPS}
-                                    currentStep={currentStep}
-                                    onStepClick={handleStepClick}
-                                />
-                            </div>
 
                             <Form {...methods}>
                                 <form
