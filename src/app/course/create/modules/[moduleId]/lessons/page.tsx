@@ -689,7 +689,7 @@ function MaterialSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="bg-background z-100 flex h-dvh w-full flex-col overflow-hidden border-none p-0 sm:max-w-[100vw]">
+            <SheetContent className="bg-background flex h-dvh w-full flex-col overflow-hidden border-none p-0 sm:max-w-[100vw]">
                 <div className="border-border bg-card relative shrink-0 border-b px-8 py-5">
                     <SheetHeader className="space-y-1 pr-8 text-left">
                         <SheetTitle className="text-2xl font-bold">
