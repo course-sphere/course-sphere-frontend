@@ -69,3 +69,27 @@ export const PRICING_TIERS = [
     { value: 89.99, label: '$89.99', description: 'Professional' },
     { value: 199.99, label: '$199.99', description: 'Expert' },
 ];
+
+// coding editor (phase 3, coding assignment)
+export const LANGUAGES = [
+    { value: 'javascript', label: 'JavaScript' },
+    { value: 'typescript', label: 'TypeScript' },
+    { value: 'python', label: 'Python' },
+    { value: 'java', label: 'Java' },
+    { value: 'cpp', label: 'C++' },
+    { value: 'csharp', label: 'C#' },
+    { value: 'go', label: 'Go' },
+    { value: 'rust', label: 'Rust' },
+];
+
+export const CODE_BOILERPLATES: Record<string, string> = {
+    javascript: 'function solution() {\n  // Write your code here\n  \n}\n',
+    typescript:
+        'function solution(): void {\n  // Write your code here\n  \n}\n',
+    python: 'def solution():\n    # Write your code here\n    pass\n',
+    java: 'public class Main {\n    public static void main(String[] args) {\n        // Write your code here\n        \n    }\n}\n',
+    cpp: '#include <iostream>\n\nint main() {\n    // Write your code here\n    \n    return 0;\n}\n',
+    csharp: 'using System;\n\nclass Program {\n    static void Main() {\n        // Write your code here\n        \n    }\n}\n',
+    go: 'package main\n\nimport "fmt"\n\nfunc main() {\n    // Write your code here\n    \n}\n',
+    rust: 'fn main() {\n    // Write your code here\n    \n}\n',
+};
