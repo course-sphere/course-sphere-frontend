@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -13,10 +13,10 @@ import {
     FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { FileText, Clock } from 'lucide-react';
+import { MinimalTiptapEditor } from '@/components/ui/minimal-tiptap';
 
 import {
     readingMaterialSchema,
@@ -29,6 +29,12 @@ interface ReadingEditorProps {
     onSave: (data: ReadingMaterialFormValues) => void;
     onCancel: () => void;
 }
+
+const getWordCountFromHtml = (htmlString: string) => {
+    if (!htmlString) return 0;
+    const plainText = htmlString.replace(/<[^>]+>/g, '');
+    return plainText.trim().split(/\s+/).filter(Boolean).length;
+};
 
 export function ReadingEditor({
     initialData,
@@ -62,8 +68,14 @@ export function ReadingEditor({
             control: form.control,
             name: 'content',
         }) || '';
-    const wordCount = content.split(/\s+/).filter(Boolean).length;
-    const estimatedTime = Math.max(1, Math.round(wordCount / 200));
+
+    const { wordCount, estimatedTime } = useMemo(() => {
+        const words = getWordCountFromHtml(content);
+        return {
+            wordCount: words,
+            estimatedTime: Math.max(1, Math.round(words / 200)),
+        };
+    }, [content]);
 
     return (
         <Form {...form}>
@@ -134,21 +146,23 @@ export function ReadingEditor({
                         name="content"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>
-                                    Content (Markdown supported)
-                                </FormLabel>
+                                <FormLabel>Content</FormLabel>
                                 <FormControl>
-                                    <Textarea
-                                        placeholder="Write your article here..."
-                                        className="h-64 resize-y font-mono text-sm"
-                                        {...field}
+                                    <MinimalTiptapEditor
+                                        value={field.value}
+                                        onChange={(val) => {
+                                            field.onChange(val);
+                                        }}
+                                        className="w-full"
+                                        editorContentClassName="p-5 min-h-[300px]"
+                                        output="html"
+                                        placeholder="Write your comprehensive article here..."
+                                        autofocus={false}
+                                        editable={true}
+                                        editorClassName="focus:outline-none"
                                     />
                                 </FormControl>
-                                <FormDescription className="flex justify-between">
-                                    <span>
-                                        Supports basic Markdown (*italic*,
-                                        **bold**, # heading)
-                                    </span>
+                                <FormDescription className="text-muted-foreground flex justify-end">
                                     <span>
                                         {wordCount} words (~{estimatedTime} min
                                         read)
