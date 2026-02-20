@@ -101,7 +101,7 @@ function SortableItem({ id, children }: SortableItemProps) {
     const style = {
         transform: CSS.Transform.toString(transform),
         transition,
-        zIndex: isDragging ? 50 : 1,
+        zIndex: isDragging ? 999 : 1,
         opacity: isDragging ? 0.5 : 1,
         position: 'relative' as const,
     };
