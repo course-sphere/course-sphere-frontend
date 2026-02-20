@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useEffect, useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
     Form,
@@ -13,10 +13,10 @@ import {
     FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { Video, Clock, Link as LinkIcon } from 'lucide-react';
+import { Video, Clock, Link as LinkIcon, Loader2 } from 'lucide-react';
+import { MinimalTiptapEditor } from '@/components/ui/minimal-tiptap';
 
 import {
     videoMaterialSchema,
@@ -35,6 +35,8 @@ export function VideoEditor({
     onSave,
     onCancel,
 }: VideoEditorProps) {
+    const [isFetchingDuration, setIsFetchingDuration] = useState(false);
+
     const form = useForm<VideoMaterialFormValues>({
         resolver: zodResolver(videoMaterialSchema),
         defaultValues: {
@@ -57,6 +59,32 @@ export function VideoEditor({
             });
         }
     }, [initialData, form]);
+
+    const videoUrl = useWatch({
+        control: form.control,
+        name: 'video_url',
+    });
+
+    useEffect(() => {
+        if (!videoUrl) return;
+
+        const isYoutube =
+            /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/.test(
+                videoUrl,
+            );
+
+        if (isYoutube && !initialData) {
+            setIsFetchingDuration(true);
+
+            // TODO: Better UX, call API to server to fetch the Youtube Video Length
+            const timeoutId = setTimeout(() => {
+                form.setValue('duration', 15, { shouldValidate: true });
+                setIsFetchingDuration(false);
+            }, 1000);
+
+            return () => clearTimeout(timeoutId);
+        }
+    }, [videoUrl, form, initialData]);
 
     return (
         <Form {...form}>
@@ -122,55 +150,67 @@ export function VideoEditor({
                         <Video className="h-4 w-4" /> Video Settings
                     </div>
 
-                    <FormField
-                        control={form.control}
-                        name="video_url"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="flex items-center gap-1.5">
-                                    <LinkIcon className="h-3.5 w-3.5" /> Video
-                                    URL
-                                </FormLabel>
-                                <FormControl>
-                                    <Input
-                                        placeholder="https://youtube.com/watch?v=..."
-                                        {...field}
-                                    />
-                                </FormControl>
-                                <FormDescription>
-                                    Provide a valid YouTube, Vimeo, or direct
-                                    video link.
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                        <FormField
+                            control={form.control}
+                            name="video_url"
+                            render={({ field }) => (
+                                <FormItem className="md:col-span-2">
+                                    <FormLabel className="flex items-center gap-1.5">
+                                        <LinkIcon className="h-3.5 w-3.5" />{' '}
+                                        Video URL
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="https://youtube.com/watch?v=..."
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormDescription>
+                                        YouTube, Vimeo, or direct link.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
-                    <FormField
-                        control={form.control}
-                        name="duration"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="flex items-center gap-1.5">
-                                    <Clock className="h-3.5 w-3.5" /> Duration
-                                    (minutes)
-                                </FormLabel>
-                                <FormControl>
-                                    <Input
-                                        type="number"
-                                        className="w-32"
-                                        {...field}
-                                        onChange={(e) =>
-                                            field.onChange(
-                                                Number(e.target.value),
-                                            )
-                                        }
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                        <FormField
+                            control={form.control}
+                            name="duration"
+                            render={({ field }) => (
+                                <FormItem className="md:col-span-1">
+                                    <FormLabel className="flex items-center gap-1.5">
+                                        <Clock className="h-3.5 w-3.5" />{' '}
+                                        Duration (min)
+                                    </FormLabel>
+                                    <FormControl>
+                                        <div className="relative">
+                                            <Input
+                                                type="number"
+                                                className="pr-8"
+                                                {...field}
+                                                onChange={(e) =>
+                                                    field.onChange(
+                                                        Number(e.target.value),
+                                                    )
+                                                }
+                                                disabled={isFetchingDuration}
+                                            />
+                                            {isFetchingDuration && (
+                                                <Loader2 className="text-muted-foreground absolute top-2.5 right-2 h-4 w-4 animate-spin" />
+                                            )}
+                                        </div>
+                                    </FormControl>
+                                    <FormDescription>
+                                        {isFetchingDuration
+                                            ? 'Auto-fetching...'
+                                            : 'Manual input allowed'}
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
 
                     <FormField
                         control={form.control}
@@ -179,10 +219,16 @@ export function VideoEditor({
                             <FormItem>
                                 <FormLabel>Description (Optional)</FormLabel>
                                 <FormControl>
-                                    <Textarea
+                                    <MinimalTiptapEditor
+                                        value={field.value || ''}
+                                        onChange={field.onChange}
+                                        className="w-full"
+                                        editorContentClassName="p-5 min-h-[150px]"
+                                        output="html"
                                         placeholder="Briefly describe what students will learn in this video..."
-                                        className="h-24 resize-none"
-                                        {...field}
+                                        autofocus={false}
+                                        editable={true}
+                                        editorClassName="focus:outline-none"
                                     />
                                 </FormControl>
                                 <FormMessage />
