@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { Code, Trophy, Calendar, Sparkles } from 'lucide-react';
+import { Code, Trophy, Calendar } from 'lucide-react';
 
 import { CodeEditor } from '@/components/ui/code-editor';
 import { MinimalTiptapEditor } from '@/components/ui/minimal-tiptap';

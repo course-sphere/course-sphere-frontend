@@ -74,15 +74,24 @@ export function VideoEditor({
             );
 
         if (isYoutube && !initialData) {
-            setIsFetchingDuration(true);
+            let isMounted = true;
 
-            // TODO: Better UX, call API to server to fetch the Youtube Video Length
-            const timeoutId = setTimeout(() => {
-                form.setValue('duration', 15, { shouldValidate: true });
-                setIsFetchingDuration(false);
-            }, 1000);
+            const fetchDuration = async () => {
+                if (isMounted) setIsFetchingDuration(true);
 
-            return () => clearTimeout(timeoutId);
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+
+                if (isMounted) {
+                    form.setValue('duration', 15, { shouldValidate: true });
+                    setIsFetchingDuration(false);
+                }
+            };
+
+            fetchDuration();
+
+            return () => {
+                isMounted = false;
+            };
         }
     }, [videoUrl, form, initialData]);
 
