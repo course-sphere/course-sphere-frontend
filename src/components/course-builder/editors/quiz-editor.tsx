@@ -12,7 +12,6 @@ import {
     FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -30,6 +29,8 @@ import {
 } from '@/components/ui/accordion';
 import { Checkbox } from '@/components/ui/checkbox';
 import { HelpCircle, Clock, Trophy, Plus, Trash2 } from 'lucide-react';
+
+import { MinimalTiptapEditor } from '@/components/ui/minimal-tiptap';
 
 import {
     quizMaterialSchema,
@@ -105,7 +106,6 @@ export function QuizEditor({ initialData, onSave, onCancel }: QuizEditorProps) {
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSave)} className="space-y-8">
-                {/* 1. BASE SETTINGS */}
                 <div className="bg-muted/20 border-border space-y-4 rounded-xl border p-5">
                     <FormField
                         control={form.control}
@@ -145,7 +145,6 @@ export function QuizEditor({ initialData, onSave, onCancel }: QuizEditorProps) {
                     </div>
                 </div>
 
-                {/* 2. QUIZ RULES */}
                 <div className="space-y-4">
                     <div className="text-primary flex items-center gap-2 text-sm font-medium">
                         <HelpCircle className="h-4 w-4" /> Rules & Configuration
@@ -158,12 +157,19 @@ export function QuizEditor({ initialData, onSave, onCancel }: QuizEditorProps) {
                             <FormItem>
                                 <FormLabel>Instructions</FormLabel>
                                 <FormControl>
-                                    <Textarea
+                                    <MinimalTiptapEditor
+                                        value={field.value || ''}
+                                        onChange={field.onChange}
+                                        className="w-full"
+                                        editorContentClassName="p-4 min-h-[120px]"
+                                        output="html"
                                         placeholder="What should students know before starting?"
-                                        className="h-20 resize-none"
-                                        {...field}
+                                        autofocus={false}
+                                        editable={true}
+                                        editorClassName="focus:outline-none bg-background"
                                     />
                                 </FormControl>
+                                <FormMessage />
                             </FormItem>
                         )}
                     />
@@ -219,7 +225,6 @@ export function QuizEditor({ initialData, onSave, onCancel }: QuizEditorProps) {
                     </div>
                 </div>
 
-                {/* 3. QUESTIONS BUILDER */}
                 <div className="border-border space-y-4 border-t pt-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 text-sm font-bold">
@@ -257,7 +262,6 @@ export function QuizEditor({ initialData, onSave, onCancel }: QuizEditorProps) {
                     </Accordion>
                 </div>
 
-                {/* KHU VỰC NÚT BẤM ĐÃ ĐƯỢC CHỮA BỆNH "STICKY" */}
                 <div className="border-border mt-8 flex justify-end gap-3 border-t pt-6">
                     <Button
                         type="button"
@@ -276,9 +280,6 @@ export function QuizEditor({ initialData, onSave, onCancel }: QuizEditorProps) {
     );
 }
 
-// ==========================================
-// COMPONENT CON: QUẢN LÝ 1 CÂU HỎI & MẢNG ĐÁP ÁN
-// ==========================================
 interface QuestionItemProps {
     index: number;
     form: UseFormReturn<QuizMaterialFormValues>;
@@ -542,10 +543,16 @@ function QuestionItem({ index, form, onRemove }: QuestionItemProps) {
                         <FormItem>
                             <FormLabel>Explanation (Optional)</FormLabel>
                             <FormControl>
-                                <Textarea
+                                <MinimalTiptapEditor
+                                    value={field.value || ''}
+                                    onChange={field.onChange}
+                                    className="w-full"
+                                    editorContentClassName="p-3 min-h-[100px]"
+                                    output="html"
                                     placeholder="Explain why this answer is correct..."
-                                    className="h-14 resize-none text-sm"
-                                    {...field}
+                                    autofocus={false}
+                                    editable={true}
+                                    editorClassName="focus:outline-none bg-background"
                                 />
                             </FormControl>
                             <FormDescription className="text-xs">

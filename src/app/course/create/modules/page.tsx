@@ -51,6 +51,24 @@ import { PHASES } from '@/components/course-builder/constant';
 import { Module, ModuleFormValues, moduleSchema } from '@/lib/service/module';
 import { generateId } from '@/lib/utils';
 
+/*
+ * TODO: API INTEGRATION & UI REFACTOR (MODULE BUILDER)
+ *
+ * 1. API FLOW (INDIVIDUAL MUTATIONS):
+ * - CREATE (handleFormSubmit): POST /api/v1/courses/{courseId}/modules
+ * -> Replace local generateId() with the real DB ID returned from the server.
+ * - UPDATE (handleFormSubmit): PUT /api/v1/modules/{moduleId}
+ * - DELETE (handleDelete): DELETE /api/v1/modules/{moduleId}
+ * - REORDER (handleReorder): PUT /api/v1/courses/{courseId}/modules/reorder
+ * -> Send lightweight payload: [{ id: string, sort_order: number }]
+ *
+ * 2. STORAGE CLEANUP:
+ * - Remove 'saveToLocal' batch saving logic.
+ * - Module data should be fetched from the DB (GET /api/v1/courses/{courseId}/modules) on mount, rather than parsed from localStorage.
+ *
+ * 3. UI UPGRADE:
+ * - Replace the native browser window.confirm() in handleDelete with a Shadcn UI <AlertDialog>.
+ */
 export default function ModuleBuilderPage() {
     const router = useRouter();
     const user = getCurrentUser('teacher');
@@ -113,11 +131,21 @@ export default function ModuleBuilderPage() {
 
     const handleFormSubmit = (values: ModuleFormValues) => {
         if (editingModule) {
+            console.log('Payload Update:', values);
             const newArray = modules.map((m) =>
                 m.id === editingModule.id ? { ...m, ...values } : m,
             );
             saveToLocal(newArray);
         } else {
+            const createPayload = {
+                course_id: courseId,
+                title: values.title,
+                description: values.description || '',
+                sort_order: modules.length + 1,
+            };
+
+            console.log('Payload Create:', createPayload);
+
             const newModule: Module = {
                 id: generateId('module'),
                 course_id: courseId as string,

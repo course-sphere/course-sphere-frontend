@@ -68,7 +68,34 @@ import {
 } from '@/lib/service/lesson';
 import { Module } from '@/lib/service/module';
 import { generateId } from '@/lib/utils';
-
+/*
+ * TODO: API INTEGRATION (PHASE 3 - LESSON MANAGER)
+ *
+ * 1. LESSON CRUD (handleSaveLesson & handleDeleteLesson):
+ * - CREATE: POST /api/v1/modules/{moduleId}/lessons -> Body: { title, sort_order }
+ * *CRITICAL: Must replace local generateId() with the real DB ID immediately so child items can be attached to it.*
+ * - UPDATE: PUT /api/v1/lessons/{lessonId} -> Body: { title }
+ * - DELETE: DELETE /api/v1/lessons/{lessonId}
+ * - REORDER: PUT /api/v1/modules/{moduleId}/lessons/reorder -> Body: [{ id, sort_order }]
+ *
+ * 2. DATA FETCHING:
+ * - On page mount, fetch lessons via GET /api/v1/modules/{moduleId}/lessons
+ * - Remove the complex nested saveToLocal() logic that patches the course_modules_data array in localStorage.
+ */
+//---------------------------------
+/*
+ * TODO: API INTEGRATION (PHASE 4 - MATERIAL MANAGER)
+ *
+ * 1. MATERIAL CRUD (handleSaveMaterial & handleDeleteMaterial):
+ * - CREATE: POST /api/v1/lessons/{lessonId}/materials
+ * Payload uses a polymorphic structure: Base fields (title, is_required) + Specific DTO (e.g., reading_data).
+ * - UPDATE: PUT /api/v1/materials/{materialId}
+ * - DELETE: DELETE /api/v1/materials/{materialId}
+ * - REORDER: PUT /api/v1/lessons/{lessonId}/materials/reorder
+ *
+ * 2. BACKEND DATA STRUCTURE:
+ * - RHF groups polymorphic fields dynamically. e.g., if item_type === 'reading', the payload contains a "reading_data" node containing HTML content. Use JSONB column or Hibernate Inheritance to map this cleanly.
+ */
 export default function LessonManagerPage() {
     const params = useParams<{ moduleId: string }>();
     const router = useRouter();
@@ -147,12 +174,21 @@ export default function LessonManagerPage() {
 
     const handleSaveLesson = (title: string) => {
         if (editingLesson) {
+            console.log('Payload Update:', { title });
             saveToLocal(
                 lessons.map((l) =>
                     l.id === editingLesson.id ? { ...l, title } : l,
                 ),
             );
         } else {
+            const createPayload = {
+                module_id: moduleData?.id,
+                title,
+                sort_order: lessons.length + 1,
+            };
+
+            console.log('Payload Create:', createPayload);
+
             const newLesson: DraftLesson = {
                 id: generateId('lesson'),
                 title,
@@ -214,51 +250,72 @@ export default function LessonManagerPage() {
     const handleSaveMaterial = (formData: Record<string, unknown>) => {
         if (!activeLessonId || !activeMaterialType) return;
 
-        const newLessons = lessons.map((lesson) => {
-            if (lesson.id !== activeLessonId) return lesson;
+        const typedData = formData as {
+            title: string;
+            is_required: boolean;
+            is_preview: boolean;
+            [key: string]: unknown;
+        };
+        const { title, is_required, is_preview, ...specificData } = typedData;
 
-            let updatedItems = [...lesson.items];
+        if (editingMaterial) {
+            console.log('Payload Update Material:', {
+                title,
+                is_required,
+                is_preview,
+                [`${activeMaterialType}_data`]: specificData,
+            });
 
-            // Ép kiểu an toàn (Safe Type Assertion) để TypeScript hiểu cấu trúc của formData
-            const typedData = formData as {
-                title: string;
-                is_required: boolean;
-                is_preview: boolean;
-                [key: string]: unknown;
+            const newLessons = lessons.map((lesson) => {
+                if (lesson.id !== activeLessonId) return lesson;
+                const updatedItems = lesson.items.map((item) =>
+                    item.id === editingMaterial.id
+                        ? {
+                              ...item,
+                              title,
+                              is_required,
+                              is_preview,
+                              [`${activeMaterialType}_data`]: specificData,
+                          }
+                        : item,
+                );
+                return { ...lesson, items: updatedItems };
+            });
+            saveToLocal(newLessons);
+        } else {
+            const currentLesson = lessons.find((l) => l.id === activeLessonId);
+            const nextSortOrder = currentLesson
+                ? currentLesson.items.length + 1
+                : 1;
+
+            const createPayload = {
+                lesson_id: activeLessonId,
+                item_type: activeMaterialType,
+                sort_order: nextSortOrder,
+                title,
+                is_required,
+                is_preview,
+                [`${activeMaterialType}_data`]: specificData,
             };
 
-            const { title, is_required, is_preview, ...specificData } =
-                typedData;
+            console.log('Payload Create Material:', createPayload);
 
-            if (editingMaterial) {
-                updatedItems = updatedItems.map((item) => {
-                    if (item.id === editingMaterial.id) {
-                        return {
-                            ...item,
-                            title,
-                            is_required,
-                            is_preview,
-                            [`${activeMaterialType}_data`]: specificData,
-                        };
-                    }
-                    return item;
-                });
-            } else {
+            const newLessons = lessons.map((lesson) => {
+                if (lesson.id !== activeLessonId) return lesson;
                 const newItem: DraftLessonItem = {
                     id: generateId('item'),
                     item_type: activeMaterialType,
-                    sort_order: lesson.items.length + 1,
+                    sort_order: nextSortOrder,
                     title,
                     is_required,
                     is_preview,
                     [`${activeMaterialType}_data`]: specificData,
                 };
-                updatedItems.push(newItem);
-            }
-            return { ...lesson, items: updatedItems };
-        });
+                return { ...lesson, items: [...lesson.items, newItem] };
+            });
+            saveToLocal(newLessons);
+        }
 
-        saveToLocal(newLessons);
         setIsMaterialSheetOpen(false);
     };
 
@@ -339,7 +396,6 @@ export default function LessonManagerPage() {
                                     onDeleteLesson={() =>
                                         handleDeleteLesson(lesson.id)
                                     }
-                                    // Đã thêm định danh kiểu dữ liệu cho tham số đầu vào
                                     onReorderMaterials={(
                                         newItems: DraftLessonItem[],
                                     ) =>
@@ -669,7 +725,7 @@ function MaterialSheet({
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="bg-background z-100 flex h-dvh w-full flex-col overflow-hidden border-none p-0 sm:max-w-[100vw]">
+            <SheetContent className="bg-background flex h-dvh w-full flex-col overflow-hidden border-none p-0 sm:max-w-[100vw]">
                 <div className="border-border bg-card relative shrink-0 border-b px-8 py-5">
                     <SheetHeader className="space-y-1 pr-8 text-left">
                         <SheetTitle className="text-2xl font-bold">

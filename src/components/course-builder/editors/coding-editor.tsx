@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -26,22 +26,14 @@ import { Switch } from '@/components/ui/switch';
 import { Code, Trophy, Calendar } from 'lucide-react';
 
 import { CodeEditor } from '@/components/ui/code-editor';
+import { MinimalTiptapEditor } from '@/components/ui/minimal-tiptap';
+
 import {
     codingMaterialSchema,
     type CodingMaterialFormValues,
     type DraftLessonItem,
 } from '@/lib/service/lesson';
-
-const LANGUAGES = [
-    { value: 'javascript', label: 'JavaScript' },
-    { value: 'typescript', label: 'TypeScript' },
-    { value: 'python', label: 'Python' },
-    { value: 'java', label: 'Java' },
-    { value: 'cpp', label: 'C++' },
-    { value: 'csharp', label: 'C#' },
-    { value: 'go', label: 'Go' },
-    { value: 'rust', label: 'Rust' },
-];
+import { CODE_BOILERPLATES, LANGUAGES } from '../constant';
 
 interface CodingEditorProps {
     initialData: DraftLessonItem | null;
@@ -54,6 +46,8 @@ export function CodingEditor({
     onSave,
     onCancel,
 }: CodingEditorProps) {
+    const isFirstMount = useRef(true);
+
     const form = useForm<CodingMaterialFormValues>({
         resolver: zodResolver(codingMaterialSchema),
         defaultValues: {
@@ -84,6 +78,31 @@ export function CodingEditor({
         control: form.control,
         name: 'language',
     });
+
+    useEffect(() => {
+        if (isFirstMount.current) {
+            isFirstMount.current = false;
+            if (!initialData?.coding_data?.starter_code) {
+                form.setValue(
+                    'starter_code',
+                    CODE_BOILERPLATES[selectedLanguage] || '',
+                );
+            }
+            return;
+        }
+
+        const currentCode = form.getValues('starter_code');
+        const isCodeEmptyOrBoilerplate =
+            !currentCode ||
+            Object.values(CODE_BOILERPLATES).includes(currentCode);
+
+        if (selectedLanguage && isCodeEmptyOrBoilerplate) {
+            const newBoilerplate = CODE_BOILERPLATES[selectedLanguage] || '';
+            form.setValue('starter_code', newBoilerplate, {
+                shouldValidate: true,
+            });
+        }
+    }, [selectedLanguage, form, initialData]);
 
     return (
         <Form {...form}>
@@ -144,7 +163,7 @@ export function CodingEditor({
                     </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-6">
                     <div className="flex items-center gap-2 text-sm font-medium text-orange-500">
                         <Code className="h-4 w-4" /> Assignment Details
                     </div>
@@ -230,14 +249,18 @@ export function CodingEditor({
                         name="instructions"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>
-                                    Detailed Instructions (Markdown)
-                                </FormLabel>
+                                <FormLabel>Detailed Instructions</FormLabel>
                                 <FormControl>
-                                    <Textarea
-                                        placeholder="Step-by-step requirements..."
-                                        className="h-32 resize-none rounded-lg font-mono text-sm"
-                                        {...field}
+                                    <MinimalTiptapEditor
+                                        value={field.value || ''}
+                                        onChange={field.onChange}
+                                        className="w-full"
+                                        editorContentClassName="p-5 min-h-[250px]"
+                                        output="html"
+                                        placeholder="Describe the problem, input/output constraints, and examples..."
+                                        autofocus={false}
+                                        editable={true}
+                                        editorClassName="focus:outline-none"
                                     />
                                 </FormControl>
                                 <FormMessage />
@@ -251,19 +274,23 @@ export function CodingEditor({
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel className="flex items-center justify-between">
-                                    <span>Starter Code (Optional)</span>
+                                    <span className="flex items-center gap-1.5">
+                                        Starter Code{' '}
+                                    </span>
                                     <span className="text-muted-foreground text-xs font-normal">
                                         Students will see this when they open
                                         the assignment
                                     </span>
                                 </FormLabel>
                                 <FormControl>
-                                    <CodeEditor
-                                        language={selectedLanguage}
-                                        value={field.value || ''}
-                                        onChange={field.onChange}
-                                        height="300px"
-                                    />
+                                    <div className="border-border overflow-hidden rounded-xl border">
+                                        <CodeEditor
+                                            language={selectedLanguage}
+                                            value={field.value || ''}
+                                            onChange={field.onChange}
+                                            height="350px"
+                                        />
+                                    </div>
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>

@@ -8,3 +8,10 @@ export function cn(...inputs: ClassValue[]) {
 export const generateId = (prefix: string) => {
     return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 };
+
+export const formatPrice = (value: number) => {
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+    }).format(value);
+};

@@ -48,19 +48,19 @@ export function GoalsStep() {
         fields: objectiveFields,
         append: appendObjective,
         remove: removeObjective,
-    } = useFieldArray({ control, name: 'learning_objectives' as never });
+    } = useFieldArray({ control, name: 'learning_objectives' });
 
     const {
         fields: requirementFields,
         append: appendRequirement,
         remove: removeRequirement,
-    } = useFieldArray({ control, name: 'requirements' as never });
+    } = useFieldArray({ control, name: 'requirements' });
 
     const {
         fields: audienceFields,
         append: appendAudience,
         remove: removeAudience,
-    } = useFieldArray({ control, name: 'target_audience' as never });
+    } = useFieldArray({ control, name: 'target_audience' });
 
     const {
         fields: prereqFields,
@@ -100,7 +100,7 @@ export function GoalsStep() {
                         <FormField
                             key={field.id}
                             control={control}
-                            name={`learning_objectives.${index}` as const}
+                            name={`learning_objectives.${index}.value` as const}
                             render={({ field: inputField }) => (
                                 <FormItem>
                                     <FormControl>
@@ -146,7 +146,7 @@ export function GoalsStep() {
                         type="button"
                         variant="outline"
                         className="mt-2 w-full rounded-xl border-dashed bg-transparent"
-                        onClick={() => appendObjective('')}
+                        onClick={() => appendObjective({ value: '' })}
                     >
                         <Plus className="mr-2 h-4 w-4" /> Add Objective
                     </Button>
@@ -232,7 +232,7 @@ export function GoalsStep() {
                         <FormField
                             key={field.id}
                             control={control}
-                            name={`requirements.${index}` as const}
+                            name={`requirements.${index}.value` as const}
                             render={({ field: inputField }) => (
                                 <FormItem>
                                     <FormControl>
@@ -267,7 +267,7 @@ export function GoalsStep() {
                         type="button"
                         variant="outline"
                         className="w-full rounded-xl border-dashed bg-transparent"
-                        onClick={() => appendRequirement('')}
+                        onClick={() => appendRequirement({ value: '' })}
                     >
                         <Plus className="mr-2 h-4 w-4" /> Add Requirement
                     </Button>
@@ -289,7 +289,7 @@ export function GoalsStep() {
                         <FormField
                             key={field.id}
                             control={control}
-                            name={`target_audience.${index}` as const}
+                            name={`target_audience.${index}.value` as const}
                             render={({ field: inputField }) => (
                                 <FormItem>
                                     <FormControl>
@@ -324,7 +324,7 @@ export function GoalsStep() {
                         type="button"
                         variant="outline"
                         className="w-full rounded-xl border-dashed bg-transparent"
-                        onClick={() => appendAudience('')}
+                        onClick={() => appendAudience({ value: '' })}
                     >
                         <Plus className="mr-2 h-4 w-4" /> Add Target Audience
                     </Button>

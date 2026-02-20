@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { authClient } from '@/lib/api-client';
+import { TooltipProvider } from '@/components/ui/tooltip'; // <-- 1. Import TooltipProvider
 
 export function Providers({ children }: { children: ReactNode }) {
     const router = useRouter();
@@ -30,7 +31,7 @@ export function Providers({ children }: { children: ReactNode }) {
             }}
             Link={Link}
         >
-            {children}
+            <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
         </AuthUIProvider>
     );
 }
