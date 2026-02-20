@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { Tag, TagInput } from 'emblor'; // Đảm bảo import đúng Tag type
+import { Tag, TagInput } from 'emblor';
 import { BookOpen, BarChart, Zap } from 'lucide-react';
 
 import {
@@ -144,6 +144,7 @@ export function BasicInfoStep() {
                                     <FormLabel className="text-left">
                                         Topics
                                     </FormLabel>
+
                                     <FormControl>
                                         <TagInput
                                             placeholder="Enter a topic and press Enter"
@@ -162,16 +163,22 @@ export function BasicInfoStep() {
                                             setActiveTagIndex={
                                                 setActiveTagIndex
                                             }
-                                            className="sm:min-w-112.5"
+                                            className="border-input bg-background ring-offset-background focus-within:ring-primary flex min-h-12 w-full flex-wrap items-center gap-2 rounded-xl border px-3 py-2 text-sm focus-within:ring-2 focus-within:ring-offset-2 sm:min-w-112.5"
+                                            styleClasses={{
+                                                input: 'min-h-7 border-none bg-transparent shadow-none outline-none focus-visible:ring-0 px-3 py-0',
+                                                inlineTagsContainer:
+                                                    'p-0 gap-1',
+                                            }}
                                         />
                                     </FormControl>
+
                                     <FormDescription>
                                         Press Enter to add a topic.
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
-                        />
+                        />{' '}
                     </div>
 
                     <FormField
