@@ -68,7 +68,20 @@ import {
 } from '@/lib/service/lesson';
 import { Module } from '@/lib/service/module';
 import { generateId } from '@/lib/utils';
-
+/*
+ * TODO: API INTEGRATION (PHASE 3 - LESSON MANAGER)
+ *
+ * 1. LESSON CRUD (handleSaveLesson & handleDeleteLesson):
+ * - CREATE: POST /api/v1/modules/{moduleId}/lessons -> Body: { title, sort_order }
+ * *CRITICAL: Must replace local generateId() with the real DB ID immediately so child items can be attached to it.*
+ * - UPDATE: PUT /api/v1/lessons/{lessonId} -> Body: { title }
+ * - DELETE: DELETE /api/v1/lessons/{lessonId}
+ * - REORDER: PUT /api/v1/modules/{moduleId}/lessons/reorder -> Body: [{ id, sort_order }]
+ *
+ * 2. DATA FETCHING:
+ * - On page mount, fetch lessons via GET /api/v1/modules/{moduleId}/lessons
+ * - Remove the complex nested saveToLocal() logic that patches the course_modules_data array in localStorage.
+ */
 export default function LessonManagerPage() {
     const params = useParams<{ moduleId: string }>();
     const router = useRouter();
@@ -147,12 +160,21 @@ export default function LessonManagerPage() {
 
     const handleSaveLesson = (title: string) => {
         if (editingLesson) {
+            console.log('Payload Update:', { title });
             saveToLocal(
                 lessons.map((l) =>
                     l.id === editingLesson.id ? { ...l, title } : l,
                 ),
             );
         } else {
+            const createPayload = {
+                module_id: moduleData?.id,
+                title,
+                sort_order: lessons.length + 1,
+            };
+
+            console.log('Payload Create:', createPayload);
+
             const newLesson: DraftLesson = {
                 id: generateId('lesson'),
                 title,
@@ -219,7 +241,6 @@ export default function LessonManagerPage() {
 
             let updatedItems = [...lesson.items];
 
-            // Ép kiểu an toàn (Safe Type Assertion) để TypeScript hiểu cấu trúc của formData
             const typedData = formData as {
                 title: string;
                 is_required: boolean;
@@ -339,7 +360,6 @@ export default function LessonManagerPage() {
                                     onDeleteLesson={() =>
                                         handleDeleteLesson(lesson.id)
                                     }
-                                    // Đã thêm định danh kiểu dữ liệu cho tham số đầu vào
                                     onReorderMaterials={(
                                         newItems: DraftLessonItem[],
                                     ) =>
