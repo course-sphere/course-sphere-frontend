@@ -23,15 +23,10 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { DollarSign, Gift, Tag, TrendingUp, AlertCircle } from 'lucide-react';
 import { CoursePricingFormData } from '@/lib/service/course';
+import { PRICING_TIERS } from '../constant';
+import { formatPrice } from '@/lib/utils';
 
-const PRICING_TIERS = [
-    { value: 9.99, label: '$9.99', description: 'Entry level' },
-    { value: 19.99, label: '$19.99', description: 'Standard' },
-    { value: 49.99, label: '$49.99', description: 'Premium' },
-    { value: 89.99, label: '$89.99', description: 'Professional' },
-    { value: 199.99, label: '$199.99', description: 'Expert' },
-];
-
+// IMPORTANT: The logic now is Teacher will have 70% of original course, 30% for CourseSphere
 export function PricingStep() {
     const { control, watch, setValue, clearErrors } =
         useFormContext<CoursePricingFormData>();
@@ -39,13 +34,6 @@ export function PricingStep() {
     const isFree = watch('is_free');
     const price = watch('price');
     const discountPrice = watch('discount_price');
-
-    const formatPrice = (value: number) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-        }).format(value);
-    };
 
     const calculateDiscount = () => {
         const p = Number(price);

@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/button';
 import { ImageIcon, Video, Upload, X, Link as LinkIcon } from 'lucide-react';
 import { CourseMediaFormData } from '@/lib/service/course';
 
+// TODO: In preview picture, I temporary use user's hardware blob, when integrated with API, replaced it with cloud link
 const getYouTubeEmbedUrl = (url?: string): string | null => {
     if (!url) return null;
 
@@ -92,6 +93,7 @@ export function MediaStep() {
                         {thumbnailUrl ? (
                             <div className="relative h-full w-full">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
+                                {/* I do not use Image (nextjs) here cause it will make picture can be cannot preview if the domain is not in next config, the problem will be processed when we integrated with API, so that, the image always in cloud and have the cdn domain */}
                                 <img
                                     src={thumbnailUrl}
                                     alt="Course thumbnail"

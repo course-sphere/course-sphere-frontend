@@ -78,23 +78,33 @@ export const coursePricingSchema = z
 
 export type CoursePricingFormData = z.infer<typeof coursePricingSchema>;
 
-export const prerequisiteSchema = z.object({
-    course_id: z.string(),
-    course_title: z.string(),
-});
-
 // schema for goal & prerequisites (sub step in step 1)
 export const courseGoalsSchema = z.object({
-    prerequisites: z.array(prerequisiteSchema),
+    prerequisites: z.array(
+        z.object({
+            course_id: z.string(),
+            course_title: z.string(),
+        }),
+    ),
 
-    requirements: z.array(z.string().min(1, 'Requirement cannot be empty')),
+    requirements: z.array(
+        z.object({
+            value: z.string().min(1, 'Requirement cannot be empty'),
+        }),
+    ),
 
     learning_objectives: z
-        .array(z.string().min(1, 'Objective cannot be empty'))
+        .array(
+            z.object({
+                value: z.string().min(1, 'Objective cannot be empty'),
+            }),
+        )
         .min(3, 'At least 3 learning objectives required'),
 
     target_audience: z.array(
-        z.string().min(1, 'Target audience cannot be empty'),
+        z.object({
+            value: z.string().min(1, 'Target audience cannot be empty'),
+        }),
     ),
 });
 
@@ -149,10 +159,11 @@ export function getDefaultMetadataData(): CourseMetadataFormData {
 
         prerequisites: [],
         requirements: [],
-        learning_objectives: ['', '', ''],
+        learning_objectives: [{ value: '' }, { value: '' }, { value: '' }],
         target_audience: [],
     };
 }
+
 //------------------------
 export type CourseLesson = {
     id: string;
