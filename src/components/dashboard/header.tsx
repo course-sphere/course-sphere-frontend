@@ -1,6 +1,6 @@
 'use client';
 
-import { Bell, Search, Menu, Sparkles } from 'lucide-react';
+import { Bell, Search, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {

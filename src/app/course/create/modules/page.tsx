@@ -68,13 +68,17 @@ export default function ModuleBuilderPage() {
             router.replace('/course/create');
             return;
         }
-        setCourseId(storedCourseId);
 
-        const savedModulesStr = localStorage.getItem('course_modules_data');
-        if (savedModulesStr) {
-            setModules(JSON.parse(savedModulesStr));
-        }
-        setIsLoading(false);
+        const timer = setTimeout(() => {
+            setCourseId(storedCourseId);
+            const savedModulesStr = localStorage.getItem('course_modules_data');
+            if (savedModulesStr) {
+                setModules(JSON.parse(savedModulesStr));
+            }
+            setIsLoading(false);
+        }, 0);
+
+        return () => clearTimeout(timer);
     }, [router]);
 
     const saveToLocal = (newModules: Module[]) => {

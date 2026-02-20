@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
     Form,
@@ -80,12 +80,14 @@ export function CodingEditor({
         }
     }, [initialData, form]);
 
-    const selectedLanguage = form.watch('language');
+    const selectedLanguage = useWatch({
+        control: form.control,
+        name: 'language',
+    });
 
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSave)} className="space-y-6">
-                {/* BASE FIELDS */}
                 <div className="bg-muted/30 border-border space-y-4 rounded-xl border p-4">
                     <FormField
                         control={form.control}

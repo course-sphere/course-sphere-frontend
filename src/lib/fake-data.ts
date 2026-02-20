@@ -17,7 +17,6 @@ import type {
     TeacherStats,
     StudentStats,
     Quiz,
-    Question,
 } from './types';
 
 // Fake Users

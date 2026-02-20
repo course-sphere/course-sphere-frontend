@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
     Form,
@@ -57,7 +57,11 @@ export function ReadingEditor({
         }
     }, [initialData, form]);
 
-    const content = form.watch('content');
+    const content =
+        useWatch({
+            control: form.control,
+            name: 'content',
+        }) || '';
     const wordCount = content.split(/\s+/).filter(Boolean).length;
     const estimatedTime = Math.max(1, Math.round(wordCount / 200));
 

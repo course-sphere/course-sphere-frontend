@@ -91,6 +91,7 @@ export function MediaStep() {
                     >
                         {thumbnailUrl ? (
                             <div className="relative h-full w-full">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                     src={thumbnailUrl}
                                     alt="Course thumbnail"

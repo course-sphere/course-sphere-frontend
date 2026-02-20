@@ -28,7 +28,7 @@ interface SortableListProps<T extends BaseItem> {
     onReorder: (newItems: T[]) => void;
     renderItem: (
         item: T,
-        dragHandleProps: Record<string, any> | undefined,
+        dragHandleProps: Record<string, unknown> | undefined,
     ) => React.ReactNode;
 }
 
@@ -84,7 +84,7 @@ export function SortableList<T extends BaseItem>({
 interface SortableItemProps {
     id: string;
     children: (
-        dragHandleProps: Record<string, any> | undefined,
+        dragHandleProps: Record<string, unknown> | undefined,
     ) => React.ReactNode;
 }
 

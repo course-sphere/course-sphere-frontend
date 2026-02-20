@@ -7,6 +7,9 @@ import Link from 'next/link';
 
 import { VideoEditor } from '@/components/course-builder/editors/video-editor';
 import { ReadingEditor } from '@/components/course-builder/editors/reading-editor';
+import { CodingEditor } from '@/components/course-builder/editors/coding-editor';
+import { FileEditor } from '@/components/course-builder/editors/file-editor';
+import { QuizEditor } from '@/components/course-builder/editors/quiz-editor';
 
 import { DashboardSidebar } from '@/components/dashboard/sidebar';
 import { DashboardHeader } from '@/components/dashboard/header';
@@ -65,9 +68,6 @@ import {
 } from '@/lib/service/lesson';
 import { Module } from '@/lib/service/module';
 import { generateId } from '@/lib/utils';
-import { CodingEditor } from '@/components/course-builder/editors/coding-editor';
-import { FileEditor } from '@/components/course-builder/editors/file-editor';
-import { QuizEditor } from '@/components/course-builder/editors/quiz-editor';
 
 export default function LessonManagerPage() {
     const params = useParams<{ moduleId: string }>();
@@ -97,21 +97,28 @@ export default function LessonManagerPage() {
             return;
         }
 
-        const savedModulesStr = localStorage.getItem('course_modules_data');
-        if (savedModulesStr) {
-            const modules: Module[] = JSON.parse(savedModulesStr);
-            const currentModule = modules.find((m) => m.id === params.moduleId);
-
-            if (currentModule) {
-                setModuleData(currentModule);
-                setLessons(
-                    (currentModule.lessons as unknown as DraftLesson[]) || [],
+        const timer = setTimeout(() => {
+            const savedModulesStr = localStorage.getItem('course_modules_data');
+            if (savedModulesStr) {
+                const modules: Module[] = JSON.parse(savedModulesStr);
+                const currentModule = modules.find(
+                    (m) => m.id === params.moduleId,
                 );
-            } else {
-                router.push('/course/create/modules');
+
+                if (currentModule) {
+                    setModuleData(currentModule);
+                    setLessons(
+                        (currentModule.lessons as unknown as DraftLesson[]) ||
+                            [],
+                    );
+                } else {
+                    router.push('/course/create/modules');
+                }
             }
-        }
-        setIsLoading(false);
+            setIsLoading(false);
+        }, 0);
+
+        return () => clearTimeout(timer);
     }, [params.moduleId, router]);
 
     const saveToLocal = (newLessons: DraftLesson[]) => {
@@ -122,7 +129,7 @@ export default function LessonManagerPage() {
             const modules: Module[] = JSON.parse(savedModulesStr);
             const updatedModules = modules.map((m) =>
                 m.id === moduleData.id
-                    ? { ...m, lessons: newLessons as any }
+                    ? { ...m, lessons: newLessons as unknown as DraftLesson[] }
                     : m,
             );
             localStorage.setItem(
@@ -204,7 +211,7 @@ export default function LessonManagerPage() {
         }
     };
 
-    const handleSaveMaterial = (formData: Record<string, any>) => {
+    const handleSaveMaterial = (formData: Record<string, unknown>) => {
         if (!activeLessonId || !activeMaterialType) return;
 
         const newLessons = lessons.map((lesson) => {
@@ -212,8 +219,16 @@ export default function LessonManagerPage() {
 
             let updatedItems = [...lesson.items];
 
+            // Ép kiểu an toàn (Safe Type Assertion) để TypeScript hiểu cấu trúc của formData
+            const typedData = formData as {
+                title: string;
+                is_required: boolean;
+                is_preview: boolean;
+                [key: string]: unknown;
+            };
+
             const { title, is_required, is_preview, ...specificData } =
-                formData;
+                typedData;
 
             if (editingMaterial) {
                 updatedItems = updatedItems.map((item) => {
@@ -324,23 +339,26 @@ export default function LessonManagerPage() {
                                     onDeleteLesson={() =>
                                         handleDeleteLesson(lesson.id)
                                     }
-                                    onReorderMaterials={(newItems) =>
+                                    // Đã thêm định danh kiểu dữ liệu cho tham số đầu vào
+                                    onReorderMaterials={(
+                                        newItems: DraftLessonItem[],
+                                    ) =>
                                         handleReorderMaterials(
                                             lesson.id,
                                             newItems,
                                         )
                                     }
-                                    onAddMaterial={(type) =>
+                                    onAddMaterial={(type: LessonItemType) =>
                                         openMaterialSheet(lesson.id, type)
                                     }
-                                    onEditMaterial={(item) =>
+                                    onEditMaterial={(item: DraftLessonItem) =>
                                         openMaterialSheet(
                                             lesson.id,
                                             item.item_type,
                                             item,
                                         )
                                     }
-                                    onDeleteMaterial={(itemId) =>
+                                    onDeleteMaterial={(itemId: string) =>
                                         handleDeleteMaterial(lesson.id, itemId)
                                     }
                                 />
@@ -370,7 +388,7 @@ export default function LessonManagerPage() {
 
 interface LessonCardProps {
     lesson: DraftLesson;
-    dragHandleProps: Record<string, any> | undefined;
+    dragHandleProps: Record<string, unknown> | undefined;
     onEditLesson: () => void;
     onDeleteLesson: () => void;
     onReorderMaterials: (newItems: DraftLessonItem[]) => void;
@@ -392,7 +410,7 @@ function LessonCard({
     const MATERIAL_TYPES: {
         type: LessonItemType;
         label: string;
-        icon: any;
+        icon: React.ElementType; // FIX LỖI TẠI ĐÂY: Khai báo icon là một component của React
         color: string;
     }[] = [
         { type: 'video', label: 'Video', icon: Video, color: 'text-blue-500' },
@@ -608,7 +626,7 @@ interface MaterialSheetProps {
     onOpenChange: (open: boolean) => void;
     type: LessonItemType | null;
     initialData: DraftLessonItem | null;
-    onSave: (data: Record<string, any>) => void;
+    onSave: (data: Record<string, unknown>) => void;
 }
 
 function MaterialSheet({
