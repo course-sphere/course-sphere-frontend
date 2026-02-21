@@ -11,8 +11,6 @@ import { CodingEditor } from '@/components/course-builder/editors/coding-editor'
 import { FileEditor } from '@/components/course-builder/editors/file-editor';
 import { QuizEditor } from '@/components/course-builder/editors/quiz-editor';
 
-import { DashboardSidebar } from '@/components/dashboard/sidebar';
-import { DashboardHeader } from '@/components/dashboard/header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -60,7 +58,6 @@ import {
     File as FileIcon,
     ChevronDown,
 } from 'lucide-react';
-import { getCurrentUser } from '@/lib/fake-data';
 import {
     type DraftLesson,
     type DraftLessonItem,
@@ -99,7 +96,6 @@ import { generateId } from '@/lib/utils';
 export default function LessonManagerPage() {
     const params = useParams<{ moduleId: string }>();
     const router = useRouter();
-    const user = getCurrentUser('teacher');
 
     const [isLoading, setIsLoading] = useState(true);
     const [moduleData, setModuleData] = useState<Module | null>(null);
@@ -188,7 +184,6 @@ export default function LessonManagerPage() {
             };
 
             console.log('Payload Create:', createPayload);
-
             const newLesson: DraftLesson = {
                 id: generateId('lesson'),
                 title,
@@ -265,7 +260,6 @@ export default function LessonManagerPage() {
                 is_preview,
                 [`${activeMaterialType}_data`]: specificData,
             });
-
             const newLessons = lessons.map((lesson) => {
                 if (lesson.id !== activeLessonId) return lesson;
                 const updatedItems = lesson.items.map((item) =>
@@ -287,7 +281,6 @@ export default function LessonManagerPage() {
             const nextSortOrder = currentLesson
                 ? currentLesson.items.length + 1
                 : 1;
-
             const createPayload = {
                 lesson_id: activeLessonId,
                 item_type: activeMaterialType,
@@ -321,107 +314,96 @@ export default function LessonManagerPage() {
 
     if (isLoading)
         return (
-            <div className="flex min-h-screen items-center justify-center">
+            <div className="flex min-h-[50vh] items-center justify-center">
                 <Loader2 className="text-primary h-8 w-8 animate-spin" />
             </div>
         );
 
+    // CHỈ CÒN LẠI LÕI GIAO DIỆN
     return (
-        <div className="bg-background min-h-screen">
-            <DashboardSidebar
-                role="teacher"
-                userName={user.name}
-                userEmail={user.email}
-            />
-            <div className="pl-64">
-                <DashboardHeader title={`Module: ${moduleData?.title}`} />
-                <main className="mx-auto max-w-4xl p-6">
-                    <Button variant="ghost" className="mb-6" asChild>
-                        <Link href="/course/create/modules">
-                            <ArrowLeft className="mr-2 h-4 w-4" /> Back to
-                            Modules
-                        </Link>
-                    </Button>
+        <div className="w-full">
+            <Button variant="ghost" className="mb-6" asChild>
+                <Link href="/course/create/modules">
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Back to Modules
+                </Link>
+            </Button>
 
-                    <div className="mb-8 flex items-end justify-between">
-                        <div>
-                            <h1 className="text-foreground text-2xl font-bold">
-                                Lessons & Materials
-                            </h1>
-                            <p className="text-muted-foreground mt-1">
-                                Manage content for module:{' '}
-                                <span className="text-foreground font-semibold">
-                                    {moduleData?.title}
-                                </span>
-                            </p>
-                        </div>
+            <div className="mx-auto max-w-4xl">
+                <div className="mb-8 flex items-end justify-between">
+                    <div>
+                        <h1 className="text-foreground text-2xl font-bold">
+                            Lessons & Materials
+                        </h1>
+                        <p className="text-muted-foreground mt-1">
+                            Manage content for module:{' '}
+                            <span className="text-foreground font-semibold">
+                                {moduleData?.title}
+                            </span>
+                        </p>
+                    </div>
+                    <Button
+                        onClick={() => {
+                            setEditingLesson(null);
+                            setIsLessonDialogOpen(true);
+                        }}
+                        className="rounded-xl"
+                    >
+                        <Plus className="mr-2 h-4 w-4" /> Add Lesson
+                    </Button>
+                </div>
+
+                {lessons.length === 0 ? (
+                    <div className="border-border rounded-2xl border-2 border-dashed p-12 text-center">
+                        <p className="text-muted-foreground mb-4">
+                            No lessons in this module yet.
+                        </p>
                         <Button
                             onClick={() => {
                                 setEditingLesson(null);
                                 setIsLessonDialogOpen(true);
                             }}
-                            className="rounded-xl"
+                            variant="outline"
                         >
-                            <Plus className="mr-2 h-4 w-4" /> Add Lesson
+                            Add First Lesson
                         </Button>
                     </div>
-
-                    {lessons.length === 0 ? (
-                        <div className="border-border rounded-2xl border-2 border-dashed p-12 text-center">
-                            <p className="text-muted-foreground mb-4">
-                                No lessons in this module yet.
-                            </p>
-                            <Button
-                                onClick={() => {
-                                    setEditingLesson(null);
+                ) : (
+                    <SortableList
+                        items={lessons}
+                        onReorder={handleReorderLessons}
+                        renderItem={(lesson, dragHandleProps) => (
+                            <LessonCard
+                                lesson={lesson}
+                                dragHandleProps={dragHandleProps}
+                                onEditLesson={() => {
+                                    setEditingLesson(lesson);
                                     setIsLessonDialogOpen(true);
                                 }}
-                                variant="outline"
-                            >
-                                Add First Lesson
-                            </Button>
-                        </div>
-                    ) : (
-                        <SortableList
-                            items={lessons}
-                            onReorder={handleReorderLessons}
-                            renderItem={(lesson, dragHandleProps) => (
-                                <LessonCard
-                                    lesson={lesson}
-                                    dragHandleProps={dragHandleProps}
-                                    onEditLesson={() => {
-                                        setEditingLesson(lesson);
-                                        setIsLessonDialogOpen(true);
-                                    }}
-                                    onDeleteLesson={() =>
-                                        handleDeleteLesson(lesson.id)
-                                    }
-                                    onReorderMaterials={(
-                                        newItems: DraftLessonItem[],
-                                    ) =>
-                                        handleReorderMaterials(
-                                            lesson.id,
-                                            newItems,
-                                        )
-                                    }
-                                    onAddMaterial={(type: LessonItemType) =>
-                                        openMaterialSheet(lesson.id, type)
-                                    }
-                                    onEditMaterial={(item: DraftLessonItem) =>
-                                        openMaterialSheet(
-                                            lesson.id,
-                                            item.item_type,
-                                            item,
-                                        )
-                                    }
-                                    onDeleteMaterial={(itemId: string) =>
-                                        handleDeleteMaterial(lesson.id, itemId)
-                                    }
-                                />
-                            )}
-                        />
-                    )}
-                </main>
+                                onDeleteLesson={() =>
+                                    handleDeleteLesson(lesson.id)
+                                }
+                                onReorderMaterials={(
+                                    newItems: DraftLessonItem[],
+                                ) =>
+                                    handleReorderMaterials(lesson.id, newItems)
+                                }
+                                onAddMaterial={(type: LessonItemType) =>
+                                    openMaterialSheet(lesson.id, type)
+                                }
+                                onEditMaterial={(item: DraftLessonItem) =>
+                                    openMaterialSheet(
+                                        lesson.id,
+                                        item.item_type,
+                                        item,
+                                    )
+                                }
+                                onDeleteMaterial={(itemId: string) =>
+                                    handleDeleteMaterial(lesson.id, itemId)
+                                }
+                            />
+                        )}
+                    />
+                )}
             </div>
 
             <LessonFormDialog
@@ -441,6 +423,10 @@ export default function LessonManagerPage() {
         </div>
     );
 }
+
+// -------------------------------------------------------------
+// Component LessonCard & MaterialSheet & LessonFormDialog (Giữ nguyên)
+// -------------------------------------------------------------
 
 interface LessonCardProps {
     lesson: DraftLesson;
@@ -466,7 +452,7 @@ function LessonCard({
     const MATERIAL_TYPES: {
         type: LessonItemType;
         label: string;
-        icon: React.ElementType; // FIX LỖI TẠI ĐÂY: Khai báo icon là một component của React
+        icon: React.ElementType;
         color: string;
     }[] = [
         { type: 'video', label: 'Video', icon: Video, color: 'text-blue-500' },

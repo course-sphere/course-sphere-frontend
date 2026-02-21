@@ -6,8 +6,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 
-import { DashboardSidebar } from '@/components/dashboard/sidebar';
-import { DashboardHeader } from '@/components/dashboard/header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -45,12 +43,10 @@ import {
     Trash2,
     BookOpen,
 } from 'lucide-react';
-import { getCurrentUser } from '@/lib/fake-data';
 import { PhaseIndicator } from '@/components/course-builder/phase-indicator';
 import { PHASES } from '@/components/course-builder/constant';
 import { Module, ModuleFormValues, moduleSchema } from '@/lib/service/module';
 import { generateId } from '@/lib/utils';
-
 /*
  * TODO: API INTEGRATION & UI REFACTOR (MODULE BUILDER)
  *
@@ -71,7 +67,6 @@ import { generateId } from '@/lib/utils';
  */
 export default function ModuleBuilderPage() {
     const router = useRouter();
-    const user = getCurrentUser('teacher');
 
     const [isLoading, setIsLoading] = useState(true);
     const [courseId, setCourseId] = useState<string | null>(null);
@@ -132,6 +127,7 @@ export default function ModuleBuilderPage() {
     const handleFormSubmit = (values: ModuleFormValues) => {
         if (editingModule) {
             console.log('Payload Update:', values);
+
             const newArray = modules.map((m) =>
                 m.id === editingModule.id ? { ...m, ...values } : m,
             );
@@ -145,7 +141,6 @@ export default function ModuleBuilderPage() {
             };
 
             console.log('Payload Create:', createPayload);
-
             const newModule: Module = {
                 id: generateId('module'),
                 course_id: courseId as string,
@@ -164,157 +159,135 @@ export default function ModuleBuilderPage() {
 
     if (isLoading)
         return (
-            <div className="flex min-h-screen items-center justify-center">
+            <div className="flex min-h-[50vh] items-center justify-center">
                 <Loader2 className="text-primary animate-spin" />
             </div>
         );
 
     return (
-        <div className="bg-background min-h-screen">
-            <DashboardSidebar
-                role="teacher"
-                userName={user.name}
-                userEmail={user.email}
-            />
-            <div className="pl-64">
-                <DashboardHeader title="Module Builder" />
-                <main className="p-6">
-                    <Button variant="ghost" className="mb-6" asChild>
-                        <Link href="/course/create">
-                            <ArrowLeft className="mr-2 h-4 w-4" /> Back to
-                            Course Info
-                        </Link>
-                    </Button>
+        <div className="w-full">
+            <Button variant="ghost" className="mb-6" asChild>
+                <Link href="/course/create">
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Back to Course Info
+                </Link>
+            </Button>
 
-                    <div className="mx-auto max-w-4xl">
-                        <div className="mb-8 flex items-end justify-between">
-                            <div>
-                                <h1 className="text-foreground text-2xl font-bold">
-                                    Build Your Modules
-                                </h1>
-                                <p className="text-muted-foreground mt-1">
-                                    Organize your course into broad topics or
-                                    weeks.
-                                </p>
-                            </div>
-                            <Button
-                                onClick={openCreateDialog}
-                                className="rounded-xl"
-                            >
-                                <Plus className="mr-2 h-4 w-4" /> Add Module
-                            </Button>
-                        </div>
-
-                        <PhaseIndicator
-                            phases={PHASES}
-                            currentPhase={2}
-                            className="mb-8"
-                        />
-
-                        {modules.length === 0 ? (
-                            <div className="border-border rounded-2xl border-2 border-dashed p-12 text-center">
-                                <h3 className="text-lg font-medium">
-                                    No modules yet
-                                </h3>
-                                <p className="text-muted-foreground mt-1 mb-4">
-                                    Get started by creating your first course
-                                    module.
-                                </p>
-                                <Button
-                                    onClick={openCreateDialog}
-                                    variant="outline"
-                                    className="rounded-xl"
-                                >
-                                    Create Module
-                                </Button>
-                            </div>
-                        ) : (
-                            <SortableList
-                                items={modules}
-                                onReorder={handleReorder}
-                                renderItem={(module, dragHandleProps) => (
-                                    <div className="bg-card border-border flex items-center rounded-xl border p-3 shadow-sm transition-all hover:shadow-md">
-                                        <div
-                                            {...dragHandleProps}
-                                            className="text-muted-foreground hover:text-foreground cursor-grab px-2 py-2"
-                                        >
-                                            <GripVertical className="h-5 w-5" />
-                                        </div>
-
-                                        <div className="bg-primary/10 text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-lg font-bold">
-                                            {module.sort_order}
-                                        </div>
-
-                                        <div className="ml-4 flex-1 truncate">
-                                            <h3 className="truncate font-medium">
-                                                {module.title}
-                                            </h3>
-                                            {module.description && (
-                                                <p className="text-muted-foreground mt-0.5 truncate text-xs">
-                                                    {module.description}
-                                                </p>
-                                            )}
-                                        </div>
-
-                                        <div className="ml-4 flex items-center gap-2 pr-2">
-                                            <Button
-                                                variant="secondary"
-                                                size="sm"
-                                                onClick={() =>
-                                                    router.push(
-                                                        `/course/create/modules/${module.id}/lessons`,
-                                                    )
-                                                }
-                                                className="rounded-lg"
-                                            >
-                                                <BookOpen className="mr-1.5 h-3.5 w-3.5" />{' '}
-                                                Manage Lessons
-                                            </Button>
-
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-8 w-8 rounded-lg"
-                                                    >
-                                                        <MoreVertical className="h-4 w-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent
-                                                    align="end"
-                                                    className="rounded-xl"
-                                                >
-                                                    <DropdownMenuItem
-                                                        onClick={() =>
-                                                            openEditDialog(
-                                                                module,
-                                                            )
-                                                        }
-                                                    >
-                                                        <Pencil className="mr-2 h-4 w-4" />{' '}
-                                                        Edit Module Info
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem
-                                                        onClick={() =>
-                                                            handleDelete(
-                                                                module.id,
-                                                            )
-                                                        }
-                                                        className="text-destructive focus:bg-destructive/10"
-                                                    >
-                                                        <Trash2 className="mr-2 h-4 w-4" />{' '}
-                                                        Delete Module
-                                                    </DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </div>
-                                    </div>
-                                )}
-                            />
-                        )}
+            <div className="mx-auto max-w-4xl">
+                <div className="mb-8 flex items-end justify-between">
+                    <div>
+                        <h1 className="text-foreground text-2xl font-bold">
+                            Build Your Modules
+                        </h1>
+                        <p className="text-muted-foreground mt-1">
+                            Organize your course into broad topics or weeks.
+                        </p>
                     </div>
-                </main>
+                    <Button onClick={openCreateDialog} className="rounded-xl">
+                        <Plus className="mr-2 h-4 w-4" /> Add Module
+                    </Button>
+                </div>
+
+                <PhaseIndicator
+                    phases={PHASES}
+                    currentPhase={2}
+                    className="mb-8"
+                />
+
+                {modules.length === 0 ? (
+                    <div className="border-border rounded-2xl border-2 border-dashed p-12 text-center">
+                        <h3 className="text-lg font-medium">No modules yet</h3>
+                        <p className="text-muted-foreground mt-1 mb-4">
+                            Get started by creating your first course module.
+                        </p>
+                        <Button
+                            onClick={openCreateDialog}
+                            variant="outline"
+                            className="rounded-xl"
+                        >
+                            Create Module
+                        </Button>
+                    </div>
+                ) : (
+                    <SortableList
+                        items={modules}
+                        onReorder={handleReorder}
+                        renderItem={(module, dragHandleProps) => (
+                            <div className="bg-card border-border flex items-center rounded-xl border p-3 shadow-sm transition-all hover:shadow-md">
+                                <div
+                                    {...dragHandleProps}
+                                    className="text-muted-foreground hover:text-foreground cursor-grab px-2 py-2"
+                                >
+                                    <GripVertical className="h-5 w-5" />
+                                </div>
+
+                                <div className="bg-primary/10 text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-lg font-bold">
+                                    {module.sort_order}
+                                </div>
+
+                                <div className="ml-4 flex-1 truncate">
+                                    <h3 className="truncate font-medium">
+                                        {module.title}
+                                    </h3>
+                                    {module.description && (
+                                        <p className="text-muted-foreground mt-0.5 truncate text-xs">
+                                            {module.description}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div className="ml-4 flex items-center gap-2 pr-2">
+                                    <Button
+                                        variant="secondary"
+                                        size="sm"
+                                        onClick={() =>
+                                            router.push(
+                                                `/course/create/modules/${module.id}/lessons`,
+                                            )
+                                        }
+                                        className="rounded-lg"
+                                    >
+                                        <BookOpen className="mr-1.5 h-3.5 w-3.5" />{' '}
+                                        Manage Lessons
+                                    </Button>
+
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 rounded-lg"
+                                            >
+                                                <MoreVertical className="h-4 w-4" />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent
+                                            align="end"
+                                            className="rounded-xl"
+                                        >
+                                            <DropdownMenuItem
+                                                onClick={() =>
+                                                    openEditDialog(module)
+                                                }
+                                            >
+                                                <Pencil className="mr-2 h-4 w-4" />{' '}
+                                                Edit Module Info
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem
+                                                onClick={() =>
+                                                    handleDelete(module.id)
+                                                }
+                                                className="text-destructive focus:bg-destructive/10"
+                                            >
+                                                <Trash2 className="mr-2 h-4 w-4" />{' '}
+                                                Delete Module
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </div>
+                            </div>
+                        )}
+                    />
+                )}
             </div>
 
             <ModuleFormDialog
