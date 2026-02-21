@@ -11,8 +11,6 @@ import { CodingEditor } from '@/components/course-builder/editors/coding-editor'
 import { FileEditor } from '@/components/course-builder/editors/file-editor';
 import { QuizEditor } from '@/components/course-builder/editors/quiz-editor';
 
-import { DashboardSidebar } from '@/components/dashboard/sidebar';
-import { DashboardHeader } from '@/components/dashboard/header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -60,7 +58,6 @@ import {
     File as FileIcon,
     ChevronDown,
 } from 'lucide-react';
-import { getCurrentUser } from '@/lib/fake-data';
 import {
     type DraftLesson,
     type DraftLessonItem,
@@ -68,38 +65,10 @@ import {
 } from '@/lib/service/lesson';
 import { Module } from '@/lib/service/module';
 import { generateId } from '@/lib/utils';
-/*
- * TODO: API INTEGRATION (PHASE 3 - LESSON MANAGER)
- *
- * 1. LESSON CRUD (handleSaveLesson & handleDeleteLesson):
- * - CREATE: POST /api/v1/modules/{moduleId}/lessons -> Body: { title, sort_order }
- * *CRITICAL: Must replace local generateId() with the real DB ID immediately so child items can be attached to it.*
- * - UPDATE: PUT /api/v1/lessons/{lessonId} -> Body: { title }
- * - DELETE: DELETE /api/v1/lessons/{lessonId}
- * - REORDER: PUT /api/v1/modules/{moduleId}/lessons/reorder -> Body: [{ id, sort_order }]
- *
- * 2. DATA FETCHING:
- * - On page mount, fetch lessons via GET /api/v1/modules/{moduleId}/lessons
- * - Remove the complex nested saveToLocal() logic that patches the course_modules_data array in localStorage.
- */
-//---------------------------------
-/*
- * TODO: API INTEGRATION (PHASE 4 - MATERIAL MANAGER)
- *
- * 1. MATERIAL CRUD (handleSaveMaterial & handleDeleteMaterial):
- * - CREATE: POST /api/v1/lessons/{lessonId}/materials
- * Payload uses a polymorphic structure: Base fields (title, is_required) + Specific DTO (e.g., reading_data).
- * - UPDATE: PUT /api/v1/materials/{materialId}
- * - DELETE: DELETE /api/v1/materials/{materialId}
- * - REORDER: PUT /api/v1/lessons/{lessonId}/materials/reorder
- *
- * 2. BACKEND DATA STRUCTURE:
- * - RHF groups polymorphic fields dynamically. e.g., if item_type === 'reading', the payload contains a "reading_data" node containing HTML content. Use JSONB column or Hibernate Inheritance to map this cleanly.
- */
+
 export default function LessonManagerPage() {
     const params = useParams<{ moduleId: string }>();
     const router = useRouter();
-    const user = getCurrentUser('teacher');
 
     const [isLoading, setIsLoading] = useState(true);
     const [moduleData, setModuleData] = useState<Module | null>(null);
@@ -174,21 +143,12 @@ export default function LessonManagerPage() {
 
     const handleSaveLesson = (title: string) => {
         if (editingLesson) {
-            console.log('Payload Update:', { title });
             saveToLocal(
                 lessons.map((l) =>
                     l.id === editingLesson.id ? { ...l, title } : l,
                 ),
             );
         } else {
-            const createPayload = {
-                module_id: moduleData?.id,
-                title,
-                sort_order: lessons.length + 1,
-            };
-
-            console.log('Payload Create:', createPayload);
-
             const newLesson: DraftLesson = {
                 id: generateId('lesson'),
                 title,
@@ -259,13 +219,6 @@ export default function LessonManagerPage() {
         const { title, is_required, is_preview, ...specificData } = typedData;
 
         if (editingMaterial) {
-            console.log('Payload Update Material:', {
-                title,
-                is_required,
-                is_preview,
-                [`${activeMaterialType}_data`]: specificData,
-            });
-
             const newLessons = lessons.map((lesson) => {
                 if (lesson.id !== activeLessonId) return lesson;
                 const updatedItems = lesson.items.map((item) =>
@@ -288,18 +241,6 @@ export default function LessonManagerPage() {
                 ? currentLesson.items.length + 1
                 : 1;
 
-            const createPayload = {
-                lesson_id: activeLessonId,
-                item_type: activeMaterialType,
-                sort_order: nextSortOrder,
-                title,
-                is_required,
-                is_preview,
-                [`${activeMaterialType}_data`]: specificData,
-            };
-
-            console.log('Payload Create Material:', createPayload);
-
             const newLessons = lessons.map((lesson) => {
                 if (lesson.id !== activeLessonId) return lesson;
                 const newItem: DraftLessonItem = {
@@ -321,107 +262,96 @@ export default function LessonManagerPage() {
 
     if (isLoading)
         return (
-            <div className="flex min-h-screen items-center justify-center">
+            <div className="flex min-h-[50vh] items-center justify-center">
                 <Loader2 className="text-primary h-8 w-8 animate-spin" />
             </div>
         );
 
+    // CHỈ CÒN LẠI LÕI GIAO DIỆN
     return (
-        <div className="bg-background min-h-screen">
-            <DashboardSidebar
-                role="teacher"
-                userName={user.name}
-                userEmail={user.email}
-            />
-            <div className="pl-64">
-                <DashboardHeader title={`Module: ${moduleData?.title}`} />
-                <main className="mx-auto max-w-4xl p-6">
-                    <Button variant="ghost" className="mb-6" asChild>
-                        <Link href="/course/create/modules">
-                            <ArrowLeft className="mr-2 h-4 w-4" /> Back to
-                            Modules
-                        </Link>
-                    </Button>
+        <div className="w-full">
+            <Button variant="ghost" className="mb-6" asChild>
+                <Link href="/course/create/modules">
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Back to Modules
+                </Link>
+            </Button>
 
-                    <div className="mb-8 flex items-end justify-between">
-                        <div>
-                            <h1 className="text-foreground text-2xl font-bold">
-                                Lessons & Materials
-                            </h1>
-                            <p className="text-muted-foreground mt-1">
-                                Manage content for module:{' '}
-                                <span className="text-foreground font-semibold">
-                                    {moduleData?.title}
-                                </span>
-                            </p>
-                        </div>
+            <div className="mx-auto max-w-4xl">
+                <div className="mb-8 flex items-end justify-between">
+                    <div>
+                        <h1 className="text-foreground text-2xl font-bold">
+                            Lessons & Materials
+                        </h1>
+                        <p className="text-muted-foreground mt-1">
+                            Manage content for module:{' '}
+                            <span className="text-foreground font-semibold">
+                                {moduleData?.title}
+                            </span>
+                        </p>
+                    </div>
+                    <Button
+                        onClick={() => {
+                            setEditingLesson(null);
+                            setIsLessonDialogOpen(true);
+                        }}
+                        className="rounded-xl"
+                    >
+                        <Plus className="mr-2 h-4 w-4" /> Add Lesson
+                    </Button>
+                </div>
+
+                {lessons.length === 0 ? (
+                    <div className="border-border rounded-2xl border-2 border-dashed p-12 text-center">
+                        <p className="text-muted-foreground mb-4">
+                            No lessons in this module yet.
+                        </p>
                         <Button
                             onClick={() => {
                                 setEditingLesson(null);
                                 setIsLessonDialogOpen(true);
                             }}
-                            className="rounded-xl"
+                            variant="outline"
                         >
-                            <Plus className="mr-2 h-4 w-4" /> Add Lesson
+                            Add First Lesson
                         </Button>
                     </div>
-
-                    {lessons.length === 0 ? (
-                        <div className="border-border rounded-2xl border-2 border-dashed p-12 text-center">
-                            <p className="text-muted-foreground mb-4">
-                                No lessons in this module yet.
-                            </p>
-                            <Button
-                                onClick={() => {
-                                    setEditingLesson(null);
+                ) : (
+                    <SortableList
+                        items={lessons}
+                        onReorder={handleReorderLessons}
+                        renderItem={(lesson, dragHandleProps) => (
+                            <LessonCard
+                                lesson={lesson}
+                                dragHandleProps={dragHandleProps}
+                                onEditLesson={() => {
+                                    setEditingLesson(lesson);
                                     setIsLessonDialogOpen(true);
                                 }}
-                                variant="outline"
-                            >
-                                Add First Lesson
-                            </Button>
-                        </div>
-                    ) : (
-                        <SortableList
-                            items={lessons}
-                            onReorder={handleReorderLessons}
-                            renderItem={(lesson, dragHandleProps) => (
-                                <LessonCard
-                                    lesson={lesson}
-                                    dragHandleProps={dragHandleProps}
-                                    onEditLesson={() => {
-                                        setEditingLesson(lesson);
-                                        setIsLessonDialogOpen(true);
-                                    }}
-                                    onDeleteLesson={() =>
-                                        handleDeleteLesson(lesson.id)
-                                    }
-                                    onReorderMaterials={(
-                                        newItems: DraftLessonItem[],
-                                    ) =>
-                                        handleReorderMaterials(
-                                            lesson.id,
-                                            newItems,
-                                        )
-                                    }
-                                    onAddMaterial={(type: LessonItemType) =>
-                                        openMaterialSheet(lesson.id, type)
-                                    }
-                                    onEditMaterial={(item: DraftLessonItem) =>
-                                        openMaterialSheet(
-                                            lesson.id,
-                                            item.item_type,
-                                            item,
-                                        )
-                                    }
-                                    onDeleteMaterial={(itemId: string) =>
-                                        handleDeleteMaterial(lesson.id, itemId)
-                                    }
-                                />
-                            )}
-                        />
-                    )}
-                </main>
+                                onDeleteLesson={() =>
+                                    handleDeleteLesson(lesson.id)
+                                }
+                                onReorderMaterials={(
+                                    newItems: DraftLessonItem[],
+                                ) =>
+                                    handleReorderMaterials(lesson.id, newItems)
+                                }
+                                onAddMaterial={(type: LessonItemType) =>
+                                    openMaterialSheet(lesson.id, type)
+                                }
+                                onEditMaterial={(item: DraftLessonItem) =>
+                                    openMaterialSheet(
+                                        lesson.id,
+                                        item.item_type,
+                                        item,
+                                    )
+                                }
+                                onDeleteMaterial={(itemId: string) =>
+                                    handleDeleteMaterial(lesson.id, itemId)
+                                }
+                            />
+                        )}
+                    />
+                )}
             </div>
 
             <LessonFormDialog
@@ -441,6 +371,10 @@ export default function LessonManagerPage() {
         </div>
     );
 }
+
+// -------------------------------------------------------------
+// Component LessonCard & MaterialSheet & LessonFormDialog (Giữ nguyên)
+// -------------------------------------------------------------
 
 interface LessonCardProps {
     lesson: DraftLesson;
@@ -466,7 +400,7 @@ function LessonCard({
     const MATERIAL_TYPES: {
         type: LessonItemType;
         label: string;
-        icon: React.ElementType; // FIX LỖI TẠI ĐÂY: Khai báo icon là một component của React
+        icon: React.ElementType;
         color: string;
     }[] = [
         { type: 'video', label: 'Video', icon: Video, color: 'text-blue-500' },
