@@ -74,7 +74,7 @@ export default function AllCoursesPage() {
 
     return (
         <div className="bg-background min-h-screen">
-            <section className="from-primary/5 to-background bg-linear-to-b px-4 py-16 sm:px-6 lg:px-8">
+            <section className="bg-background bg-linear-to-b px-4 py-16 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-7xl">
                     <div className="space-y-6 text-center">
                         <Badge className="mx-auto">
