@@ -12,9 +12,10 @@ import {
     SidebarMenuButton,
 } from '@/components/ui/sidebar';
 import { getMenuByRole, type NavGroup } from '@/config/navigation';
+import { Role } from '@/lib/service/user';
 
 interface RoleNavMenuProps {
-    role: 'TEACHER' | 'ADMIN';
+    role: Role;
 }
 
 export function RoleNavMenu({ role }: RoleNavMenuProps) {

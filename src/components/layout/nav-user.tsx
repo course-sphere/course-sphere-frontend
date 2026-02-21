@@ -17,6 +17,8 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from '@/components/ui/sidebar';
+import { useRouter } from 'next/navigation';
+import { authClient } from '@/lib/api-client';
 
 export interface UserProps {
     name: string;
@@ -26,7 +28,18 @@ export interface UserProps {
 
 export function NavUser({ user }: { user: UserProps }) {
     const { isMobile } = useSidebar();
+    const router = useRouter();
     const initial = user.name.charAt(0).toUpperCase();
+
+    const handleSignOut = async () => {
+        await authClient.signOut({
+            fetchOptions: {
+                onSuccess: () => {
+                    router.push('/');
+                },
+            },
+        });
+    };
 
     return (
         <SidebarMenu>
@@ -91,10 +104,13 @@ export function NavUser({ user }: { user: UserProps }) {
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
+                        <DropdownMenuItem
+                            onClick={handleSignOut}
+                            className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
+                        >
                             <LogOut className="mr-2 h-4 w-4" />
                             Sign Out
-                        </DropdownMenuItem>
+                        </DropdownMenuItem>{' '}
                     </DropdownMenuContent>
                 </DropdownMenu>
             </SidebarMenuItem>
