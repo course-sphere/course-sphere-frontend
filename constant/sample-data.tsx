@@ -1,6 +1,29 @@
+import {
+    Assignment,
+    AssignmentSubmission,
+    PeerReview,
+} from '@/lib/service/assignment/type';
 import type { Course, CourseModule } from '@/lib/service/course';
+import {
+    AdminStats,
+    StudentStats,
+    TeacherStats,
+} from '@/lib/service/dashboard/type';
+import { Comment } from '@/lib/service/discussion/type';
+import { Enrollment } from '@/lib/service/enrollment/type';
+import { Lesson, LessonItem } from '@/lib/service/lesson';
+import { Module } from '@/lib/service/module';
+import { Quiz } from '@/lib/service/quiz/type';
+import { Report } from '@/lib/service/report/type';
 import { CourseSyllabusResponse } from '@/lib/service/syllabus/type';
+import { User } from '@/lib/service/user';
+import {
+    Transaction,
+    Wallet,
+    WithdrawRequest,
+} from '@/lib/service/wallet/type';
 
+// default modules use in /course/{id}
 const defaultModules: CourseModule[] = [
     {
         id: 'module-1',
@@ -45,8 +68,8 @@ const defaultModules: CourseModule[] = [
         ],
     },
 ];
-
-export const courses: Course[] = [
+// sample course use in /course
+export const fakeCourses: Course[] = [
     {
         id: '1',
         title: 'Advanced React & Next.js Mastery',
@@ -62,6 +85,7 @@ export const courses: Course[] = [
         level: 'Advanced',
         students: 12340,
         price: '$99.99',
+        status: 'published',
         image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80',
         modules: [
             {
@@ -202,6 +226,7 @@ export const courses: Course[] = [
         level: 'Intermediate',
         students: 8765,
         price: '$89.99',
+        status: 'published',
         image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80',
         modules: [
             {
@@ -269,6 +294,7 @@ export const courses: Course[] = [
         description:
             'Create stunning user experiences using Figma. Learn design principles, prototyping, and real-world workflows.',
         rating: 5,
+        status: 'published',
         ratingCount: 1456,
         instructor: 'Emily Zhang',
         lastUpdated: 'January 2026',
@@ -316,6 +342,7 @@ export const courses: Course[] = [
         description:
             'Build cross-platform mobile apps with React Native. Deploy to iOS and Android from a single codebase.',
         rating: 5,
+        status: 'published',
         ratingCount: 987,
         instructor: 'James Wilson',
         lastUpdated: 'November 2025',
@@ -363,6 +390,7 @@ export const courses: Course[] = [
         duration: '22 hours of content',
         level: 'Beginner',
         students: 12450,
+        status: 'published',
         price: '$79.99',
         image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80',
         modules: defaultModules,
@@ -380,6 +408,7 @@ export const courses: Course[] = [
         language: 'English',
         duration: '26 hours of content',
         level: 'Beginner',
+        status: 'published',
         students: 8920,
         price: '$89.99',
         image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80',
@@ -395,6 +424,7 @@ export const courses: Course[] = [
         ratingCount: 642,
         instructor: 'Mike Rodriguez',
         lastUpdated: 'December 2025',
+        status: 'published',
         language: 'English',
         duration: '24 hours of content',
         level: 'Intermediate',
@@ -411,6 +441,7 @@ export const courses: Course[] = [
             'Learn the fundamentals of user-centered design, research, and prototyping for modern products.',
         rating: 4.9,
         ratingCount: 728,
+        status: 'published',
         instructor: 'Emma Wilson',
         lastUpdated: 'December 2025',
         language: 'English',
@@ -429,6 +460,7 @@ export const courses: Course[] = [
             'Level up your React skills with scalable patterns, performance tuning, and testing strategies.',
         rating: 4.8,
         ratingCount: 945,
+        status: 'published',
         instructor: 'Alex Johnson',
         lastUpdated: 'January 2026',
         language: 'English',
@@ -447,6 +479,7 @@ export const courses: Course[] = [
             'Apply Python to real ML problems with feature engineering, training, and model evaluation.',
         rating: 4.9,
         ratingCount: 723,
+        status: 'published',
         instructor: 'Sarah Chen',
         lastUpdated: 'January 2026',
         language: 'English',
@@ -467,6 +500,7 @@ export const courses: Course[] = [
         ratingCount: 456,
         instructor: 'Mike Rodriguez',
         lastUpdated: 'November 2025',
+        status: 'published',
         language: 'English',
         duration: '26 hours of content',
         level: 'Intermediate',
@@ -486,6 +520,7 @@ export const courses: Course[] = [
         instructor: 'Emma Wilson',
         lastUpdated: 'December 2025',
         language: 'English',
+        status: 'published',
         duration: '16 hours of content',
         level: 'Intermediate',
         students: 4890,
@@ -505,6 +540,7 @@ export const courses: Course[] = [
         lastUpdated: 'January 2026',
         language: 'English',
         duration: '34 hours of content',
+        status: 'published',
         level: 'Beginner',
         students: 10230,
         price: '$79.99',
@@ -521,6 +557,7 @@ export const courses: Course[] = [
         ratingCount: 534,
         instructor: 'Sarah Chen',
         lastUpdated: 'January 2026',
+        status: 'published',
         language: 'English',
         duration: '36 hours of content',
         level: 'Advanced',
@@ -541,6 +578,7 @@ export const courses: Course[] = [
         lastUpdated: 'November 2025',
         language: 'English',
         duration: '28 hours of content',
+        status: 'published',
         level: 'Intermediate',
         students: 4320,
         price: '$84.99',
@@ -559,6 +597,7 @@ export const courses: Course[] = [
         lastUpdated: 'December 2025',
         language: 'English',
         duration: '20 hours of content',
+        status: 'published',
         level: 'Beginner',
         students: 8765,
         price: '$69.99',
@@ -577,6 +616,7 @@ export const courses: Course[] = [
         lastUpdated: 'January 2026',
         language: 'English',
         duration: '18 hours of content',
+        status: 'published',
         level: 'Intermediate',
         students: 7340,
         price: '$84.99',
@@ -587,6 +627,7 @@ export const courses: Course[] = [
         id: '18',
         title: 'Data Visualization with D3',
         category: 'Data Science',
+        status: 'published',
         description:
             'Turn data into compelling stories with D3.js, charts, and interaction patterns.',
         rating: 4.6,
@@ -609,6 +650,7 @@ export const courses: Course[] = [
             'Ship Android apps with Kotlin, Jetpack components, and modern architecture patterns.',
         rating: 4.8,
         ratingCount: 441,
+        status: 'published',
         instructor: 'Diego Torres',
         lastUpdated: 'January 2026',
         language: 'English',
@@ -623,6 +665,7 @@ export const courses: Course[] = [
         id: '20',
         title: 'Product Design Workshop',
         category: 'Design',
+        status: 'published',
         description:
             'Design end-to-end product experiences with research, flows, and high-fidelity prototypes.',
         rating: 4.7,
@@ -649,6 +692,7 @@ export const courses: Course[] = [
         lastUpdated: 'January 2026',
         language: 'English',
         duration: '22 hours of content',
+        status: 'published',
         level: 'Advanced',
         students: 8150,
         price: '$79.99',
@@ -665,6 +709,7 @@ export const courses: Course[] = [
         ratingCount: 274,
         instructor: 'Noah Brooks',
         lastUpdated: 'January 2026',
+        status: 'published',
         language: 'English',
         duration: '12 hours of content',
         level: 'Beginner',
@@ -674,7 +719,7 @@ export const courses: Course[] = [
         modules: defaultModules,
     },
 ];
-
+// category to perform filter in /course
 export const categories = [
     'All',
     'Web Development',
@@ -682,424 +727,10 @@ export const categories = [
     'Mobile',
     'Design',
 ];
-
+// level to perform filter in /course
 export const levels = ['All', 'Beginner', 'Intermediate', 'Advanced'];
 
-export function getCourseById(id: string) {
-    return courses.find((course) => course.id === id);
-}
-
-export function getCoursesByCategory(category: string) {
-    return courses.filter((course) => course.category === category);
-}
-
-export const learningPaths = [
-    {
-        id: '1',
-        title: 'Full-Stack Web Developer',
-        category: 'Web Development',
-        description:
-            'Master modern web development from frontend to backend. Learn React, Node.js, databases, and deployment to build production-ready applications.',
-        level: 'Beginner → Advanced',
-        duration: '120+ hours',
-        students: 24500,
-        progress: 45,
-        modules: [
-            {
-                id: 'module-1',
-                title: 'Frontend Foundations',
-                description: 'Master HTML, CSS, and JavaScript',
-                lessons: [
-                    {
-                        id: 'lesson-1',
-                        title: 'HTML & CSS Fundamentals',
-                        type: 'video' as const,
-                        duration: '10 hours',
-                        completed: true,
-                    },
-                    {
-                        id: 'lesson-2',
-                        title: 'JavaScript Essentials',
-                        type: 'video' as const,
-                        duration: '12 hours',
-                        completed: true,
-                    },
-                    {
-                        id: 'lesson-3',
-                        title: 'DOM Manipulation',
-                        type: 'exercise' as const,
-                        duration: '8 hours',
-                        completed: false,
-                    },
-                ],
-            },
-            {
-                id: 'module-2',
-                title: 'React Deep Dive',
-                description: 'Advanced React patterns and hooks',
-                lessons: [
-                    {
-                        id: 'lesson-4',
-                        title: 'React Fundamentals',
-                        type: 'video' as const,
-                        duration: '10 hours',
-                        completed: false,
-                    },
-                    {
-                        id: 'lesson-5',
-                        title: 'Advanced Hooks',
-                        type: 'exercise' as const,
-                        duration: '8 hours',
-                        completed: false,
-                    },
-                    {
-                        id: 'lesson-6',
-                        title: 'State Management',
-                        type: 'exercise' as const,
-                        duration: '10 hours',
-                        completed: false,
-                    },
-                ],
-            },
-            {
-                id: 'module-3',
-                title: 'Backend Development',
-                description: 'Node.js, Express, and API design',
-                lessons: [
-                    {
-                        id: 'lesson-7',
-                        title: 'Node.js Basics',
-                        type: 'video' as const,
-                        duration: '8 hours',
-                        completed: false,
-                    },
-                    {
-                        id: 'lesson-8',
-                        title: 'Express.js & APIs',
-                        type: 'exercise' as const,
-                        duration: '12 hours',
-                        completed: false,
-                    },
-                    {
-                        id: 'lesson-9',
-                        title: 'RESTful Design',
-                        type: 'video' as const,
-                        duration: '6 hours',
-                        completed: false,
-                    },
-                ],
-            },
-            {
-                id: 'module-4',
-                title: 'Database & Deployment',
-                description: 'PostgreSQL, MongoDB, and cloud deployment',
-                lessons: [
-                    {
-                        id: 'lesson-10',
-                        title: 'PostgreSQL Fundamentals',
-                        type: 'video' as const,
-                        duration: '10 hours',
-                        completed: false,
-                    },
-                    {
-                        id: 'lesson-11',
-                        title: 'Database Design',
-                        type: 'exercise' as const,
-                        duration: '8 hours',
-                        completed: false,
-                    },
-                    {
-                        id: 'lesson-12',
-                        title: 'Deployment & DevOps',
-                        type: 'exercise' as const,
-                        duration: '12 hours',
-                        completed: false,
-                    },
-                ],
-            },
-            {
-                id: 'module-5',
-                title: 'Capstone Project',
-                description: 'Build a complete full-stack application',
-                lessons: [
-                    {
-                        id: 'lesson-13',
-                        title: 'Project Planning',
-                        type: 'video' as const,
-                        duration: '6 hours',
-                        completed: false,
-                    },
-                    {
-                        id: 'lesson-14',
-                        title: 'Development Sprint',
-                        type: 'project' as const,
-                        duration: '40 hours',
-                        completed: false,
-                    },
-                    {
-                        id: 'lesson-15',
-                        title: 'Production Deployment',
-                        type: 'project' as const,
-                        duration: '8 hours',
-                        completed: false,
-                    },
-                ],
-            },
-        ],
-    },
-    {
-        id: '2',
-        title: 'Data Science & Analytics',
-        category: 'Data Science',
-        description:
-            'Learn Python, data analysis, visualization, and machine learning to extract insights from data and build predictive models.',
-        level: 'Beginner → Advanced',
-        duration: '140+ hours',
-        students: 18900,
-        progress: 0,
-        modules: [
-            {
-                id: 'module-1',
-                title: 'Python Fundamentals',
-                description: 'Python programming basics',
-                lessons: [
-                    {
-                        id: 'lesson-1',
-                        title: 'Python Syntax',
-                        type: 'video' as const,
-                        duration: '8 hours',
-                        completed: false,
-                    },
-                    {
-                        id: 'lesson-2',
-                        title: 'Data Structures',
-                        type: 'exercise' as const,
-                        duration: '10 hours',
-                        completed: false,
-                    },
-                ],
-            },
-            {
-                id: 'module-2',
-                title: 'Data Analysis with Pandas',
-                description: 'Work with datasets efficiently',
-                lessons: [
-                    {
-                        id: 'lesson-3',
-                        title: 'Pandas Basics',
-                        type: 'video' as const,
-                        duration: '10 hours',
-                        completed: false,
-                    },
-                    {
-                        id: 'lesson-4',
-                        title: 'Data Cleaning',
-                        type: 'exercise' as const,
-                        duration: '12 hours',
-                        completed: false,
-                    },
-                    {
-                        id: 'lesson-5',
-                        title: 'Data Exploration',
-                        type: 'exercise' as const,
-                        duration: '8 hours',
-                        completed: false,
-                    },
-                ],
-            },
-            {
-                id: 'module-3',
-                title: 'Data Visualization',
-                description: 'Create compelling visualizations',
-                lessons: [
-                    {
-                        id: 'lesson-6',
-                        title: 'Matplotlib & Seaborn',
-                        type: 'video' as const,
-                        duration: '10 hours',
-                        completed: false,
-                    },
-                    {
-                        id: 'lesson-7',
-                        title: 'Advanced Visualizations',
-                        type: 'exercise' as const,
-                        duration: '8 hours',
-                        completed: false,
-                    },
-                ],
-            },
-            {
-                id: 'module-4',
-                title: 'Machine Learning',
-                description: 'Build predictive models',
-                lessons: [
-                    {
-                        id: 'lesson-8',
-                        title: 'ML Fundamentals',
-                        type: 'video' as const,
-                        duration: '12 hours',
-                        completed: false,
-                    },
-                    {
-                        id: 'lesson-9',
-                        title: 'Supervised Learning',
-                        type: 'exercise' as const,
-                        duration: '15 hours',
-                        completed: false,
-                    },
-                    {
-                        id: 'lesson-10',
-                        title: 'Unsupervised Learning',
-                        type: 'exercise' as const,
-                        duration: '12 hours',
-                        completed: false,
-                    },
-                ],
-            },
-        ],
-    },
-    {
-        id: '3',
-        title: 'UI/UX Design Fundamentals',
-        category: 'Design',
-        description:
-            'Create beautiful, user-centered digital experiences. Learn design principles, tools, and workflows used by leading companies.',
-        level: 'Beginner → Intermediate',
-        duration: '90+ hours',
-        students: 16200,
-        progress: 0,
-        modules: [
-            {
-                id: 'module-1',
-                title: 'Design Principles',
-                description: 'Fundamentals of good design',
-                lessons: [
-                    {
-                        id: 'lesson-1',
-                        title: 'Design Fundamentals',
-                        type: 'video' as const,
-                        duration: '8 hours',
-                        completed: false,
-                    },
-                    {
-                        id: 'lesson-2',
-                        title: 'Color & Typography',
-                        type: 'exercise' as const,
-                        duration: '10 hours',
-                        completed: false,
-                    },
-                ],
-            },
-            {
-                id: 'module-2',
-                title: 'Figma Mastery',
-                description: 'Master design tools',
-                lessons: [
-                    {
-                        id: 'lesson-3',
-                        title: 'Figma Basics',
-                        type: 'video' as const,
-                        duration: '8 hours',
-                        completed: false,
-                    },
-                    {
-                        id: 'lesson-4',
-                        title: 'Components & Systems',
-                        type: 'exercise' as const,
-                        duration: '12 hours',
-                        completed: false,
-                    },
-                ],
-            },
-            {
-                id: 'module-3',
-                title: 'User Research',
-                description: 'Understand your users',
-                lessons: [
-                    {
-                        id: 'lesson-5',
-                        title: 'Research Methods',
-                        type: 'video' as const,
-                        duration: '6 hours',
-                        completed: false,
-                    },
-                    {
-                        id: 'lesson-6',
-                        title: 'User Testing',
-                        type: 'exercise' as const,
-                        duration: '8 hours',
-                        completed: false,
-                    },
-                ],
-            },
-        ],
-    },
-    {
-        id: '4',
-        title: 'Mobile App Development',
-        category: 'Mobile',
-        description:
-            'Build cross-platform mobile applications with React Native and Expo. Deploy to iOS and Android platforms.',
-        level: 'Intermediate → Advanced',
-        duration: '110+ hours',
-        students: 14300,
-        progress: 0,
-        modules: [
-            {
-                id: 'module-1',
-                title: 'React Native Basics',
-                description: 'Get started with React Native',
-                lessons: [
-                    {
-                        id: 'lesson-1',
-                        title: 'Setup & Environment',
-                        type: 'video' as const,
-                        duration: '4 hours',
-                        completed: false,
-                    },
-                    {
-                        id: 'lesson-2',
-                        title: 'Core Components',
-                        type: 'exercise' as const,
-                        duration: '10 hours',
-                        completed: false,
-                    },
-                ],
-            },
-            {
-                id: 'module-2',
-                title: 'Navigation & State',
-                description: 'App architecture and navigation',
-                lessons: [
-                    {
-                        id: 'lesson-3',
-                        title: 'React Navigation',
-                        type: 'video' as const,
-                        duration: '8 hours',
-                        completed: false,
-                    },
-                    {
-                        id: 'lesson-4',
-                        title: 'State Management',
-                        type: 'exercise' as const,
-                        duration: '10 hours',
-                        completed: false,
-                    },
-                ],
-            },
-        ],
-    },
-];
-
-export function getLearningPathById(id: string) {
-    return learningPaths.find((path) => path.id === id);
-}
-
-export function getLearningPathsByCategory(category: string) {
-    return learningPaths.filter((path) => path.category === category);
-}
-
-// course-syllabus-sample
+// course-syllabus-sample use in /course/{id} and /course/{id}/learn sidebar
 export const mockStudentSyllabus: CourseSyllabusResponse = {
     course_id: 'course-1771579477259',
     course_title: 'Web dev 2026',
@@ -1427,3 +1058,872 @@ export const mockStudentSyllabus: CourseSyllabusResponse = {
         },
     ],
 };
+// sample user
+export const fakeUsers: User[] = [
+    {
+        id: 'user-1',
+        email: 'student@example.com',
+        name: 'Alex Johnson',
+        role: 'student',
+        is_active: true,
+        created_at: '2024-01-15T10:00:00Z',
+        updated_at: '2024-01-15T10:00:00Z',
+        avatar_url: '/placeholder.svg?height=100&width=100',
+    },
+    {
+        id: 'user-2',
+        email: 'teacher@example.com',
+        name: 'Dr. Sarah Chen',
+        role: 'teacher',
+        is_active: true,
+        created_at: '2024-01-10T10:00:00Z',
+        updated_at: '2024-01-10T10:00:00Z',
+        avatar_url: '/placeholder.svg?height=100&width=100',
+    },
+    {
+        id: 'user-3',
+        email: 'admin@example.com',
+        name: 'Admin User',
+        role: 'admin',
+        is_active: true,
+        created_at: '2024-01-01T10:00:00Z',
+        updated_at: '2024-01-01T10:00:00Z',
+        avatar_url: '/placeholder.svg?height=100&width=100',
+    },
+    {
+        id: 'user-4',
+        email: 'mike@example.com',
+        name: 'Mike Wilson',
+        role: 'teacher',
+        is_active: true,
+        created_at: '2024-02-01T10:00:00Z',
+        updated_at: '2024-02-01T10:00:00Z',
+        avatar_url: '/placeholder.svg?height=100&width=100',
+    },
+    {
+        id: 'user-5',
+        email: 'emma@example.com',
+        name: 'Emma Davis',
+        role: 'student',
+        is_active: true,
+        created_at: '2024-02-15T10:00:00Z',
+        updated_at: '2024-02-15T10:00:00Z',
+        avatar_url: '/placeholder.svg?height=100&width=100',
+    },
+];
+
+// lesson items
+const fakeLessonItems: LessonItem[] = [
+    {
+        id: 'item-1',
+        lesson_id: 'lesson-1',
+        title: 'Introduction Video',
+        sort_order: 1,
+        is_required: true,
+        is_preview: true,
+        item_type: 'video',
+        item_id: 'video-1',
+        duration: 15,
+        created_at: '2024-01-20T10:00:00Z',
+        updated_at: '2024-01-20T10:00:00Z',
+    },
+    {
+        id: 'item-2',
+        lesson_id: 'lesson-1',
+        title: 'Getting Started Guide',
+        sort_order: 2,
+        is_required: true,
+        is_preview: false,
+        item_type: 'reading',
+        item_id: 'reading-1',
+        duration: 10,
+        created_at: '2024-01-20T10:00:00Z',
+        updated_at: '2024-01-20T10:00:00Z',
+    },
+    {
+        id: 'item-3',
+        lesson_id: 'lesson-1',
+        title: 'Knowledge Check',
+        sort_order: 3,
+        is_required: true,
+        is_preview: false,
+        item_type: 'quiz',
+        item_id: 'quiz-1',
+        created_at: '2024-01-20T10:00:00Z',
+        updated_at: '2024-01-20T10:00:00Z',
+    },
+];
+
+// Fake Lessons
+const fakeLessons: Lesson[] = [
+    {
+        id: 'lesson-1',
+        module_id: 'module-1',
+        title: 'Getting Started with React',
+        sort_order: 1,
+        status: 'published',
+        items: fakeLessonItems,
+        created_at: '2024-01-20T10:00:00Z',
+        updated_at: '2024-01-20T10:00:00Z',
+    },
+    {
+        id: 'lesson-2',
+        module_id: 'module-1',
+        title: 'JSX Fundamentals',
+        sort_order: 2,
+        status: 'published',
+        items: [],
+        created_at: '2024-01-20T10:00:00Z',
+        updated_at: '2024-01-20T10:00:00Z',
+    },
+    {
+        id: 'lesson-3',
+        module_id: 'module-1',
+        title: 'Components and Props',
+        sort_order: 3,
+        status: 'published',
+        items: [],
+        created_at: '2024-01-20T10:00:00Z',
+        updated_at: '2024-01-20T10:00:00Z',
+    },
+];
+
+// Fake Modules
+export const fakeModules: Module[] = [
+    {
+        id: 'module-1',
+        course_id: 'course-1',
+        title: 'React Basics',
+        sort_order: 1,
+        status: 'published',
+        lessons: fakeLessons,
+        created_at: '2024-01-20T10:00:00Z',
+        updated_at: '2024-01-20T10:00:00Z',
+    },
+    {
+        id: 'module-2',
+        course_id: 'course-1',
+        title: 'State Management',
+        sort_order: 2,
+        status: 'published',
+        lessons: [
+            {
+                id: 'lesson-4',
+                module_id: 'module-2',
+                title: 'useState Hook',
+                sort_order: 1,
+                status: 'published',
+                items: [],
+                created_at: '2024-01-20T10:00:00Z',
+                updated_at: '2024-01-20T10:00:00Z',
+            },
+            {
+                id: 'lesson-5',
+                module_id: 'module-2',
+                title: 'useEffect Hook',
+                sort_order: 2,
+                status: 'published',
+                items: [],
+                created_at: '2024-01-20T10:00:00Z',
+                updated_at: '2024-01-20T10:00:00Z',
+            },
+        ],
+        created_at: '2024-01-20T10:00:00Z',
+        updated_at: '2024-01-20T10:00:00Z',
+    },
+    {
+        id: 'module-3',
+        course_id: 'course-1',
+        title: 'Advanced Patterns',
+        sort_order: 3,
+        status: 'published',
+        lessons: [
+            {
+                id: 'lesson-6',
+                module_id: 'module-3',
+                title: 'Custom Hooks',
+                sort_order: 1,
+                status: 'published',
+                items: [],
+                created_at: '2024-01-20T10:00:00Z',
+                updated_at: '2024-01-20T10:00:00Z',
+            },
+        ],
+        created_at: '2024-01-20T10:00:00Z',
+        updated_at: '2024-01-20T10:00:00Z',
+    },
+];
+
+// Fake Enrollments
+export const fakeEnrollments: Enrollment[] = [
+    {
+        id: 'enroll-1',
+        user_id: 'user-1',
+        course_id: 'course-1',
+        enrolled_at: '2024-02-01T10:00:00Z',
+        current_progress_percent: 65,
+        is_completed: false,
+        course: fakeCourses[0],
+    },
+    {
+        id: 'enroll-2',
+        user_id: 'user-1',
+        course_id: 'course-3',
+        enrolled_at: '2024-02-20T10:00:00Z',
+        current_progress_percent: 100,
+        is_completed: true,
+        completed_at: '2024-03-15T10:00:00Z',
+        course: fakeCourses[2],
+    },
+    {
+        id: 'enroll-3',
+        user_id: 'user-5',
+        course_id: 'course-1',
+        enrolled_at: '2024-03-01T10:00:00Z',
+        current_progress_percent: 30,
+        is_completed: false,
+        course: fakeCourses[0],
+    },
+];
+
+// Fake Wallets
+export const fakeWallets: Wallet[] = [
+    {
+        id: 'wallet-1',
+        user_id: 'user-1',
+        balance: 150.0,
+        status: 'active',
+        created_at: '2024-01-15T10:00:00Z',
+        updated_at: '2024-03-20T10:00:00Z',
+    },
+    {
+        id: 'wallet-2',
+        user_id: 'user-2',
+        balance: 2450.0,
+        status: 'active',
+        created_at: '2024-01-10T10:00:00Z',
+        updated_at: '2024-03-20T10:00:00Z',
+    },
+    {
+        id: 'wallet-3',
+        user_id: 'user-4',
+        balance: 1890.0,
+        status: 'active',
+        created_at: '2024-02-01T10:00:00Z',
+        updated_at: '2024-03-20T10:00:00Z',
+    },
+];
+
+// Fake Transactions
+export const fakeTransactions: Transaction[] = [
+    {
+        id: 'txn-1',
+        wallet_id: 'wallet-1',
+        type: 'deposit',
+        direction: 'in',
+        amount: 200.0,
+        description: 'Bank transfer deposit',
+        created_at: '2024-03-01T10:00:00Z',
+    },
+    {
+        id: 'txn-2',
+        wallet_id: 'wallet-1',
+        type: 'purchase',
+        direction: 'out',
+        amount: 49.99,
+        description: 'Purchased: Complete React Development',
+        created_at: '2024-03-02T10:00:00Z',
+    },
+    {
+        id: 'txn-3',
+        wallet_id: 'wallet-2',
+        type: 'earning',
+        direction: 'in',
+        amount: 44.99,
+        description: 'Course sale: Complete React Development',
+        created_at: '2024-03-02T10:00:00Z',
+    },
+    {
+        id: 'txn-4',
+        wallet_id: 'wallet-2',
+        type: 'withdrawal',
+        direction: 'out',
+        amount: 500.0,
+        description: 'Withdrawal to bank account',
+        created_at: '2024-03-15T10:00:00Z',
+    },
+    {
+        id: 'txn-5',
+        wallet_id: 'wallet-1',
+        type: 'refund',
+        direction: 'in',
+        amount: 59.99,
+        description: 'Refund: Python for Data Science',
+        created_at: '2024-03-18T10:00:00Z',
+    },
+];
+
+// Fake Reports
+export const fakeReports: Report[] = [
+    {
+        id: 'report-1',
+        user_id: 'user-1',
+        target_id: 'course-2',
+        reason: 'Misleading content',
+        description:
+            'The course description promises advanced topics but only covers basics. I feel misled by the marketing.',
+        status: 'pending',
+        user: fakeUsers[0],
+        course: fakeCourses[1],
+        created_at: '2024-03-15T10:00:00Z',
+        updated_at: '2024-03-15T10:00:00Z',
+    },
+    {
+        id: 'report-2',
+        user_id: 'user-5',
+        target_id: 'course-1',
+        reason: 'Video quality issue',
+        description:
+            'Several videos in Module 2 have poor audio quality making it hard to understand the instructor.',
+        status: 'approved',
+        user: fakeUsers[4],
+        course: fakeCourses[0],
+        created_at: '2024-03-10T10:00:00Z',
+        updated_at: '2024-03-12T10:00:00Z',
+    },
+    {
+        id: 'report-3',
+        user_id: 'user-1',
+        target_id: 'course-3',
+        reason: 'Outdated content',
+        description:
+            'The design tools mentioned in the course are outdated. Need to update to current versions.',
+        status: 'rejected',
+        user: fakeUsers[0],
+        course: fakeCourses[2],
+        created_at: '2024-03-05T10:00:00Z',
+        updated_at: '2024-03-07T10:00:00Z',
+    },
+];
+
+// Fake Withdrawal Requests
+export const fakeWithdrawRequests: WithdrawRequest[] = [
+    {
+        id: 'withdraw-1',
+        user_id: 'user-2',
+        amount: 500.0,
+        status: 'completed',
+        bank_info: 'Bank ABC - ****1234',
+        user: fakeUsers[1],
+        created_at: '2024-03-10T10:00:00Z',
+        updated_at: '2024-03-12T10:00:00Z',
+    },
+    {
+        id: 'withdraw-2',
+        user_id: 'user-4',
+        amount: 300.0,
+        status: 'pending',
+        bank_info: 'Bank XYZ - ****5678',
+        user: fakeUsers[3],
+        created_at: '2024-03-18T10:00:00Z',
+        updated_at: '2024-03-18T10:00:00Z',
+    },
+    {
+        id: 'withdraw-3',
+        user_id: 'user-2',
+        amount: 1000.0,
+        status: 'approved',
+        bank_info: 'Bank ABC - ****1234',
+        note: 'Processing within 24 hours',
+        user: fakeUsers[1],
+        created_at: '2024-03-19T10:00:00Z',
+        updated_at: '2024-03-20T10:00:00Z',
+    },
+];
+
+// Fake Comments
+export const fakeComments: Comment[] = [
+    {
+        id: 'comment-1',
+        user_id: 'user-1',
+        course_id: 'course-1',
+        content:
+            'This course is amazing! The instructor explains complex concepts in a very clear way.',
+        user: fakeUsers[0],
+        replies: [
+            {
+                id: 'reply-1',
+                comment_id: 'comment-1',
+                user_reply_id: 'user-2',
+                content:
+                    "Thank you so much! I'm glad you're enjoying the course.",
+                user: fakeUsers[1],
+                created_at: '2024-03-16T12:00:00Z',
+                updated_at: '2024-03-16T12:00:00Z',
+            },
+        ],
+        created_at: '2024-03-15T10:00:00Z',
+        updated_at: '2024-03-15T10:00:00Z',
+    },
+    {
+        id: 'comment-2',
+        user_id: 'user-5',
+        course_id: 'course-1',
+        content:
+            "Can you add more examples for the hooks section? I'm having trouble understanding useEffect.",
+        user: fakeUsers[4],
+        replies: [],
+        created_at: '2024-03-18T10:00:00Z',
+        updated_at: '2024-03-18T10:00:00Z',
+    },
+];
+
+// Fake Assignments
+export const fakeAssignments: Assignment[] = [
+    {
+        id: 'assignment-1',
+        lesson_id: 'lesson-3',
+        title: 'Build a Todo App Component',
+        description:
+            'Create a fully functional todo list component using React hooks. Must include add, delete, and toggle complete functionality.',
+        due_date: '2024-04-01T23:59:59Z',
+        max_score: 100,
+        created_at: '2024-03-15T10:00:00Z',
+        updated_at: '2024-03-15T10:00:00Z',
+    },
+    {
+        id: 'assignment-2',
+        lesson_id: 'lesson-5',
+        title: 'State Management Challenge',
+        description:
+            'Implement a shopping cart using useReducer hook. Handle add to cart, remove from cart, and update quantity.',
+        due_date: '2024-04-10T23:59:59Z',
+        max_score: 100,
+        created_at: '2024-03-20T10:00:00Z',
+        updated_at: '2024-03-20T10:00:00Z',
+    },
+];
+
+// Fake Assignment Submissions
+export const fakeSubmissions: AssignmentSubmission[] = [
+    {
+        id: 'submission-1',
+        assignment_id: 'assignment-1',
+        user_id: 'user-1',
+        content: 'https://github.com/alexjohnson/todo-app',
+        submitted_at: '2024-03-28T15:00:00Z',
+        status: 'graded',
+        score: 85,
+        feedback:
+            'Good implementation! Consider adding error handling for edge cases.',
+        user: fakeUsers[0],
+    },
+    {
+        id: 'submission-2',
+        assignment_id: 'assignment-1',
+        user_id: 'user-5',
+        content: 'https://github.com/emmadavis/react-todo',
+        submitted_at: '2024-03-30T10:00:00Z',
+        status: 'pending',
+        user: fakeUsers[4],
+    },
+];
+
+// Fake Peer Reviews
+export const fakePeerReviews: PeerReview[] = [
+    {
+        id: 'review-1',
+        submission_id: 'submission-1',
+        reviewer_id: 'user-5',
+        score: 85,
+        feedback:
+            'Clean code structure and good use of hooks. Could improve UI styling.',
+        created_at: '2024-03-29T10:00:00Z',
+        reviewer: fakeUsers[4],
+    },
+];
+
+// Fake Quizzes
+export const fakeQuizzes: Quiz[] = [
+    {
+        id: 'quiz-1',
+        title: 'React Basics Quiz',
+        time_limit_minutes: 15,
+        passing_score: 70,
+        questions: [
+            {
+                id: 'q-1',
+                quiz_id: 'quiz-1',
+                title: 'What is JSX?',
+                content:
+                    'What does JSX stand for and what is its purpose in React?',
+                question_type: 'single',
+                score: 10,
+                explanation:
+                    'JSX is a syntax extension for JavaScript that allows you to write HTML-like code in your JavaScript files.',
+                answers: [
+                    {
+                        id: 'a-1',
+                        question_id: 'q-1',
+                        content:
+                            'JavaScript XML - A syntax extension for React',
+                        is_correct: true,
+                        created_at: '2024-01-20T10:00:00Z',
+                        updated_at: '2024-01-20T10:00:00Z',
+                    },
+                    {
+                        id: 'a-2',
+                        question_id: 'q-1',
+                        content: 'Java Syntax Extension',
+                        is_correct: false,
+                        created_at: '2024-01-20T10:00:00Z',
+                        updated_at: '2024-01-20T10:00:00Z',
+                    },
+                    {
+                        id: 'a-3',
+                        question_id: 'q-1',
+                        content: 'JavaScript Extra',
+                        is_correct: false,
+                        created_at: '2024-01-20T10:00:00Z',
+                        updated_at: '2024-01-20T10:00:00Z',
+                    },
+                    {
+                        id: 'a-4',
+                        question_id: 'q-1',
+                        content: 'JSON XML',
+                        is_correct: false,
+                        created_at: '2024-01-20T10:00:00Z',
+                        updated_at: '2024-01-20T10:00:00Z',
+                    },
+                ],
+                created_at: '2024-01-20T10:00:00Z',
+            },
+            {
+                id: 'q-2',
+                quiz_id: 'quiz-1',
+                title: 'React Components',
+                content:
+                    'Which of the following are valid ways to create a React component?',
+                question_type: 'multiple',
+                score: 15,
+                answers: [
+                    {
+                        id: 'a-5',
+                        question_id: 'q-2',
+                        content: 'Function components',
+                        is_correct: true,
+                        created_at: '2024-01-20T10:00:00Z',
+                        updated_at: '2024-01-20T10:00:00Z',
+                    },
+                    {
+                        id: 'a-6',
+                        question_id: 'q-2',
+                        content: 'Class components',
+                        is_correct: true,
+                        created_at: '2024-01-20T10:00:00Z',
+                        updated_at: '2024-01-20T10:00:00Z',
+                    },
+                    {
+                        id: 'a-7',
+                        question_id: 'q-2',
+                        content: 'HTML components',
+                        is_correct: false,
+                        created_at: '2024-01-20T10:00:00Z',
+                        updated_at: '2024-01-20T10:00:00Z',
+                    },
+                    {
+                        id: 'a-8',
+                        question_id: 'q-2',
+                        content: 'CSS components',
+                        is_correct: false,
+                        created_at: '2024-01-20T10:00:00Z',
+                        updated_at: '2024-01-20T10:00:00Z',
+                    },
+                ],
+                created_at: '2024-01-20T10:00:00Z',
+            },
+            {
+                id: 'q-3',
+                quiz_id: 'quiz-1',
+                title: 'Virtual DOM',
+                content: 'React uses a Virtual DOM for better performance.',
+                question_type: 'true_false',
+                score: 10,
+                explanation:
+                    'React maintains a virtual representation of the DOM to minimize direct DOM manipulations.',
+                answers: [
+                    {
+                        id: 'a-9',
+                        question_id: 'q-3',
+                        content: 'True',
+                        is_correct: true,
+                        created_at: '2024-01-20T10:00:00Z',
+                        updated_at: '2024-01-20T10:00:00Z',
+                    },
+                    {
+                        id: 'a-10',
+                        question_id: 'q-3',
+                        content: 'False',
+                        is_correct: false,
+                        created_at: '2024-01-20T10:00:00Z',
+                        updated_at: '2024-01-20T10:00:00Z',
+                    },
+                ],
+                created_at: '2024-01-20T10:00:00Z',
+            },
+        ],
+        created_at: '2024-01-20T10:00:00Z',
+        updated_at: '2024-01-20T10:00:00Z',
+    },
+];
+
+// Dashboard Stats
+export const fakeAdminStats: AdminStats = {
+    total_users: 15420,
+    total_courses: 156,
+    total_revenue: 245680.0,
+    pending_approvals: 8,
+    pending_reports: 3,
+    pending_withdrawals: 5,
+};
+
+export const fakeTeacherStats: TeacherStats = {
+    total_courses: 4,
+    total_students: 2230,
+    total_earnings: 12450.0,
+    pending_courses: 1,
+    average_rating: 4.75,
+};
+
+export const fakeStudentStats: StudentStats = {
+    enrolled_courses: 3,
+    completed_courses: 1,
+    in_progress_courses: 2,
+    total_spent: 109.98,
+};
+
+// Get current user based on role (for demo purposes)
+export function getCurrentUser(role: 'student' | 'teacher' | 'admin'): User {
+    return fakeUsers.find((u) => u.role === role) || fakeUsers[0];
+}
+
+// Get user's wallet
+export function getUserWallet(userId: string): Wallet | undefined {
+    return fakeWallets.find((w) => w.user_id === userId);
+}
+
+// Get user's transactions
+export function getUserTransactions(walletId: string): Transaction[] {
+    return fakeTransactions.filter((t) => t.wallet_id === walletId);
+}
+
+// Get user's enrollments
+export function getUserEnrollments(userId: string): Enrollment[] {
+    return fakeEnrollments.filter((e) => e.user_id === userId);
+}
+
+// Student Wallet data for wallet page
+export const fakeWallet = {
+    balance: 2500000,
+    totalDeposited: 5000000,
+    totalSpent: 2500000,
+};
+
+// Teacher Wallet data
+export const fakeTeacherWallet = {
+    availableBalance: 45000000,
+    pendingBalance: 12500000,
+    totalEarnings: 125000000,
+    totalWithdrawn: 67500000,
+};
+
+// Enhanced transactions with status
+export const fakeTransactionsEnhanced = [
+    {
+        id: 'txn-1',
+        type: 'deposit' as const,
+        direction: 'in' as const,
+        amount: 2000000,
+        description: 'Bank transfer - Vietcombank',
+        status: 'completed',
+        createdAt: '2026-01-15T10:00:00Z',
+    },
+    {
+        id: 'txn-2',
+        type: 'purchase' as const,
+        direction: 'out' as const,
+        amount: 499000,
+        description: 'Complete React Development',
+        status: 'completed',
+        createdAt: '2026-01-16T14:30:00Z',
+    },
+    {
+        id: 'txn-3',
+        type: 'purchase' as const,
+        direction: 'out' as const,
+        amount: 599000,
+        description: 'Python for Data Science',
+        status: 'completed',
+        createdAt: '2026-01-18T09:15:00Z',
+    },
+    {
+        id: 'txn-4',
+        type: 'deposit' as const,
+        direction: 'in' as const,
+        amount: 1000000,
+        description: 'MoMo Wallet',
+        status: 'completed',
+        createdAt: '2026-01-20T16:45:00Z',
+    },
+    {
+        id: 'txn-5',
+        type: 'withdrawal' as const,
+        direction: 'out' as const,
+        amount: 500000,
+        description: 'Withdrawal to Techcombank ****5678',
+        status: 'pending',
+        createdAt: '2026-01-25T11:00:00Z',
+    },
+];
+
+// Alias for wallet page
+// Teacher transactions
+export const fakeTeacherTransactions = [
+    {
+        id: 'ttxn-1',
+        type: 'earning' as const,
+        amount: 4500000,
+        description: 'Complete React Development - 15 sales',
+        status: 'completed',
+        createdAt: '2026-01-20T10:00:00Z',
+    },
+    {
+        id: 'ttxn-2',
+        type: 'earning' as const,
+        amount: 3200000,
+        description: 'Python for Data Science - 8 sales',
+        status: 'completed',
+        createdAt: '2026-01-18T14:30:00Z',
+    },
+    {
+        id: 'ttxn-3',
+        type: 'withdrawal' as const,
+        amount: 5000000,
+        description: 'Withdrawal to Vietcombank ****1234',
+        status: 'completed',
+        createdAt: '2026-01-15T09:15:00Z',
+    },
+    {
+        id: 'ttxn-4',
+        type: 'earning' as const,
+        amount: 2800000,
+        description: 'Advanced JavaScript - 7 sales',
+        status: 'pending',
+        createdAt: '2026-01-25T16:45:00Z',
+    },
+    {
+        id: 'ttxn-5',
+        type: 'withdrawal' as const,
+        amount: 3000000,
+        description: 'Withdrawal to Techcombank ****5678',
+        status: 'pending',
+        createdAt: '2026-01-27T11:00:00Z',
+    },
+];
+
+// Peer review assignments
+export const fakePeerReviewsForPage = [
+    {
+        id: 'pr-1',
+        assignmentTitle: 'Build a Responsive Landing Page',
+        courseName: 'Advanced Web Development',
+        status: 'pending',
+        dueDate: '2026-02-01T23:59:59Z',
+        submissionContent:
+            'I created a landing page using HTML5 semantic elements and CSS Grid for the layout. The page includes a hero section with a background video, a features grid, testimonials carousel, and a contact form. I used CSS custom properties for theming and added smooth scroll navigation.\n\nKey features:\n- Fully responsive design using mobile-first approach\n- Accessible navigation with ARIA labels\n- Optimized images using srcset\n- CSS animations on scroll using Intersection Observer\n\nProject link: https://my-landing-page.vercel.app',
+    },
+    {
+        id: 'pr-2',
+        assignmentTitle: 'State Management Challenge',
+        courseName: 'Complete React Development',
+        status: 'pending',
+        dueDate: '2026-02-05T23:59:59Z',
+        submissionContent: null,
+    },
+    {
+        id: 'pr-3',
+        assignmentTitle: 'API Integration Project',
+        courseName: 'Node.js Backend Development',
+        status: 'pending',
+        dueDate: '2026-02-10T23:59:59Z',
+        submissionContent: null,
+    },
+];
+
+// Alias for peer review page
+// My submissions for peer review
+export const fakeMySubmissions = [
+    {
+        id: 'sub-1',
+        assignmentTitle: 'React Component Library',
+        courseName: 'Complete React Development',
+        reviewsRequired: 3,
+        reviewsReceived: 3,
+        finalGrade: 88,
+        reviews: [
+            {
+                rating: 4,
+                feedback:
+                    'Great component architecture! Consider adding more TypeScript types for better DX.',
+            },
+            {
+                rating: 5,
+                feedback:
+                    'Excellent work! Very clean code and well-documented props.',
+            },
+            {
+                rating: 4,
+                feedback:
+                    'Good job overall. The styling could be more customizable.',
+            },
+        ],
+    },
+    {
+        id: 'sub-2',
+        assignmentTitle: 'REST API Design',
+        courseName: 'Node.js Backend Development',
+        reviewsRequired: 3,
+        reviewsReceived: 2,
+        finalGrade: null,
+        reviews: [
+            {
+                rating: 4,
+                feedback:
+                    'Good API structure. Error handling could be improved.',
+            },
+            {
+                rating: 5,
+                feedback:
+                    'Excellent documentation and follows REST conventions perfectly.',
+            },
+        ],
+    },
+    {
+        id: 'sub-3',
+        assignmentTitle: 'Data Visualization Dashboard',
+        courseName: 'Python for Data Science',
+        reviewsRequired: 3,
+        reviewsReceived: 0,
+        finalGrade: null,
+        reviews: [],
+    },
+];
+
+// Get course by ID
+export function getCourseById(courseId: string): Course | undefined {
+    return fakeCourses.find((c) => c.id === courseId);
+}
+
+export function getCoursesByCategory(category: string) {
+    return fakeCourses.filter((course) => course.category === category);
+}

@@ -1,4 +1,4 @@
-import { CourseCard, type CourseCardProps } from '@/components/course-card';
+import { CourseCard } from '@/components/course-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -15,7 +15,7 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 
-const courses: CourseCardProps[] = [
+const courses = [
     {
         id: '1',
         title: 'Web Development Mastery',
@@ -103,7 +103,7 @@ const features = [
 export default function Home() {
     return (
         <div>
-            <section className="from-background via-background to-primary/5 relative overflow-hidden bg-gradient-to-br px-4 py-20 sm:px-6 lg:px-8">
+            <section className="from-background via-background to-primary/5 relative overflow-hidden bg-linear-to-br px-4 py-20 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-7xl">
                     <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-8">
                         <div className="space-y-8">

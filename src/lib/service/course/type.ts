@@ -195,6 +195,7 @@ export type Course = {
     students: number;
     price: string;
     image: string;
+    status: CourseStatus;
     modules: CourseModule[];
 };
 
@@ -202,3 +203,10 @@ export interface CourseCatorgy {
     value: string;
     label: string;
 }
+
+export type CourseStatus =
+    | 'draft'
+    | 'pending'
+    | 'approved'
+    | 'rejected'
+    | 'published';

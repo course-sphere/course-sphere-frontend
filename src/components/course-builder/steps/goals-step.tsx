@@ -34,8 +34,8 @@ import {
     GripVertical,
 } from 'lucide-react';
 
-import { fakeCourses } from '@/lib/fake-data';
 import { CourseGoalsFormData } from '@/lib/service/course';
+import { fakeCourses } from '@constant/sample-data';
 
 export function GoalsStep() {
     const {

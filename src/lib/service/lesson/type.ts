@@ -115,3 +115,20 @@ export interface LessonItem {
     created_at: string;
     updated_at: string;
 }
+
+export interface Video {
+    id: string;
+    video_url: string;
+    duration: number;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface Reading {
+    id: string;
+    lesson_id: string;
+    content: string;
+    duration: number;
+    created_at: string;
+    updated_at: string;
+}
