@@ -32,6 +32,7 @@ import {
     type CourseMetadataFormData,
     getDefaultMetadataData,
 } from '@/lib/service/course';
+import { RoleGuard } from '@/components/layout/role-gaurd';
 
 const STEP_SCHEMAS = {
     1: courseBasicInfoSchema,
@@ -143,104 +144,108 @@ export default function CreateCoursePage() {
     const isLastStep = currentStep === METADATA_STEPS.length;
 
     return (
-        <FormProvider {...methods}>
-            <div className="mb-6 flex items-center justify-between">
-                <Button variant="ghost" asChild>
-                    <Link href="/course">
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to Courses
-                    </Link>
-                </Button>
-                {lastSaved && !isDirty && (
-                    <span className="text-muted-foreground flex items-center text-sm">
-                        <CheckCircle className="mr-1 h-4 w-4 text-green-500" />
-                        Saved {lastSaved.toLocaleTimeString()}
-                    </span>
-                )}
-                {isDirty && (
-                    <span className="text-sm text-yellow-600">
-                        Unsaved changes...
-                    </span>
-                )}
-            </div>
-
-            <div className="mx-auto max-w-5xl">
-                <div className="mb-8">
-                    <h1 className="text-foreground text-2xl font-bold">
-                        Create New Course
-                    </h1>
-                    <p className="text-muted-foreground mt-1">
-                        Build and publish your course in a few simple steps
-                    </p>
+        <RoleGuard allowedRoles={['instructor', 'admin']}>
+            <FormProvider {...methods}>
+                <div className="mb-6 flex items-center justify-between">
+                    <Button variant="ghost" asChild>
+                        <Link href="/course">
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to Courses
+                        </Link>
+                    </Button>
+                    {lastSaved && !isDirty && (
+                        <span className="text-muted-foreground flex items-center text-sm">
+                            <CheckCircle className="mr-1 h-4 w-4 text-green-500" />
+                            Saved {lastSaved.toLocaleTimeString()}
+                        </span>
+                    )}
+                    {isDirty && (
+                        <span className="text-sm text-yellow-600">
+                            Unsaved changes...
+                        </span>
+                    )}
                 </div>
 
-                <PhaseIndicator phases={PHASES} currentPhase={1} />
+                <div className="mx-auto max-w-5xl">
+                    <div className="mb-8">
+                        <h1 className="text-foreground text-2xl font-bold">
+                            Create New Course
+                        </h1>
+                        <p className="text-muted-foreground mt-1">
+                            Build and publish your course in a few simple steps
+                        </p>
+                    </div>
 
-                <Form {...methods}>
-                    <form
-                        className="space-y-6"
-                        onSubmit={(e) => e.preventDefault()}
-                    >
-                        <div className="min-h-125">{renderStepContent()}</div>
+                    <PhaseIndicator phases={PHASES} currentPhase={1} />
 
-                        <div className="border-border bg-background/95 sticky bottom-0 z-10 flex items-center justify-between border-t py-4 pt-6 backdrop-blur">
-                            <div className="flex items-center gap-3">
-                                {currentStep > 1 && (
+                    <Form {...methods}>
+                        <form
+                            className="space-y-6"
+                            onSubmit={(e) => e.preventDefault()}
+                        >
+                            <div className="min-h-125">
+                                {renderStepContent()}
+                            </div>
+
+                            <div className="border-border bg-background/95 sticky bottom-0 z-10 flex items-center justify-between border-t py-4 pt-6 backdrop-blur">
+                                <div className="flex items-center gap-3">
+                                    {currentStep > 1 && (
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={handlePrevious}
+                                            className="rounded-xl"
+                                        >
+                                            <ArrowLeft className="mr-2 h-4 w-4" />{' '}
+                                            Previous
+                                        </Button>
+                                    )}
+                                </div>
+                                <div className="flex items-center gap-3">
                                     <Button
                                         type="button"
                                         variant="outline"
-                                        onClick={handlePrevious}
-                                        className="rounded-xl"
-                                    >
-                                        <ArrowLeft className="mr-2 h-4 w-4" />{' '}
-                                        Previous
-                                    </Button>
-                                )}
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={handleSaveDraft}
-                                    disabled={isSubmitting || !isDirty}
-                                    className="rounded-xl"
-                                >
-                                    {isSubmitting ? (
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    ) : (
-                                        <Save className="mr-2 h-4 w-4" />
-                                    )}
-                                    Save Draft
-                                </Button>
-                                {!isLastStep ? (
-                                    <Button
-                                        type="button"
-                                        onClick={handleNext}
-                                        className="rounded-xl"
-                                    >
-                                        Next Step{' '}
-                                        <ArrowRight className="ml-2 h-4 w-4" />
-                                    </Button>
-                                ) : (
-                                    <Button
-                                        type="button"
-                                        onClick={handleCreateCourse}
-                                        disabled={isSubmitting}
+                                        onClick={handleSaveDraft}
+                                        disabled={isSubmitting || !isDirty}
                                         className="rounded-xl"
                                     >
                                         {isSubmitting ? (
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                         ) : (
-                                            <ArrowRight className="mr-2 h-4 w-4" />
+                                            <Save className="mr-2 h-4 w-4" />
                                         )}
-                                        Create Course & Continue
+                                        Save Draft
                                     </Button>
-                                )}
+                                    {!isLastStep ? (
+                                        <Button
+                                            type="button"
+                                            onClick={handleNext}
+                                            className="rounded-xl"
+                                        >
+                                            Next Step{' '}
+                                            <ArrowRight className="ml-2 h-4 w-4" />
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            type="button"
+                                            onClick={handleCreateCourse}
+                                            disabled={isSubmitting}
+                                            className="rounded-xl"
+                                        >
+                                            {isSubmitting ? (
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            ) : (
+                                                <ArrowRight className="mr-2 h-4 w-4" />
+                                            )}
+                                            Create Course & Continue
+                                        </Button>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    </form>
-                </Form>
-            </div>
-        </FormProvider>
+                        </form>
+                    </Form>
+                </div>
+            </FormProvider>
+        </RoleGuard>
     );
 }

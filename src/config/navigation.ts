@@ -1,3 +1,4 @@
+import { Role } from '@/lib/service/user';
 import {
     type LucideIcon,
     LayoutDashboard,
@@ -10,6 +11,7 @@ import {
     AlertTriangle,
     CreditCard,
     BarChart3,
+    Trophy,
 } from 'lucide-react';
 
 export interface NavItem {
@@ -23,7 +25,21 @@ export interface NavGroup {
     items: NavItem[];
 }
 
-export const TEACHER_MENU: NavGroup[] = [
+export const STUDENT_MENU: NavGroup[] = [
+    {
+        groupLabel: 'Learning',
+        items: [
+            { title: 'My Courses', href: '/course', icon: BookOpen },
+            { title: 'Achievements', href: '/achievements', icon: Trophy },
+        ],
+    },
+    {
+        groupLabel: 'Account',
+        items: [{ title: 'Settings', href: '/account', icon: Settings }],
+    },
+];
+
+export const INSTRUCTOR_MENU: NavGroup[] = [
     {
         groupLabel: 'Overview',
         items: [
@@ -139,6 +155,15 @@ export const ADMIN_MENU: NavGroup[] = [
     },
 ];
 
-export function getMenuByRole(role: 'TEACHER' | 'ADMIN'): NavGroup[] {
-    return role === 'TEACHER' ? TEACHER_MENU : ADMIN_MENU;
+export function getMenuByRole(role: Role): NavGroup[] {
+    switch (role) {
+        case 'instructor':
+            return INSTRUCTOR_MENU;
+        case 'admin':
+            return ADMIN_MENU;
+        case 'student':
+            return STUDENT_MENU;
+        default:
+            return [];
+    }
 }
