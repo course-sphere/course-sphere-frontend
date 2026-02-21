@@ -39,7 +39,18 @@ const STEP_SCHEMAS = {
     3: coursePricingSchema,
     4: courseGoalsSchema,
 };
-
+// 1. API FLOW (DRAFT MODE):
+// Step 1: POST /api/v1/courses -> Creates record, sets status="DRAFT", returns course_id.
+// Steps 2-4: PATCH /api/v1/courses/{course_id} -> Updates the existing draft.
+// 2. MEDIA UPLOAD:
+// DO NOT send 'blob:http...' URLs to BE.
+// Flow: Request S3 Presigned URL -> PUT file to S3 -> Update form state with real S3 URL -> PATCH to BE.
+// 3. LOCAL STORAGE:
+// Remove final localStorage.setItem from handleCreateCourse.
+// Repurpose localStorage strictly for background auto-save (form recovery on accidental tab close).
+// 4. DATA MAPPING:
+// RHF uses Object Arrays: e.g., learning_objectives = [{ value: "text" }].
+// Either map to List<String> via .map(item => item.value) before payload submission, OR ensure BE handles it via JSONB.
 export default function CreateCoursePage() {
     const router = useRouter();
 
