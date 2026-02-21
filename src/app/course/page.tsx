@@ -15,7 +15,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { PaginationControl } from '@/components/ui/pagination-control';
 import { CourseCard } from '@/components/course-card';
 import type { PaginationState } from '@tanstack/react-table';
-import { categories, courses, levels } from '@constant/sample-data';
+import { categories, fakeCourses, levels } from '@constant/sample-data';
 import { useDebounce } from '@/hooks/use-debounce';
 
 export default function AllCoursesPage() {
@@ -31,15 +31,32 @@ export default function AllCoursesPage() {
     const debouncedSearch = useDebounce(search, 400);
 
     useEffect(() => {
-        setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+        const startTimer = setTimeout(() => setIsPending(true), 0);
+        const stopTimer = setTimeout(() => setIsPending(false), 400);
 
-        setIsPending(true);
-        const timer = setTimeout(() => setIsPending(false), 400);
-        return () => clearTimeout(timer);
+        return () => {
+            clearTimeout(startTimer);
+            clearTimeout(stopTimer);
+        };
     }, [debouncedSearch, selectedCategory, selectedLevel]);
 
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearch(e.target.value);
+        setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+    };
+
+    const handleCategoryChange = (value: string) => {
+        setSelectedCategory(value);
+        setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+    };
+
+    const handleLevelChange = (value: string) => {
+        setSelectedLevel(value);
+        setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+    };
+
     const { paginatedCourses, totalElements } = useMemo(() => {
-        const filtered = courses.filter((course) => {
+        const filtered = fakeCourses.filter((course) => {
             const matchesSearch =
                 course.title
                     .toLowerCase()
@@ -82,7 +99,8 @@ export default function AllCoursesPage() {
                             All Courses
                         </Badge>
                         <h1 className="text-foreground text-4xl font-bold text-balance sm:text-5xl">
-                            Expand Your Skills with {courses.length}+ Courses
+                            Expand Your Skills with {fakeCourses.length}+
+                            Courses
                         </h1>
                         <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
                             Learn from industry experts. Browse our complete
@@ -98,7 +116,7 @@ export default function AllCoursesPage() {
                                     placeholder="Search by course title or instructor..."
                                     className="bg-background/70 focus:border-primary rounded-xl py-6 pl-12 text-base shadow-sm"
                                     value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
+                                    onChange={handleSearchChange} // Dùng handler mới
                                 />
                             </div>
                         </div>
@@ -123,7 +141,7 @@ export default function AllCoursesPage() {
                         <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
                             <Select
                                 value={selectedCategory}
-                                onValueChange={setSelectedCategory}
+                                onValueChange={handleCategoryChange} // Dùng handler mới
                             >
                                 <SelectTrigger className="w-full rounded-lg sm:w-45">
                                     <SelectValue placeholder="Category" />
@@ -142,7 +160,7 @@ export default function AllCoursesPage() {
 
                             <Select
                                 value={selectedLevel}
-                                onValueChange={setSelectedLevel}
+                                onValueChange={handleLevelChange} // Dùng handler mới
                             >
                                 <SelectTrigger className="w-full rounded-lg sm:w-45">
                                     <SelectValue placeholder="Level" />
@@ -183,6 +201,11 @@ export default function AllCoursesPage() {
                                             setSearch('');
                                             setSelectedCategory('all');
                                             setSelectedLevel('all');
+                                            // Chỗ này cũng tự reset về 0 luôn cho chắc cú
+                                            setPagination((prev) => ({
+                                                ...prev,
+                                                pageIndex: 0,
+                                            }));
                                         },
                                     }}
                                 />
