@@ -116,7 +116,7 @@ export default function AllCoursesPage() {
                                     placeholder="Search by course title or instructor..."
                                     className="bg-background/70 focus:border-primary rounded-xl py-6 pl-12 text-base shadow-sm"
                                     value={search}
-                                    onChange={handleSearchChange} // Dùng handler mới
+                                    onChange={handleSearchChange}
                                 />
                             </div>
                         </div>
@@ -141,7 +141,7 @@ export default function AllCoursesPage() {
                         <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
                             <Select
                                 value={selectedCategory}
-                                onValueChange={handleCategoryChange} // Dùng handler mới
+                                onValueChange={handleCategoryChange}
                             >
                                 <SelectTrigger className="w-full rounded-lg sm:w-45">
                                     <SelectValue placeholder="Category" />
@@ -160,7 +160,7 @@ export default function AllCoursesPage() {
 
                             <Select
                                 value={selectedLevel}
-                                onValueChange={handleLevelChange} // Dùng handler mới
+                                onValueChange={handleLevelChange}
                             >
                                 <SelectTrigger className="w-full rounded-lg sm:w-45">
                                     <SelectValue placeholder="Level" />

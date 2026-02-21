@@ -1,7 +1,11 @@
+'use client';
+
+import { useEffect } from 'react';
 import { CourseCard } from '@/components/course-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useAuthStore } from '@/lib/stores/use-auth-store';
 import {
     ArrowRight,
     Award,
@@ -14,6 +18,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const courses = [
     {
@@ -101,6 +106,25 @@ const features = [
 ];
 
 export default function Home() {
+    const { user, isAuthenticated, isCheckingAuth } = useAuthStore();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!isCheckingAuth && isAuthenticated && user) {
+            switch (user.role) {
+                case 'student':
+                    router.replace('/course');
+                    break;
+                case 'instructor':
+                case 'admin':
+                    router.replace('/dashboard');
+                    break;
+            }
+        }
+    }, [isCheckingAuth, isAuthenticated, user, router]);
+
+    if (isCheckingAuth || isAuthenticated) return null;
+
     return (
         <div>
             <section className="from-background via-background to-primary/5 relative overflow-hidden bg-linear-to-br px-4 py-20 sm:px-6 lg:px-8">
