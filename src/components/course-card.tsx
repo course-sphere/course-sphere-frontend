@@ -46,7 +46,6 @@ export function CourseCard({ course, isLoading }: CourseCardProps) {
         );
     }
 
-    // 2. Trạng thái có Data: Render nội dung thật
     return (
         <Card className="flex h-full flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
             <div className="relative h-48 w-full">
