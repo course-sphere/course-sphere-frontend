@@ -3,7 +3,11 @@ import {
     AssignmentSubmission,
     PeerReview,
 } from '@/lib/service/assignment/type';
-import type { Course, CourseModule } from '@/lib/service/course';
+import type {
+    Course,
+    CourseDetailResponse,
+    CourseModule,
+} from '@/lib/service/course';
 import {
     AdminStats,
     StudentStats,
@@ -1918,6 +1922,71 @@ export const fakeMySubmissions = [
         reviews: [],
     },
 ];
+
+// mock data for course/{id}
+export const mockCourseDetail: CourseDetailResponse = {
+    id: 'course-1771579477259',
+    title: 'Full course web development in 2026',
+    subtitle: 'Master the modern web stack from zero to hero',
+    description:
+        'A comprehensive guide to building modern, scalable web applications using Next.js 16, React 19, Spring Boot, and Go. You will learn everything from frontend architectures to robust backend APIs and zero-downtime deployments using Docker and CI/CD pipelines.',
+
+    category: [
+        { id: '2072432640', text: 'Web Development' },
+        { id: '2072432641', text: 'DevOps' },
+    ],
+    level: 'intermediate',
+    thumbnail_url:
+        'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80',
+    promo_video_url:
+        'https://www.youtube.com/watch?v=RlTDbIutJsU&list=RDRlTDbIutJsU&start_radio=1',
+
+    is_free: false,
+    price: 99.99,
+    discount_price: 19.99,
+
+    prerequisites: [
+        { course_id: 'course-3', course_title: 'UI/UX Design Fundamentals' },
+        {
+            course_id: 'course-4',
+            course_title: 'Basic JavaScript & TypeScript',
+        },
+    ],
+
+    requirements: [
+        'Basic understanding of HTML, CSS, and JavaScript',
+        'A computer with Windows, macOS, or Linux',
+        'Passion for learning modern web technologies',
+    ],
+
+    learning_objectives: [
+        'Build fullstack applications using Next.js App Router',
+        'Develop robust RESTful APIs with Spring Boot and Java',
+        'Implement high-performance concurrent services with Go',
+        'Deploy applications with Docker and CI/CD pipelines',
+    ],
+
+    target_audience: [
+        'Junior developers looking to level up their stack',
+        'Frontend developers wanting to learn backend',
+        'Anyone interested in modern web architectures',
+    ],
+
+    instructor: {
+        id: 'user-2',
+        name: 'Nam Dang',
+        avatar_url: 'https://github.com/shadcn.png',
+    },
+    status: 'published',
+    rating: 4.8,
+    rating_count: 2847,
+    enrolled_students: 12340,
+    total_video_duration_minutes: 1250,
+    total_coding_exercises: 15,
+    total_file_resources: 10,
+    created_at: '2025-12-01T10:00:00Z',
+    updated_at: '2026-02-22T10:00:00Z',
+};
 
 // Get course by ID
 export function getCourseById(courseId: string): Course | undefined {

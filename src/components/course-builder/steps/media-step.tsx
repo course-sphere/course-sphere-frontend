@@ -20,22 +20,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { ImageIcon, Video, Upload, X, Link as LinkIcon } from 'lucide-react';
 import { CourseMediaFormData } from '@/lib/service/course';
+import { getYouTubeEmbedUrl } from '@/lib/utils';
 
 // TODO: In preview picture, I temporary use user's hardware blob, when integrated with API, replaced it with cloud link
-const getYouTubeEmbedUrl = (url?: string): string | null => {
-    if (!url) return null;
-
-    const regExp =
-        /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-
-    if (match && match[2].length === 11) {
-        return `https://www.youtube.com/embed/${match[2]}`;
-    }
-
-    return null;
-};
-
 export function MediaStep() {
     const { control, watch, setValue } = useFormContext<CourseMediaFormData>();
 

@@ -199,9 +199,9 @@ export type Course = {
     modules: CourseModule[];
 };
 
-export interface CourseCatorgy {
-    value: string;
-    label: string;
+export interface CourseCategory {
+    id: string;
+    text: string;
 }
 
 export type CourseStatus =
@@ -210,3 +210,45 @@ export type CourseStatus =
     | 'approved'
     | 'rejected'
     | 'published';
+
+// type for course/{id} page
+export interface CourseInstructor {
+    id: string;
+    name: string;
+    avatar_url?: string;
+}
+
+export type CourseLevel = 'beginner' | 'intermediate' | 'advanced' | 'all';
+
+export interface CoursePrerequisite {
+    course_id: string;
+    course_title: string;
+}
+
+export interface CourseDetailResponse {
+    id: string;
+    title: string;
+    subtitle: string;
+    description: string;
+    category: CourseCategory[];
+    level: CourseLevel;
+    thumbnail_url: string;
+    promo_video_url: string | null;
+    is_free: boolean;
+    price: number;
+    discount_price: number;
+    prerequisites: CoursePrerequisite[];
+    requirements: string[];
+    learning_objectives: string[];
+    target_audience: string[];
+    instructor: CourseInstructor;
+    status: CourseStatus;
+    rating: number;
+    rating_count: number;
+    enrolled_students: number;
+    total_video_duration_minutes: number;
+    total_coding_exercises: number;
+    total_file_resources: number;
+    created_at: string;
+    updated_at: string;
+}
