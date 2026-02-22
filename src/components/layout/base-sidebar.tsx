@@ -18,14 +18,16 @@ import { User } from '@/lib/stores/use-auth-store';
 interface BaseResizableSidebarProps {
     children: React.ReactNode;
     user: User | null;
+    collapsible?: 'offcanvas' | 'icon' | 'none';
 }
 
 export function BaseResizableSidebar({
     children,
     user,
+    collapsible = 'icon',
 }: BaseResizableSidebarProps) {
     return (
-        <Sidebar collapsible="icon">
+        <Sidebar collapsible={collapsible}>
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
