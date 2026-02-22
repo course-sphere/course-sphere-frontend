@@ -9,15 +9,22 @@ import { StudentSyllabusMenu } from '@/components/layout/student-syllabus-menu';
 import { CourseOptionsDropdown } from '@/components/course-options-dropdown';
 // TODO:
 /* 
-  1. [Flow chuyển mình: Course Detail -> Learn Workspace]
+    1. [Flow chuyển mình: Course Detail -> Learn Workspace]
       - Ở trang `/course/[id]/page.tsx` (Cái cục Sticky Checkout Card):
         + NẾU KHÓA FREE: Bấm "Enroll for Free" -> Pop-up Dialog xác nhận -> Gọi API POST `/enroll` -> Thành công thì `router.push('/course/[id]/learn')`
         + NẾU KHÓA PAID: Bấm "Add to Cart" / "Buy Now" -> Chuyển hướng sang trang `/cart` hoặc gọi cổng thanh toán (Stripe/VNPay) -> Thanh toán xong -> Redirect về trang Learn.
-   2. [API GET Syllabus cho trang Learn]
+    2. [API GET Syllabus cho trang Learn]
       - File: `src/app/(hybrid)/course/[id]/learn/layout.tsx`
       - Logic: 
         + Vì trang Learn cần realtime (update progress liên tục)
         + Hook này gọi endpoint `GET /api/learn/courses/{id}/syllabus`
+    3. [Dropdown Menu: Đánh giá khóa học]
+      - Gọi: POST `/api/courses/{id}/reviews`
+      - Chức năng: Mở Modal khi bấm "Leave a Review", submit đánh giá của user.
+
+    4. [Dropdown Menu: Hoàn thành nhanh bài học]
+      - Gọi: POST `/api/learn/materials/{materialId}/complete`
+      - Chức năng: Đánh dấu bài học hiện tại là đã xong. BE lưu lại, trả về % tiến độ mới để FE update lại vòng tròn Progress.
 */
 export default function LearnLayout({
     children,
