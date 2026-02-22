@@ -1926,7 +1926,7 @@ export const fakeMySubmissions = [
 // mock data for course/{id}
 export const mockCourseDetail: CourseDetailResponse = {
     id: 'course-1771579477259',
-    title: 'Web dev 2026',
+    title: 'Full course web development in 2026',
     subtitle: 'Master the modern web stack from zero to hero',
     description:
         'A comprehensive guide to building modern, scalable web applications using Next.js 16, React 19, Spring Boot, and Go. You will learn everything from frontend architectures to robust backend APIs and zero-downtime deployments using Docker and CI/CD pipelines.',
@@ -1938,7 +1938,8 @@ export const mockCourseDetail: CourseDetailResponse = {
     level: 'intermediate',
     thumbnail_url:
         'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80',
-    promo_video_url: 'https://www.youtube.com/watch?v=R6cM5ww7g-o',
+    promo_video_url:
+        'https://www.youtube.com/watch?v=RlTDbIutJsU&list=RDRlTDbIutJsU&start_radio=1',
 
     is_free: false,
     price: 99.99,
@@ -1974,7 +1975,7 @@ export const mockCourseDetail: CourseDetailResponse = {
     instructor: {
         id: 'user-2',
         name: 'Nam Dang',
-        avatar_url: 'https://i.pravatar.cc/150?u=namdang',
+        avatar_url: 'https://github.com/shadcn.png',
     },
     status: 'published',
     rating: 4.8,

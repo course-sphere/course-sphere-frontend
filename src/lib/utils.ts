@@ -16,9 +16,16 @@ export const formatPrice = (value: number) => {
     }).format(value);
 };
 
-export const formatVideoDuration = (minutes: number) => {
-    if (minutes < 60) return `${minutes} minutes`;
-    const hours = Math.floor(minutes / 60);
-    const min = minutes % 60;
-    return min > 0 ? `${hours} hours ${min} mins` : `${hours} hours`;
+export const getYouTubeEmbedUrl = (url: string | null): string | null => {
+    if (!url) return null;
+
+    const regExp =
+        /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+
+    if (match && match[2].length === 11) {
+        return `https://www.youtube.com/embed/${match[2]}`;
+    }
+
+    return null;
 };
