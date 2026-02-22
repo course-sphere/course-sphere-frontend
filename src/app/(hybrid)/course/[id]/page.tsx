@@ -44,7 +44,13 @@ interface CoursePageProps {
         id: string;
     }>;
 }
-
+// TODO:
+// Fix pricing sticky problem
+// GET /api/courses/{id}
+// GET /api/courses/{id}/syllabus
+// GET /api/courses/{id}/enrollment-status
+// POST /api/cart/add
+// POST /api/courses/{id}/enroll
 export default function CoursePage({ params }: CoursePageProps) {
     const { id } = use(params);
     const router = useRouter();
