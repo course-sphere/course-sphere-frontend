@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { mockLearnSyllabus } from '@constant/sample-data';
 import { BaseResizableSidebar } from '@/components/layout/base-sidebar';
 import { StudentSyllabusMenu } from '@/components/layout/student-syllabus-menu';
+import { CourseOptionsDropdown } from '@/components/course-options-dropdown';
 // TODO:
 /* 
   1. [Flow chuyển mình: Course Detail -> Learn Workspace]
@@ -50,23 +51,17 @@ export default function LearnLayout({
             <main className="bg-background relative flex min-h-screen flex-1 flex-col overflow-hidden">
                 <header className="bg-background border-border/50 sticky top-0 z-30 flex h-14 items-center justify-between border-b px-4 sm:px-6">
                     <div className="flex items-center gap-2 sm:gap-4">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-muted-foreground hover:text-foreground h-8 w-8 rounded-full"
-                            onClick={() => router.push(`/course/${params.id}`)}
-                            title="Back to Course Overview"
-                        >
-                            <ChevronLeft className="h-5 w-5" />
-                        </Button>
-                        <div className="bg-border mx-1 hidden h-4 w-px sm:block" />{' '}
                         <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
                         <h1 className="text-foreground ml-2 hidden text-sm font-semibold sm:block">
                             {syllabus.course_title}
                         </h1>
                     </div>
-
-                    <div className="flex items-center gap-3"></div>
+                    <div className="flex items-center gap-3">
+                        <CourseOptionsDropdown
+                            courseId={params.id}
+                            progressPercentage={syllabus.progress.percentage}
+                        />
+                    </div>{' '}
                 </header>
 
                 <div className="flex-1 overflow-y-auto">{children}</div>
