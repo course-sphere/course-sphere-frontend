@@ -35,3 +35,14 @@ export interface CourseSyllabusResponse {
     course_title: string;
     modules: SyllabusModule[];
 }
+
+export interface CourseProgress {
+    percentage: number;
+    completed_materials: number;
+    total_materials: number;
+}
+
+export interface LearnSyllabusResponse extends CourseSyllabusResponse {
+    progress: CourseProgress;
+    active_material_id: string | null;
+}
