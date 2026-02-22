@@ -7,6 +7,7 @@ import { mockLearnSyllabus, mockMaterialDetails } from '@constant/sample-data';
 import { ReadingViewer } from '@/components/course-builder/viewers/reading-viewer';
 import { use } from 'react';
 import { VideoViewer } from '@/components/course-builder/viewers/video-viewer';
+import { FileViewer } from '@/components/course-builder/viewers/file-viewer';
 
 export default function LearnPage({
     params,
@@ -67,11 +68,7 @@ export default function LearnPage({
                     </div>
                 );
             case 'file':
-                return (
-                    <div className="bg-muted/20 rounded-xl border border-dashed p-8 text-center">
-                        Download Screen Coming Soon...
-                    </div>
-                );
+                return <FileViewer material={material} />;
             default:
                 return (
                     <div className="text-destructive bg-destructive/10 rounded-xl p-8">
