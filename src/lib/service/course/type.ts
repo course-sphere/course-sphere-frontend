@@ -200,8 +200,8 @@ export type Course = {
 };
 
 export interface CourseCategory {
-    value: string;
-    label: string;
+    id: string;
+    text: string;
 }
 
 export type CourseStatus =
@@ -246,6 +246,9 @@ export interface CourseDetailResponse {
     rating: number;
     rating_count: number;
     enrolled_students: number;
+    total_video_duration_minutes: number;
+    total_coding_exercises: number;
+    total_file_resources: number;
     created_at: string;
     updated_at: string;
 }
