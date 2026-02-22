@@ -44,7 +44,7 @@ interface CoursePageProps {
         id: string;
     }>;
 }
-// TODO: Fix sticky in pricing card
+
 export default function CoursePage({ params }: CoursePageProps) {
     const { id } = use(params);
     const router = useRouter();
@@ -88,184 +88,6 @@ export default function CoursePage({ params }: CoursePageProps) {
         ) || 0;
     const isDiscounted =
         course.discount_price > 0 && course.discount_price < course.price;
-
-    // Reusable sidebar card component
-    const SidebarCard = () => (
-        <div className="bg-card border-border overflow-hidden rounded-2xl border shadow-xl">
-            <div className="group border-border/50 relative flex aspect-video w-full overflow-hidden border-b bg-black">
-                {isPlayingPreview &&
-                getYouTubeEmbedUrl(course.promo_video_url) ? (
-                    <iframe
-                        width="100%"
-                        height="100%"
-                        src={getYouTubeEmbedUrl(course.promo_video_url) || ''}
-                        title="Course Preview"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        className="absolute inset-0 border-0"
-                    />
-                ) : (
-                    <div
-                        className="absolute inset-0 h-full w-full cursor-pointer"
-                        onClick={() => {
-                            if (course.promo_video_url)
-                                setIsPlayingPreview(true);
-                        }}
-                    >
-                        <Image
-                            src={course.thumbnail_url}
-                            alt={course.title}
-                            fill
-                            className="object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
-                        {course.promo_video_url && (
-                            <>
-                                <div className="absolute inset-0 flex items-center justify-center bg-black/30 transition-colors group-hover:bg-black/40">
-                                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/90 text-black shadow-2xl transition-transform group-hover:scale-110">
-                                        <Play className="ml-1 h-7 w-7 fill-current" />
-                                    </div>
-                                </div>
-                                <div className="absolute bottom-4 w-full text-center text-sm font-bold tracking-wide text-white drop-shadow-lg">
-                                    Preview this course
-                                </div>
-                            </>
-                        )}
-                    </div>
-                )}
-            </div>
-            <div className="p-6 md:p-8">
-                {!isEnrolled && !isInstructor && (
-                    <div className="mb-6">
-                        {course.is_free ? (
-                            <div className="text-foreground text-4xl font-extrabold">
-                                Free
-                            </div>
-                        ) : (
-                            <div className="flex items-end gap-3">
-                                <span className="text-foreground text-4xl font-extrabold">
-                                    $
-                                    {isDiscounted
-                                        ? course.discount_price
-                                        : course.price}
-                                </span>
-                                {isDiscounted && (
-                                    <span className="text-muted-foreground mb-1 text-xl font-medium line-through">
-                                        ${course.price}
-                                    </span>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                )}
-
-                <div className="mb-6 space-y-3">
-                    {isCheckingAuth ? (
-                        <Button
-                            disabled
-                            className="h-14 w-full rounded-xl text-lg font-semibold"
-                        >
-                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                            Checking...
-                        </Button>
-                    ) : !isAuthenticated ? (
-                        <Button
-                            className="h-14 w-full rounded-xl text-lg font-semibold"
-                            onClick={() => router.push('/login')}
-                        >
-                            Log in to Enroll
-                        </Button>
-                    ) : isInstructor ? (
-                        <Button
-                            className="h-14 w-full rounded-xl text-lg font-semibold"
-                            variant="secondary"
-                            onClick={() =>
-                                router.push(
-                                    `/dashboard/courses/${course.id}/edit`,
-                                )
-                            }
-                        >
-                            Edit Course
-                        </Button>
-                    ) : isEnrolled ? (
-                        <Button
-                            className="h-14 w-full rounded-xl text-lg font-semibold"
-                            onClick={() =>
-                                router.push(`/course/${course.id}/learn`)
-                            }
-                        >
-                            Continue Learning
-                        </Button>
-                    ) : (
-                        <>
-                            <Button className="h-14 w-full rounded-xl text-lg font-semibold shadow-md">
-                                {course.is_free
-                                    ? 'Enroll for Free'
-                                    : 'Add to Cart'}
-                            </Button>
-                            {!course.is_free && (
-                                <Button
-                                    variant="outline"
-                                    className="h-14 w-full rounded-xl text-lg font-semibold"
-                                >
-                                    Buy Now
-                                </Button>
-                            )}
-                            <p className="text-muted-foreground pt-2 text-center text-xs font-medium">
-                                30-Day Money-Back Guarantee
-                            </p>
-                        </>
-                    )}
-                </div>
-
-                <div className="border-border space-y-4 border-t pt-6">
-                    <h4 className="text-foreground text-base font-bold">
-                        This course includes:
-                    </h4>
-
-                    {course?.total_video_duration_minutes > 0 && (
-                        <div className="text-foreground/80 flex items-center gap-3 text-sm">
-                            <Play className="h-4 w-4 shrink-0 text-slate-500" />
-                            <span>
-                                {Math.floor(
-                                    course.total_video_duration_minutes / 60,
-                                )}{' '}
-                                hours on-demand video
-                            </span>
-                        </div>
-                    )}
-
-                    {course?.total_coding_exercises > 0 && (
-                        <div className="text-foreground/80 flex items-center gap-3 text-sm">
-                            <CodeIcon className="h-4 w-4 shrink-0 text-slate-500" />
-                            <span>
-                                {course.total_coding_exercises} coding exercises
-                            </span>
-                        </div>
-                    )}
-
-                    {course?.total_file_resources > 0 && (
-                        <div className="text-foreground/80 flex items-center gap-3 text-sm">
-                            <FileText className="h-4 w-4 shrink-0 text-slate-500" />
-                            <span>
-                                {course.total_file_resources} downloadable
-                                resources
-                            </span>
-                        </div>
-                    )}
-
-                    <div className="text-foreground/80 flex items-center gap-3 text-sm">
-                        <Globe className="h-4 w-4 shrink-0 text-slate-500" />
-                        <span>Full lifetime access</span>
-                    </div>
-
-                    <div className="text-foreground/80 flex items-center gap-3 text-sm">
-                        <Award className="h-4 w-4 shrink-0 text-slate-500" />
-                        <span>Certificate of completion</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
 
     return (
         <div className="bg-background min-h-screen pb-20">
@@ -367,17 +189,206 @@ export default function CoursePage({ params }: CoursePageProps) {
             </div>
 
             <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-                <div className="mb-8 lg:hidden">
-                    <SidebarCard />
-                </div>
+                {/* Dùng flex thay vì grid để dễ dàng dùng thuộc tính order đảo vị trí trên mobile */}
+                <div className="relative flex flex-col items-start gap-12 lg:flex-row">
+                    {/* RIGHT COLUMN: STICKY CHECKOUT CARD (Đưa lên đầu trong code HTML) */}
+                    {/* Bằng class order-1 trên mobile, order-2 trên desktop, thẻ này sẽ hiển thị dưới Hero ở mobile và sang phải ở Desktop */}
+                    <div className="sticky top-24 z-20 order-1 w-full lg:order-2 lg:w-1/3">
+                        <div className="bg-card border-border overflow-hidden rounded-2xl border shadow-xl">
+                            <div className="group border-border/50 relative flex aspect-video w-full overflow-hidden border-b bg-black">
+                                {isPlayingPreview &&
+                                getYouTubeEmbedUrl(course.promo_video_url) ? (
+                                    <iframe
+                                        width="100%"
+                                        height="100%"
+                                        src={
+                                            getYouTubeEmbedUrl(
+                                                course.promo_video_url,
+                                            ) || ''
+                                        }
+                                        title="Course Preview"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                        className="absolute inset-0 border-0"
+                                    />
+                                ) : (
+                                    <div
+                                        className="absolute inset-0 h-full w-full cursor-pointer"
+                                        onClick={() => {
+                                            if (course.promo_video_url)
+                                                setIsPlayingPreview(true);
+                                        }}
+                                    >
+                                        <Image
+                                            src={course.thumbnail_url}
+                                            alt={course.title}
+                                            fill
+                                            className="object-cover transition-transform duration-700 group-hover:scale-105"
+                                        />
+                                        {course.promo_video_url && (
+                                            <>
+                                                <div className="absolute inset-0 flex items-center justify-center bg-black/30 transition-colors group-hover:bg-black/40">
+                                                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/90 text-black shadow-2xl transition-transform group-hover:scale-110">
+                                                        <Play className="ml-1 h-7 w-7 fill-current" />
+                                                    </div>
+                                                </div>
+                                                <div className="absolute bottom-4 w-full text-center text-sm font-bold tracking-wide text-white drop-shadow-lg">
+                                                    Preview this course
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                            <div className="p-6 md:p-8">
+                                {!isEnrolled && !isInstructor && (
+                                    <div className="mb-6">
+                                        {course.is_free ? (
+                                            <div className="text-foreground text-4xl font-extrabold">
+                                                Free
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-end gap-3">
+                                                <span className="text-foreground text-4xl font-extrabold">
+                                                    $
+                                                    {isDiscounted
+                                                        ? course.discount_price
+                                                        : course.price}
+                                                </span>
+                                                {isDiscounted && (
+                                                    <span className="text-muted-foreground mb-1 text-xl font-medium line-through">
+                                                        ${course.price}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
 
-                <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-3">
-                    <div className="space-y-12 lg:col-span-2">
+                                <div className="mb-6 space-y-3">
+                                    {isCheckingAuth ? (
+                                        <Button
+                                            disabled
+                                            className="h-14 w-full rounded-xl text-lg font-semibold"
+                                        >
+                                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                            Checking...
+                                        </Button>
+                                    ) : !isAuthenticated ? (
+                                        <Button
+                                            className="h-14 w-full rounded-xl text-lg font-semibold"
+                                            onClick={() =>
+                                                router.push('/login')
+                                            }
+                                        >
+                                            Log in to Enroll
+                                        </Button>
+                                    ) : isInstructor ? (
+                                        <Button
+                                            className="h-14 w-full rounded-xl text-lg font-semibold"
+                                            variant="secondary"
+                                            onClick={() =>
+                                                router.push(
+                                                    `/dashboard/courses/${course.id}/edit`,
+                                                )
+                                            }
+                                        >
+                                            Edit Course
+                                        </Button>
+                                    ) : isEnrolled ? (
+                                        <Button
+                                            className="h-14 w-full rounded-xl text-lg font-semibold"
+                                            onClick={() =>
+                                                router.push(
+                                                    `/course/${course.id}/learn`,
+                                                )
+                                            }
+                                        >
+                                            Continue Learning
+                                        </Button>
+                                    ) : (
+                                        <>
+                                            <Button className="h-14 w-full rounded-xl text-lg font-semibold shadow-md">
+                                                {course.is_free
+                                                    ? 'Enroll for Free'
+                                                    : 'Add to Cart'}
+                                            </Button>
+                                            {!course.is_free && (
+                                                <Button
+                                                    variant="outline"
+                                                    className="h-14 w-full rounded-xl text-lg font-semibold"
+                                                >
+                                                    Buy Now
+                                                </Button>
+                                            )}
+                                            <p className="text-muted-foreground pt-2 text-center text-xs font-medium">
+                                                30-Day Money-Back Guarantee
+                                            </p>
+                                        </>
+                                    )}
+                                </div>
+
+                                <div className="border-border space-y-4 border-t pt-6">
+                                    <h4 className="text-foreground text-base font-bold">
+                                        This course includes:
+                                    </h4>
+
+                                    {course?.total_video_duration_minutes >
+                                        0 && (
+                                        <div className="text-foreground/80 flex items-center gap-3 text-sm">
+                                            <Play className="h-4 w-4 shrink-0 text-slate-500" />
+                                            <span>
+                                                {Math.floor(
+                                                    course.total_video_duration_minutes /
+                                                        60,
+                                                )}{' '}
+                                                hours on-demand video
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    {course?.total_coding_exercises > 0 && (
+                                        <div className="text-foreground/80 flex items-center gap-3 text-sm">
+                                            <CodeIcon className="h-4 w-4 shrink-0 text-slate-500" />
+                                            <span>
+                                                {course.total_coding_exercises}{' '}
+                                                coding exercises
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    {course?.total_file_resources > 0 && (
+                                        <div className="text-foreground/80 flex items-center gap-3 text-sm">
+                                            <FileText className="h-4 w-4 shrink-0 text-slate-500" />
+                                            <span>
+                                                {course.total_file_resources}{' '}
+                                                downloadable resources
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    <div className="text-foreground/80 flex items-center gap-3 text-sm">
+                                        <Globe className="h-4 w-4 shrink-0 text-slate-500" />
+                                        <span>Full lifetime access</span>
+                                    </div>
+
+                                    <div className="text-foreground/80 flex items-center gap-3 text-sm">
+                                        <Award className="h-4 w-4 shrink-0 text-slate-500" />
+                                        <span>Certificate of completion</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* LEFT COLUMN */}
+                    <div className="order-2 w-full space-y-12 lg:order-1 lg:w-2/3">
                         {course.learning_objectives &&
                             course.learning_objectives.length > 0 && (
                                 <div className="border-border bg-card rounded-2xl border p-6 shadow-sm md:p-8">
+                                    {/* Fix lỗi Lint dấu nháy đơn */}
                                     <h2 className="mb-6 text-2xl font-bold">
-                                        What you'll learn
+                                        What you&apos;ll learn
                                     </h2>
                                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                         {course.learning_objectives.map(
@@ -447,7 +458,7 @@ export default function CoursePage({ params }: CoursePageProps) {
                                                 onClick={() =>
                                                     toggleModule(module.id)
                                                 }
-                                                className="flex w-full items-center justify-between p-5 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
+                                                className="flex w-full items-center justify-between p-5 transition-colors hover:bg-slate-50 dark:hover:bg-slate-900"
                                             >
                                                 <div className="flex flex-col text-left">
                                                     <h3 className="text-foreground text-base font-semibold">
@@ -495,17 +506,13 @@ export default function CoursePage({ params }: CoursePageProps) {
                                                                                     key={
                                                                                         material.id
                                                                                     }
-                                                                                    className="group flex items-center justify-between rounded-lg border border-transparent px-3 py-2.5 transition-all duration-150 hover:border-slate-200 hover:bg-slate-100 dark:hover:border-slate-700 dark:hover:bg-slate-800/70"
+                                                                                    // Sửa lỗi màu hover Syllabus material ở đây (bg-primary/5)
+                                                                                    className="group hover:bg-primary/5 hover:border-primary/20 flex items-center justify-between rounded-md border border-transparent px-3 py-2.5 transition-colors"
                                                                                 >
                                                                                     <div className="flex items-center gap-3">
-                                                                                        <MaterialIcon className="h-4 w-4 text-slate-400 transition-colors group-hover:text-slate-600 dark:group-hover:text-slate-300" />
+                                                                                        <MaterialIcon className="group-hover:text-primary h-4 w-4 text-slate-500 transition-colors" />
                                                                                         <span
-                                                                                            className={`text-sm font-medium transition-colors ${
-                                                                                                isEnrolled &&
-                                                                                                material.is_completed
-                                                                                                    ? 'text-muted-foreground line-through'
-                                                                                                    : 'text-foreground/80 group-hover:text-foreground'
-                                                                                            }`}
+                                                                                            className={`text-sm font-medium transition-colors ${isEnrolled && material.is_completed ? 'text-muted-foreground line-through' : 'text-foreground/90 group-hover:text-primary'}`}
                                                                                         >
                                                                                             {
                                                                                                 material.title
@@ -552,12 +559,6 @@ export default function CoursePage({ params }: CoursePageProps) {
                                     );
                                 })}
                             </div>
-                        </div>
-                    </div>
-
-                    <div className="hidden lg:col-span-1 lg:block">
-                        <div className="sticky top-24">
-                            <SidebarCard />
                         </div>
                     </div>
                 </div>
