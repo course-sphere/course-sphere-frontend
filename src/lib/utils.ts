@@ -15,3 +15,10 @@ export const formatPrice = (value: number) => {
         currency: 'USD',
     }).format(value);
 };
+
+export const formatVideoDuration = (minutes: number) => {
+    if (minutes < 60) return `${minutes} minutes`;
+    const hours = Math.floor(minutes / 60);
+    const min = minutes % 60;
+    return min > 0 ? `${hours} hours ${min} mins` : `${hours} hours`;
+};
