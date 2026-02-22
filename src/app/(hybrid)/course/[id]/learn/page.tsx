@@ -8,6 +8,7 @@ import { ReadingViewer } from '@/components/course-builder/viewers/reading-viewe
 import { use } from 'react';
 import { VideoViewer } from '@/components/course-builder/viewers/video-viewer';
 import { FileViewer } from '@/components/course-builder/viewers/file-viewer';
+import { CodingViewer } from '@/components/course-builder/viewers/coding-viewer';
 
 export default function LearnPage({
     params,
@@ -57,9 +58,10 @@ export default function LearnPage({
                 return <VideoViewer material={material} />;
             case 'coding':
                 return (
-                    <div className="bg-muted/20 rounded-xl border border-dashed p-8 text-center">
-                        Code Editor Coming Soon...
-                    </div>
+                    <CodingViewer
+                        material={material}
+                        onSuccess={handleComplete}
+                    />
                 );
             case 'quiz':
                 return (
