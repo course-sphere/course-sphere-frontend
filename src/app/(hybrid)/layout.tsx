@@ -6,6 +6,7 @@ import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { useAuthStore } from '@/lib/stores/use-auth-store';
 import { RoleCheckingLoader } from '@/components/ui/role-checking-loader';
+import { usePathname } from 'next/navigation';
 
 export default function HybridLayout({
     children,
@@ -13,12 +14,17 @@ export default function HybridLayout({
     children: React.ReactNode;
 }) {
     const { user, isAuthenticated, isCheckingAuth } = useAuthStore();
+    const pathname = usePathname();
 
     if (isCheckingAuth) {
         return <RoleCheckingLoader />;
     }
+    const isLearnRoute = pathname.includes('/learn');
 
     if (isAuthenticated && user) {
+        if (isLearnRoute) {
+            return <>{children}</>;
+        }
         return (
             <DashboardLayout
                 title="Course Sphere"

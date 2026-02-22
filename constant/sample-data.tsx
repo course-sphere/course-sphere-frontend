@@ -19,7 +19,10 @@ import { Lesson, LessonItem } from '@/lib/service/lesson';
 import { Module } from '@/lib/service/module';
 import { Quiz } from '@/lib/service/quiz/type';
 import { Report } from '@/lib/service/report/type';
-import { CourseSyllabusResponse } from '@/lib/service/syllabus/type';
+import {
+    CourseSyllabusResponse,
+    LearnSyllabusResponse,
+} from '@/lib/service/syllabus/type';
 import { User } from '@/lib/service/user';
 import {
     Transaction,
@@ -1062,6 +1065,17 @@ export const mockStudentSyllabus: CourseSyllabusResponse = {
         },
     ],
 };
+
+export const mockLearnSyllabus: LearnSyllabusResponse = {
+    ...mockStudentSyllabus,
+    progress: {
+        percentage: 35,
+        completed_materials: 7,
+        total_materials: 20,
+    },
+    active_material_id: 'mat-5',
+};
+
 // sample user
 export const fakeUsers: User[] = [
     {
