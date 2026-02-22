@@ -1,12 +1,13 @@
 'use client';
 
-import React, { use } from 'react';
+import React, { use, useEffect } from 'react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { useAuthStore } from '@/lib/stores/use-auth-store';
 import { mockLearnSyllabus } from '@constant/sample-data';
 import { BaseResizableSidebar } from '@/components/layout/base-sidebar';
 import { StudentSyllabusMenu } from '@/components/layout/student-syllabus-menu';
 import { CourseOptionsDropdown } from '@/components/course-options-dropdown';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 // TODO:
 /* 
     1. [Flow chuyển mình: Course Detail -> Learn Workspace]
@@ -35,20 +36,37 @@ export default function LearnLayout({
 }) {
     const { user } = useAuthStore();
     const { id } = use(params);
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
     console.log(id);
 
     //const { data: syllabus } = useLearnSyllabus(id);
     const syllabus = mockLearnSyllabus;
+    const currentMaterialId = searchParams.get('materialId');
+
+    useEffect(() => {
+        if (!currentMaterialId && syllabus.active_material_id) {
+            router.replace(
+                `${pathname}?materialId=${syllabus.active_material_id}`,
+            );
+        }
+    }, [currentMaterialId, pathname, router, syllabus.active_material_id]);
 
     const handleMaterialSelect = (materialId: string) => {
-        console.log('Navigating to material:', materialId);
+        router.push(`${pathname}?materialId=${materialId}`);
+    };
+
+    const dynamicSyllabus = {
+        ...syllabus,
+        active_material_id: currentMaterialId || syllabus.active_material_id,
     };
 
     return (
         <SidebarProvider defaultOpen={true}>
             <BaseResizableSidebar user={user} collapsible="offcanvas">
                 <StudentSyllabusMenu
-                    syllabusData={syllabus}
+                    syllabusData={dynamicSyllabus}
                     onMaterialSelect={handleMaterialSelect}
                 />
             </BaseResizableSidebar>
