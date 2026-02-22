@@ -861,8 +861,31 @@ export const mockMaterialDetails: Record<string, LearnMaterialContent> = {
         is_completed: true,
         reading_data: {
             duration: 5,
-            content:
-                '<h2 class="text-node">Step 1: Install Python</h2><p class="text-node">Download Python 3.10+ from python.org.</p><h2 class="text-node">Step 2: Install Jupyter</h2><p class="text-node">Run <code>pip install jupyter</code> in your terminal.</p>',
+            content: `
+                <h2>1. The Importance of Virtual Environments</h2>
+                <p>Welcome to the <strong>first step</strong> of your Machine Learning journey. Before we write any <code>pandas</code> code, we must configure our environment properly.</p>
+                <p>It is highly recommended to isolate your project dependencies to avoid version conflicts. Here is how you do it:</p>
+                <h3>Step-by-step Setup</h3>
+                <ul>
+                    <li>Open your terminal or command prompt.</li>
+                    <li>Navigate to your project folder.</li>
+                    <li>Execute the environment creation command.</li>
+                </ul>
+
+                <pre><code>python -m venv ml_env
+source ml_env/bin/activate  # On macOS/Linux
+ml_env\\Scripts\\activate   # On Windows</code></pre>
+
+                <h2>2. Installing Core Packages</h2>
+                <p>Once your environment is active (you should see <code>(ml_env)</code> in your terminal prompt), it's time to install the holy trinity of Data Science:</p>
+                <blockquote>
+                    <p>"A clean environment is the foundation of a bug-free model." - Unknown Data Scientist</p>
+                </blockquote>
+
+                <p>Run the following pip command:</p>
+                <pre><code>pip install jupyter pandas numpy matplotlib scikit-learn</code></pre>
+                <p><em>Congratulations! You are now ready to launch Jupyter. Type <code>jupyter notebook</code> and move to the next lesson.</em></p>
+            `,
         },
     },
 
