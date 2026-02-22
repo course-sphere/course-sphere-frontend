@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, CheckCircle } from 'lucide-react';
 import { mockLearnSyllabus, mockMaterialDetails } from '@constant/sample-data';
 import { ReadingViewer } from '@/components/course-builder/viewers/reading-viewer';
 import { use } from 'react';
+import { VideoViewer } from '@/components/course-builder/viewers/video-viewer';
 
 export default function LearnPage({
     params,
@@ -52,11 +53,7 @@ export default function LearnPage({
             case 'reading':
                 return <ReadingViewer material={material} />;
             case 'video':
-                return (
-                    <div className="bg-muted/20 rounded-xl border border-dashed p-8 text-center">
-                        Video Player Coming Soon...
-                    </div>
-                );
+                return <VideoViewer material={material} />;
             case 'coding':
                 return (
                     <div className="bg-muted/20 rounded-xl border border-dashed p-8 text-center">
@@ -86,7 +83,6 @@ export default function LearnPage({
 
     return (
         <div className="flex min-h-full flex-col">
-            {/* 1. Bỏ luôn cái pb-24 đi, không cần hack padding nữa */}
             <div className="mx-auto w-full max-w-5xl flex-1 p-4 sm:p-6 lg:p-8">
                 <h1 className="text-foreground mb-8 text-2xl font-bold sm:text-3xl">
                     {material.title}
@@ -95,7 +91,6 @@ export default function LearnPage({
                 {renderContent()}
             </div>
 
-            {/* 2. Đổi fixed thành sticky, xóa luôn mấy cái left-0 right-0 md:left-80 */}
             <div className="border-border/50 bg-background/95 sticky bottom-0 z-20 mt-auto border-t p-4 backdrop-blur sm:px-8">
                 <div className="mx-auto flex max-w-5xl items-center justify-between">
                     <Button
