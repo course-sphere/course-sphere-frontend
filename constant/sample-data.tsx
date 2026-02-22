@@ -15,7 +15,7 @@ import {
 } from '@/lib/service/dashboard/type';
 import { Comment } from '@/lib/service/discussion/type';
 import { Enrollment } from '@/lib/service/enrollment/type';
-import { Lesson, LessonItem } from '@/lib/service/lesson';
+import { LearnMaterialContent, Lesson, LessonItem } from '@/lib/service/lesson';
 import { Module } from '@/lib/service/module';
 import { Quiz } from '@/lib/service/quiz/type';
 import { Report } from '@/lib/service/report/type';
@@ -493,7 +493,7 @@ export const fakeCourses: Course[] = [
         duration: '30 hours of content',
         level: 'Intermediate',
         students: 7650,
-        price: '$89.99',
+        price: '$0',
         image: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1200&q=80',
         modules: defaultModules,
     },
@@ -739,19 +739,19 @@ export const levels = ['All', 'Beginner', 'Intermediate', 'Advanced'];
 
 // course-syllabus-sample use in /course/{id} and /course/{id}/learn sidebar
 export const mockStudentSyllabus: CourseSyllabusResponse = {
-    course_id: 'course-1771579477259',
-    course_title: 'Web dev 2026',
+    course_id: '10',
+    course_title: 'Python for Machine Learning',
     modules: [
         {
             id: 'mod-1',
-            course_id: 'course-1771579477259',
-            title: 'Module 1: Fundamentals & Environment',
+            course_id: '10',
+            title: 'Module 1: Introduction & Environment',
             sort_order: 1,
             lessons: [
                 {
                     id: 'les-1-1',
                     module_id: 'mod-1',
-                    title: '1.1. Welcome to the Platform',
+                    title: '1.1. Getting Started with Python ML',
                     sort_order: 1,
                     materials: [
                         {
@@ -768,43 +768,13 @@ export const mockStudentSyllabus: CourseSyllabusResponse = {
                         {
                             id: 'mat-2',
                             lesson_id: 'les-1-1',
-                            item_type: 'file',
-                            title: 'Course_Syllabus_2026',
-                            sort_order: 2,
-                            is_required: false,
-                            is_preview: true,
-                            is_completed: true,
-                            file_type: 'pdf',
-                        },
-                    ],
-                },
-                {
-                    id: 'les-1-2',
-                    module_id: 'mod-1',
-                    title: '1.2. Core Concepts Assessment',
-                    sort_order: 2,
-                    materials: [
-                        {
-                            id: 'mat-3',
-                            lesson_id: 'les-1-2',
                             item_type: 'reading',
-                            title: 'Pre-requisite Checklist',
-                            sort_order: 1,
-                            is_required: true,
-                            is_preview: false,
-                            is_completed: true,
-                            duration: 5,
-                        },
-                        {
-                            id: 'mat-4',
-                            lesson_id: 'les-1-2',
-                            item_type: 'quiz',
-                            title: 'Initial Assessment Quiz',
+                            title: 'Jupyter Notebook Setup Guide',
                             sort_order: 2,
                             is_required: true,
                             is_preview: false,
                             is_completed: true,
-                            duration: 20,
+                            duration: 10,
                         },
                     ],
                 },
@@ -812,252 +782,47 @@ export const mockStudentSyllabus: CourseSyllabusResponse = {
         },
         {
             id: 'mod-2',
-            course_id: 'course-1771579477259',
-            title: 'Module 2: Modern Frontend with Next.js',
+            course_id: '10',
+            title: 'Module 2: Data Preprocessing',
             sort_order: 2,
             lessons: [
                 {
                     id: 'les-2-1',
                     module_id: 'mod-2',
-                    title: '2.1. Server Components & Routing',
+                    title: '2.1. Feature Engineering',
                     sort_order: 1,
                     materials: [
                         {
-                            id: 'mat-5',
+                            id: 'mat-3',
                             lesson_id: 'les-2-1',
-                            item_type: 'video',
-                            title: 'App Router Deep Dive',
-                            sort_order: 1,
-                            is_required: true,
-                            is_preview: false,
-                            is_completed: true,
-                            duration: 45,
-                        },
-                        {
-                            id: 'mat-6',
-                            lesson_id: 'les-2-1',
-                            item_type: 'reading',
-                            title: 'Client vs Server Components',
-                            sort_order: 2,
-                            is_required: true,
-                            is_preview: false,
-                            is_completed: false,
-                            duration: 10,
-                        },
-                    ],
-                },
-                {
-                    id: 'les-2-2',
-                    module_id: 'mod-2',
-                    title: '2.2. State Management & Forms',
-                    sort_order: 2,
-                    materials: [
-                        {
-                            id: 'mat-7',
-                            lesson_id: 'les-2-2',
-                            item_type: 'video',
-                            title: 'Handling Complex Forms',
-                            sort_order: 1,
-                            is_required: true,
-                            is_preview: false,
-                            is_completed: false,
-                            duration: 30,
-                        },
-                        {
-                            id: 'mat-8',
-                            lesson_id: 'les-2-2',
                             item_type: 'coding',
-                            title: 'Build a Multi-step Form',
-                            sort_order: 2,
-                            is_required: true,
-                            is_preview: false,
-                            is_completed: false,
-                            language: 'typescript',
-                        },
-                    ],
-                },
-            ],
-        },
-        {
-            id: 'mod-3',
-            course_id: 'course-1771579477259',
-            title: 'Module 3: Robust Backend with Spring Boot',
-            sort_order: 3,
-            lessons: [
-                {
-                    id: 'les-3-1',
-                    module_id: 'mod-3',
-                    title: '3.1. API Architecture & Security',
-                    sort_order: 1,
-                    materials: [
-                        {
-                            id: 'mat-9',
-                            lesson_id: 'les-3-1',
-                            item_type: 'video',
-                            title: 'RESTful Principles & JWT',
+                            title: 'Clean the Titanic Dataset',
                             sort_order: 1,
                             is_required: true,
                             is_preview: false,
                             is_completed: false,
-                            duration: 50,
                         },
                         {
-                            id: 'mat-10',
-                            lesson_id: 'les-3-1',
-                            item_type: 'file',
-                            title: 'API_Contract_Spec',
+                            id: 'mat-4',
+                            lesson_id: 'les-2-1',
+                            item_type: 'quiz',
+                            title: 'Pandas Knowledge Check',
                             sort_order: 2,
-                            is_required: true,
-                            is_preview: false,
-                            is_completed: false,
-                            file_type: 'json',
-                        },
-                    ],
-                },
-                {
-                    id: 'les-3-2',
-                    module_id: 'mod-3',
-                    title: '3.2. Data Persistence',
-                    sort_order: 2,
-                    materials: [
-                        {
-                            id: 'mat-11',
-                            lesson_id: 'les-3-2',
-                            item_type: 'reading',
-                            title: 'JPA & Hibernate Optimization',
-                            sort_order: 1,
                             is_required: true,
                             is_preview: false,
                             is_completed: false,
                             duration: 15,
                         },
                         {
-                            id: 'mat-12',
-                            lesson_id: 'les-3-2',
-                            item_type: 'coding',
-                            title: 'Implement User Repository',
-                            sort_order: 2,
-                            is_required: true,
-                            is_preview: false,
-                            is_completed: false,
-                            language: 'java',
-                        },
-                        {
-                            id: 'mat-13',
-                            lesson_id: 'les-3-2',
-                            item_type: 'quiz',
-                            title: 'Database Relationship Check',
-                            sort_order: 3,
-                            is_required: true,
-                            is_preview: false,
-                            is_completed: false,
-                            duration: 10,
-                        },
-                    ],
-                },
-            ],
-        },
-        {
-            id: 'mod-4',
-            course_id: 'course-1771579477259',
-            title: 'Module 4: High Performance with Go',
-            sort_order: 4,
-            lessons: [
-                {
-                    id: 'les-4-1',
-                    module_id: 'mod-4',
-                    title: '4.1. Concurrency in Go',
-                    sort_order: 1,
-                    materials: [
-                        {
-                            id: 'mat-14',
-                            lesson_id: 'les-4-1',
-                            item_type: 'video',
-                            title: 'Goroutines and Channels',
-                            sort_order: 1,
-                            is_required: true,
-                            is_preview: false,
-                            is_completed: false,
-                            duration: 35,
-                        },
-                        {
-                            id: 'mat-15',
-                            lesson_id: 'les-4-1',
-                            item_type: 'coding',
-                            title: 'Worker Pool Implementation',
-                            sort_order: 2,
-                            is_required: true,
-                            is_preview: false,
-                            is_completed: false,
-                            language: 'go',
-                        },
-                    ],
-                },
-            ],
-        },
-        {
-            id: 'mod-5',
-            course_id: 'course-1771579477259',
-            title: 'Module 5: DevOps & Deployment',
-            sort_order: 5,
-            lessons: [
-                {
-                    id: 'les-5-1',
-                    module_id: 'mod-5',
-                    title: '5.1. Containerization & Pipelines',
-                    sort_order: 1,
-                    materials: [
-                        {
-                            id: 'mat-16',
-                            lesson_id: 'les-5-1',
-                            item_type: 'reading',
-                            title: 'Dockerizing Fullstack Apps',
-                            sort_order: 1,
-                            is_required: true,
-                            is_preview: false,
-                            is_completed: false,
-                            duration: 20,
-                        },
-                        {
-                            id: 'mat-17',
-                            lesson_id: 'les-5-1',
+                            id: 'mat-5',
+                            lesson_id: 'les-2-1',
                             item_type: 'file',
-                            title: 'docker-compose-template',
-                            sort_order: 2,
+                            title: 'Download Dataset (CSV)',
+                            sort_order: 3,
                             is_required: false,
                             is_preview: false,
                             is_completed: false,
-                            file_type: 'yaml',
-                        },
-                    ],
-                },
-                {
-                    id: 'les-5-2',
-                    module_id: 'mod-5',
-                    title: '5.2. Zero Downtime Deployment',
-                    sort_order: 2,
-                    materials: [
-                        {
-                            id: 'mat-18',
-                            lesson_id: 'les-5-2',
-                            item_type: 'video',
-                            title: 'Blue-Green Deployment Strategy',
-                            sort_order: 1,
-                            is_required: true,
-                            is_preview: false,
-                            is_completed: false,
-                            duration: 40,
-                        },
-                        {
-                            id: 'mat-19',
-                            lesson_id: 'les-5-2',
-                            item_type: 'quiz',
-                            title: 'DevOps Final Exam',
-                            sort_order: 2,
-                            is_required: true,
-                            is_preview: false,
-                            is_completed: false,
-                            duration: 30,
+                            file_type: 'csv',
                         },
                     ],
                 },
@@ -1066,14 +831,135 @@ export const mockStudentSyllabus: CourseSyllabusResponse = {
     ],
 };
 
+export const mockMaterialDetails: Record<string, LearnMaterialContent> = {
+    'mat-1': {
+        id: 'mat-1',
+        lesson_id: 'les-1-1',
+        item_type: 'video',
+        title: 'Course Introduction',
+        sort_order: 1,
+        is_required: true,
+        is_preview: true,
+        is_completed: true,
+        video_data: {
+            video_url:
+                'https://www.youtube.com/watch?v=RlTDbIutJsU&list=RDRlTDbIutJsU',
+            duration: 15,
+            description:
+                '<p class="text-node">Welcome to Python for Machine Learning! In this introductory video, instructor Sarah Chen walks you through the curriculum.</p>',
+        },
+    },
+
+    'mat-2': {
+        id: 'mat-2',
+        lesson_id: 'les-1-1',
+        item_type: 'reading',
+        title: 'Jupyter Notebook Setup Guide',
+        sort_order: 2,
+        is_required: true,
+        is_preview: false,
+        is_completed: true,
+        reading_data: {
+            duration: 5,
+            content:
+                '<h2 class="text-node">Step 1: Install Python</h2><p class="text-node">Download Python 3.10+ from python.org.</p><h2 class="text-node">Step 2: Install Jupyter</h2><p class="text-node">Run <code>pip install jupyter</code> in your terminal.</p>',
+        },
+    },
+
+    'mat-3': {
+        id: 'mat-3',
+        lesson_id: 'les-2-1',
+        item_type: 'coding',
+        title: 'Clean the Titanic Dataset',
+        sort_order: 1,
+        is_required: true,
+        is_preview: false,
+        is_completed: false,
+        coding_data: {
+            description:
+                'Apply data cleaning techniques on the Titanic dataset.',
+            instructions:
+                '<p class="text-node"><strong>Task:</strong> Drop all rows with missing "Age" values in the dataframe <code>df</code>.</p>',
+            starter_code:
+                'import pandas as pd\n\ndef clean_titanic_data(df):\n    # Drop remaining NA rows\n    \n    return df\n',
+            language: 'python',
+            max_score: 100,
+            due_days: 7,
+        },
+    },
+
+    'mat-4': {
+        id: 'mat-4',
+        lesson_id: 'les-2-1',
+        item_type: 'quiz',
+        title: 'Pandas Knowledge Check',
+        sort_order: 2,
+        is_required: true,
+        is_preview: false,
+        is_completed: false,
+        quiz_data: {
+            description:
+                '<p class="text-node">Do not use AI for this quiz.</p>',
+            time_limit_minutes: 15,
+            passing_score: 50,
+            questions: [
+                {
+                    id: 'q1',
+                    title: 'Which Pandas method is used to drop missing values?',
+                    question_type: 'single',
+                    score: 10,
+                    explanation:
+                        '<p class="text-node">dropna() is the standard method to remove missing values in pandas.</p>',
+                    answers: [
+                        { id: 'a-1', content: 'df.dropna()', is_correct: true },
+                        {
+                            id: 'a-2',
+                            content: 'df.remove_na()',
+                            is_correct: false,
+                        },
+                    ],
+                },
+                {
+                    id: 'q2',
+                    title: 'Pandas is built on top of NumPy?',
+                    question_type: 'true_false',
+                    score: 5,
+                    explanation:
+                        '<p class="text-node">Yes, Pandas Series and DataFrames heavily rely on NumPy arrays.</p>',
+                    answers: [
+                        { id: 'a-3', content: 'True', is_correct: true },
+                        { id: 'a-4', content: 'False', is_correct: false },
+                    ],
+                },
+            ],
+        },
+    },
+
+    'mat-5': {
+        id: 'mat-5',
+        lesson_id: 'les-2-1',
+        item_type: 'file',
+        title: 'Download Dataset (CSV)',
+        sort_order: 3,
+        is_required: false,
+        is_preview: false,
+        is_completed: false,
+        file_data: {
+            file_url: 'https://s3.your-bucket.com/uploads/titanic_dataset.csv',
+            file_type: 'csv',
+            file_size: 102450,
+        },
+    },
+};
+
 export const mockLearnSyllabus: LearnSyllabusResponse = {
     ...mockStudentSyllabus,
     progress: {
-        percentage: 35,
-        completed_materials: 7,
-        total_materials: 20,
+        percentage: 40,
+        completed_materials: 2,
+        total_materials: 5,
     },
-    active_material_id: 'mat-5',
+    active_material_id: 'mat-3',
 };
 
 // sample user
@@ -1939,67 +1825,56 @@ export const fakeMySubmissions = [
 
 // mock data for course/{id}
 export const mockCourseDetail: CourseDetailResponse = {
-    id: 'course-1771579477259',
-    title: 'Full course web development in 2026',
-    subtitle: 'Master the modern web stack from zero to hero',
+    id: '10',
+    title: 'Python for Machine Learning',
+    subtitle:
+        'Apply Python to real ML problems with feature engineering, training, and model evaluation.',
     description:
-        'A comprehensive guide to building modern, scalable web applications using Next.js 16, React 19, Spring Boot, and Go. You will learn everything from frontend architectures to robust backend APIs and zero-downtime deployments using Docker and CI/CD pipelines.',
-
+        'A comprehensive guide to practical Machine Learning. You will learn data preprocessing, feature engineering, and how to build robust predictive models using Python, Scikit-Learn, and Pandas.',
     category: [
-        { id: '2072432640', text: 'Web Development' },
-        { id: '2072432641', text: 'DevOps' },
+        { id: 'cat-ds', text: 'Data Science' },
+        { id: 'cat-ml', text: 'Machine Learning' },
     ],
     level: 'intermediate',
     thumbnail_url:
-        'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80',
-    promo_video_url:
-        'https://www.youtube.com/watch?v=RlTDbIutJsU&list=RDRlTDbIutJsU&start_radio=1',
+        'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1200&q=80',
+    promo_video_url: 'https://www.youtube.com/watch?v=R6cM5ww7g-o',
 
-    is_free: false,
-    price: 99.99,
-    discount_price: 19.99,
+    is_free: true,
+    price: 0,
+    discount_price: 0,
 
     prerequisites: [
-        { course_id: 'course-3', course_title: 'UI/UX Design Fundamentals' },
-        {
-            course_id: 'course-4',
-            course_title: 'Basic JavaScript & TypeScript',
-        },
+        { course_id: 'course-basic-py', course_title: 'Python Basics' },
     ],
-
     requirements: [
-        'Basic understanding of HTML, CSS, and JavaScript',
-        'A computer with Windows, macOS, or Linux',
-        'Passion for learning modern web technologies',
+        'Basic understanding of Python syntax',
+        'High school level mathematics',
     ],
-
     learning_objectives: [
-        'Build fullstack applications using Next.js App Router',
-        'Develop robust RESTful APIs with Spring Boot and Java',
-        'Implement high-performance concurrent services with Go',
-        'Deploy applications with Docker and CI/CD pipelines',
+        'Master Pandas for data manipulation',
+        'Build and evaluate Machine Learning models',
+        'Deploy ML models via REST APIs',
     ],
-
-    target_audience: [
-        'Junior developers looking to level up their stack',
-        'Frontend developers wanting to learn backend',
-        'Anyone interested in modern web architectures',
-    ],
-
     instructor: {
-        id: 'user-2',
-        name: 'Nam Dang',
-        avatar_url: 'https://github.com/shadcn.png',
+        id: 'user-sarah',
+        name: 'Sarah Chen',
+        avatar_url: 'https://i.pravatar.cc/150?u=sarah',
     },
     status: 'published',
-    rating: 4.8,
-    rating_count: 2847,
-    enrolled_students: 12340,
-    total_video_duration_minutes: 1250,
-    total_coding_exercises: 15,
-    total_file_resources: 10,
-    created_at: '2025-12-01T10:00:00Z',
-    updated_at: '2026-02-22T10:00:00Z',
+    rating: 4.9,
+    rating_count: 723,
+    enrolled_students: 7650,
+    total_video_duration_minutes: 1800,
+    total_coding_exercises: 25,
+    total_file_resources: 5,
+    target_audience: [
+        'Aspiring Data Scientists',
+        'Python developers wanting to transition to ML',
+        'University students learning Data Science',
+    ],
+    created_at: '2025-10-12T08:00:00Z',
+    updated_at: '2026-02-20T10:30:00Z',
 };
 
 // Get course by ID
