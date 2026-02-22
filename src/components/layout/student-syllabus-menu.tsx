@@ -76,13 +76,13 @@ export function StudentSyllabusMenu({
 
     return (
         <div className="flex w-full flex-col">
-            <div className="border-border/50 bg-sidebar sticky top-0 z-10 border-b p-4">
+            <div className="border-border/50 bg-sidebar sticky top-0 z-10 border-b p-4 group-data-[collapsible=icon]:hidden">
                 <h3 className="text-sidebar-foreground mb-3 line-clamp-2 text-sm leading-tight font-bold">
                     {syllabusData.course_title}
                 </h3>
                 <div className="space-y-1.5">
                     <div className="text-muted-foreground flex items-center justify-between text-xs font-medium">
-                        <span>{progress.percentage}% Completed</span>
+                        <span>{progress.percentage}%</span>
                         <span>
                             {progress.completed_materials}/
                             {progress.total_materials}
