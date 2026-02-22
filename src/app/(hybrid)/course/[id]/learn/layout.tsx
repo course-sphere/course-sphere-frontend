@@ -1,11 +1,8 @@
 'use client';
 
-import React from 'react';
-import { useRouter } from 'next/navigation';
+import React, { use } from 'react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { useAuthStore } from '@/lib/stores/use-auth-store';
-import { ChevronLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { mockLearnSyllabus } from '@constant/sample-data';
 import { BaseResizableSidebar } from '@/components/layout/base-sidebar';
 import { StudentSyllabusMenu } from '@/components/layout/student-syllabus-menu';
@@ -27,12 +24,13 @@ export default function LearnLayout({
     params,
 }: {
     children: React.ReactNode;
-    params: { id: string };
+    params: Promise<{ id: string }>;
 }) {
     const { user } = useAuthStore();
-    const router = useRouter();
+    const { id } = use(params);
+    console.log(id);
 
-    //const { data: syllabus } = useLearnSyllabus(params.id);
+    //const { data: syllabus } = useLearnSyllabus(id);
     const syllabus = mockLearnSyllabus;
 
     const handleMaterialSelect = (materialId: string) => {
@@ -58,7 +56,7 @@ export default function LearnLayout({
                     </div>
                     <div className="flex items-center gap-3">
                         <CourseOptionsDropdown
-                            courseId={params.id}
+                            courseId={id}
                             progressPercentage={syllabus.progress.percentage}
                         />
                     </div>{' '}

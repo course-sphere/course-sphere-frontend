@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
     BookOpen,
     Layers,
@@ -49,22 +49,37 @@ export function StudentSyllabusMenu({
 }: StudentSyllabusMenuProps) {
     const { modules, progress, active_material_id } = syllabusData;
 
-    const [expandedModules, setExpandedModules] = useState<string[]>([]);
-
-    useEffect(() => {
+    const [expandedModules, setExpandedModules] = useState<string[]>(() => {
         if (active_material_id && modules) {
             const activeModule = modules.find((mod) =>
                 mod.lessons.some((les) =>
                     les.materials.some((mat) => mat.id === active_material_id),
                 ),
             );
-            if (activeModule && !expandedModules.includes(activeModule.id)) {
-                setExpandedModules((prev) => [...prev, activeModule.id]);
-            }
-        } else if (modules?.length > 0 && expandedModules.length === 0) {
-            setExpandedModules([modules[0].id]);
+            if (activeModule) return [activeModule.id];
         }
-    }, [active_material_id, modules]);
+        return modules?.length > 0 ? [modules[0].id] : [];
+    });
+
+    const [prevActiveId, setPrevActiveId] = useState<string | null>(
+        active_material_id || null,
+    );
+
+    if (active_material_id !== prevActiveId) {
+        setPrevActiveId(active_material_id || null);
+
+        if (active_material_id && modules) {
+            const activeModule = modules.find((mod) =>
+                mod.lessons.some((les) =>
+                    les.materials.some((mat) => mat.id === active_material_id),
+                ),
+            );
+
+            if (activeModule && !expandedModules.includes(activeModule.id)) {
+                setExpandedModules([...expandedModules, activeModule.id]);
+            }
+        }
+    }
 
     const toggleModule = (moduleId: string) => {
         setExpandedModules((prev) =>
