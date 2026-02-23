@@ -61,7 +61,7 @@ export const INSTRUCTOR_MENU: NavGroup[] = [
         items: [
             {
                 title: 'My Courses',
-                href: '/instructor/course',
+                href: '/instructor/courses',
                 icon: BookOpen,
             },
             {
