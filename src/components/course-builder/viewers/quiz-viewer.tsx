@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { LearnMaterialContent } from '@/lib/service/lesson';
 import { Button } from '@/components/ui/button';
 import {
@@ -33,38 +33,40 @@ export function QuizViewer({
     // user answers
     const [selectedAnswers, setSelectedAnswers] = useState<
         Record<string, string[]>
-    >({});
-
-    // score state
-    const [scoreData, setScoreData] = useState({
-        earned: 0,
-        max: 0,
-        percentage: 0,
-        passed: false,
-    });
-
-    useEffect(() => {
+    >(() => {
         if (isPreview && data?.questions) {
             const correctAnswersMap: Record<string, string[]> = {};
-            let totalMaxScore = 0;
-
             data.questions.forEach((q) => {
-                totalMaxScore += q.score;
                 correctAnswersMap[q.id] = q.answers
                     .filter((a) => a.is_correct)
                     .map((a) => a.id);
             });
+            return correctAnswersMap;
+        }
+        return {};
+    });
 
-            setSelectedAnswers(correctAnswersMap);
-            setScoreData({
+    // score state
+    const [scoreData, setScoreData] = useState(() => {
+        if (isPreview && data?.questions) {
+            let totalMaxScore = 0;
+            data.questions.forEach((q) => {
+                totalMaxScore += q.score;
+            });
+            return {
                 earned: totalMaxScore,
                 max: totalMaxScore,
                 percentage: 100,
                 passed: true,
-            });
-            setStep('result');
+            };
         }
-    }, [isPreview, data]);
+        return {
+            earned: 0,
+            max: 0,
+            percentage: 0,
+            passed: false,
+        };
+    });
 
     if (!data || !data.questions) {
         return (
