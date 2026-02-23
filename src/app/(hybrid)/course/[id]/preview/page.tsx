@@ -1,8 +1,6 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { mockMaterialDetails } from '@constant/sample-data';
 import { ReadingViewer } from '@/components/course-builder/viewers/reading-viewer';
@@ -18,14 +16,6 @@ export default function PreviewPage() {
     const material = currentMaterialId
         ? mockMaterialDetails[currentMaterialId]
         : null;
-
-    const handleNext = () => {
-        console.log('Preview: Go to next material');
-    };
-
-    const handlePrev = () => {
-        console.log('Preview: Go to prev material');
-    };
 
     if (!material) {
         return (
@@ -88,27 +78,6 @@ export default function PreviewPage() {
                 </h1>
 
                 {renderContent()}
-
-                <div className="border-border/50 mt-16 border-t pt-8 pb-12">
-                    <div className="flex items-center justify-between">
-                        <Button
-                            variant="outline"
-                            onClick={handlePrev}
-                            className="rounded-xl"
-                        >
-                            <ChevronLeft className="mr-2 h-4 w-4" /> Previous
-                        </Button>
-
-                        <Button
-                            variant="secondary"
-                            onClick={handleNext}
-                            className="rounded-xl shadow-md"
-                        >
-                            Next Lesson{' '}
-                            <ChevronRight className="ml-2 h-4 w-4" />
-                        </Button>
-                    </div>
-                </div>
             </div>
         </div>
     );

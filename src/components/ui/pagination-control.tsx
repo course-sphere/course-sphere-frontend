@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { PaginationState } from '@tanstack/react-table';
 import { Dispatch, SetStateAction, useMemo } from 'react';
+import { cn } from '@/lib/utils';
 
 interface Props {
     className?: string;
@@ -86,23 +87,28 @@ export const PaginationControl = ({
 
     return (
         <div
-            className={`flex flex-col items-center justify-between gap-6 lg:flex-row ${className || ''}`}
+            className={cn(
+                'flex flex-col items-center justify-between gap-6 lg:flex-row',
+                className,
+            )}
         >
             <div className="flex flex-col items-center gap-4 sm:flex-row">
-                <div className="text-sm whitespace-nowrap text-gray-600">
+                <div className="text-muted-foreground text-sm whitespace-nowrap">
                     Showing{' '}
-                    <span className="font-semibold text-gray-900">{start}</span>{' '}
+                    <span className="text-foreground font-semibold">
+                        {start}
+                    </span>{' '}
                     to{' '}
-                    <span className="font-semibold text-gray-900">{end}</span>{' '}
+                    <span className="text-foreground font-semibold">{end}</span>{' '}
                     of{' '}
-                    <span className="font-semibold text-gray-900">
+                    <span className="text-foreground font-semibold">
                         {itemCount}
                     </span>{' '}
                     results
                 </div>
 
                 <div className="flex items-center space-x-2">
-                    <span className="text-sm whitespace-nowrap text-gray-600">
+                    <span className="text-muted-foreground text-sm whitespace-nowrap">
                         Rows per page:
                     </span>
                     <Select
@@ -115,7 +121,7 @@ export const PaginationControl = ({
                             }))
                         }
                     >
-                        <SelectTrigger className="h-8 w-20 border-gray-200">
+                        <SelectTrigger className="h-8 w-20">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -138,7 +144,7 @@ export const PaginationControl = ({
                             setPagination((prev) => ({ ...prev, pageIndex: 0 }))
                         }
                         disabled={currentPage === 1}
-                        className="h-9 w-9 border-gray-200 p-0 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="h-9 w-9 p-0 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         <ChevronsLeft className="h-4 w-4" />
                     </Button>
@@ -153,7 +159,7 @@ export const PaginationControl = ({
                             }))
                         }
                         disabled={pagination.pageIndex === 0}
-                        className="h-9 border-gray-200 px-3 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="h-9 px-3 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         <ChevronLeft className="mr-1 h-4 w-4" />
                         Previous
@@ -163,16 +169,12 @@ export const PaginationControl = ({
                         {getPageNumbers().map((pageNumber, index) => (
                             <div key={index}>
                                 {pageNumber === '...' ? (
-                                    <span className="flex h-9 w-9 items-center justify-center text-sm font-medium text-gray-400">
+                                    <span className="text-muted-foreground flex h-9 w-9 items-center justify-center text-sm font-medium">
                                         ...
                                     </span>
                                 ) : (
                                     <Button
-                                        variant={
-                                            currentPage === pageNumber
-                                                ? 'default'
-                                                : 'outline'
-                                        }
+                                        variant="outline" // LUÔN DÙNG OUTLINE
                                         size="sm"
                                         onClick={() =>
                                             setPagination((prev) => ({
@@ -181,11 +183,12 @@ export const PaginationControl = ({
                                                     (pageNumber as number) - 1,
                                             }))
                                         }
-                                        className={`h-9 w-9 p-0 text-sm font-semibold transition-all duration-200 ${
+                                        className={cn(
+                                            'h-9 w-9 p-0 text-sm font-semibold transition-all duration-200',
                                             currentPage === pageNumber
-                                                ? 'border-gray-900 bg-gray-900 text-white shadow-sm hover:bg-gray-800'
-                                                : 'border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
-                                        }`}
+                                                ? 'border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary shadow-sm' // TÔNG PASTEL NHẸ NHÀNG
+                                                : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground', // TRẠNG THÁI BÌNH THƯỜNG
+                                        )}
                                     >
                                         {pageNumber}
                                     </Button>
@@ -207,7 +210,7 @@ export const PaginationControl = ({
                             }))
                         }
                         disabled={pagination.pageIndex >= pageCount - 1}
-                        className="h-9 border-gray-200 px-3 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="h-9 px-3 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         Next
                         <ChevronRight className="ml-1 h-4 w-4" />
@@ -223,7 +226,7 @@ export const PaginationControl = ({
                             }))
                         }
                         disabled={currentPage === pageCount}
-                        className="h-9 w-9 border-gray-200 p-0 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="h-9 w-9 p-0 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         <ChevronsRight className="h-4 w-4" />
                     </Button>
@@ -231,14 +234,14 @@ export const PaginationControl = ({
             )}
 
             {pageCount > 1 && (
-                <div className="mt-4 flex items-center justify-center border-t border-gray-100 pt-4 lg:hidden">
-                    <span className="text-sm text-gray-600">
+                <div className="border-border mt-4 flex items-center justify-center border-t pt-4 lg:hidden">
+                    <span className="text-muted-foreground text-sm">
                         Page{' '}
-                        <span className="font-semibold text-gray-900">
+                        <span className="text-foreground font-semibold">
                             {currentPage}
                         </span>{' '}
                         of{' '}
-                        <span className="font-semibold text-gray-900">
+                        <span className="text-foreground font-semibold">
                             {pageCount}
                         </span>
                     </span>
