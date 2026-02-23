@@ -28,6 +28,13 @@ import { mockInstructorCourses } from '@constant/sample-data';
 import { InstructorCourseCard } from '@/components/instructor-course-card';
 import StatCard from '@/components/stat-card';
 
+// TODO: API INTEGRATION
+// 1. Endpoint: GET /api/v1/instructor/courses
+// 2. Query Params cần truyền:
+//    - search: string (searchQuery)
+//    - status: string (statusFilter - 'all' | 'draft' | 'pending' | 'published' | 'rejected')
+//    - page: number (pagination.pageIndex)
+//    - limit: number (pagination.pageSize)
 export default function TeacherCoursesPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState<CourseStatus | 'all'>(
