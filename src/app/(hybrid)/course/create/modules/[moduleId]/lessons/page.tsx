@@ -255,12 +255,6 @@ export default function LessonManagerPage() {
         });
     };
 
-    const handleDeleteLesson = (id: string) => {
-        if (confirm('Are you sure you want to delete this lesson?')) {
-            saveToLocal(lessons.filter((l) => l.id !== id));
-        }
-    };
-
     const handleReorderMaterials = (
         lessonId: string,
         reorderedItems: DraftLessonItem[],
@@ -285,21 +279,6 @@ export default function LessonManagerPage() {
         setActiveMaterialType(type);
         setEditingMaterial(itemToEdit);
         setIsMaterialSheetOpen(true);
-    };
-
-    const handleDeleteMaterial = (lessonId: string, itemId: string) => {
-        if (confirm('Delete this material?')) {
-            saveToLocal(
-                lessons.map((l) =>
-                    l.id === lessonId
-                        ? {
-                              ...l,
-                              items: l.items.filter((i) => i.id !== itemId),
-                          }
-                        : l,
-                ),
-            );
-        }
     };
 
     const handleSaveMaterial = (formData: Record<string, unknown>) => {
@@ -379,7 +358,6 @@ export default function LessonManagerPage() {
             </div>
         );
 
-    // CHỈ CÒN LẠI LÕI GIAO DIỆN
     return (
         <div className="w-full">
             <Button variant="ghost" className="mb-6" asChild>
