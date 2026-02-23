@@ -6,9 +6,10 @@ import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { useAuthStore } from '@/lib/stores/use-auth-store';
 import { Button } from '@/components/ui/button';
 import { Eye, ArrowLeft, Send, Loader2 } from 'lucide-react';
-import { mockLearnSyllabus } from '@constant/sample-data';
 import { BaseResizableSidebar } from '@/components/layout/base-sidebar';
 import { StudentSyllabusMenu } from '@/components/layout/student-syllabus-menu';
+import { ConfirmDialog } from '@/components/confirm-dialog'; // Thêm import này
+import { mockLearnSyllabus } from '@constant/sample-data';
 
 export default function PreviewLayout({
     children,
@@ -22,9 +23,9 @@ export default function PreviewLayout({
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
-    console.log(id);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSubmitDialogOpen, setIsSubmitDialogOpen] = useState(false);
 
     const syllabus = mockLearnSyllabus;
     const currentMaterialId = searchParams.get('materialId');
@@ -41,20 +42,20 @@ export default function PreviewLayout({
         router.push(`${pathname}?materialId=${materialId}`);
     };
 
-    const handleSubmitCourse = async () => {
-        if (
-            confirm(
-                'Are you sure you want to submit this course for review? You will not be able to edit it while it is pending approval.',
-            )
-        ) {
-            setIsSubmitting(true);
-            console.log('GỌI API: POST /api/v1/courses/10/submit-for-review');
+    const handleSubmitClick = () => {
+        setIsSubmitDialogOpen(true);
+    };
 
-            await new Promise((resolve) => setTimeout(resolve, 2000));
+    const executeSubmitCourse = async () => {
+        setIsSubmitDialogOpen(false);
+        setIsSubmitting(true);
 
-            setIsSubmitting(false);
-            router.push('/course');
-        }
+        console.log(`POST /api/v1/courses/${id}/submit-for-review`);
+
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        setIsSubmitting(false);
+        router.push('/course');
     };
 
     const dynamicSyllabus = {
@@ -93,7 +94,7 @@ export default function PreviewLayout({
                             Back to Edit
                         </Button>{' '}
                         <Button
-                            onClick={handleSubmitCourse}
+                            onClick={handleSubmitClick}
                             disabled={isSubmitting}
                             className="rounded-xl shadow-md"
                         >
@@ -108,6 +109,15 @@ export default function PreviewLayout({
                 </header>
 
                 <div className="flex-1 overflow-y-auto">{children}</div>
+
+                <ConfirmDialog
+                    open={isSubmitDialogOpen}
+                    onOpenChangeAction={setIsSubmitDialogOpen}
+                    title="Submit Course"
+                    description="Are you sure you want to submit this course for review? You will not be able to edit the content while it is pending approval by the Admin."
+                    confirmText="Submit"
+                    onConfirmAction={executeSubmitCourse}
+                />
             </main>{' '}
         </SidebarProvider>
     );
