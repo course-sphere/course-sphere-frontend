@@ -220,7 +220,7 @@ export function QuizViewer({
                     className={cn(
                         'flex flex-col items-center justify-between gap-4 rounded-2xl border p-6 shadow-sm sm:flex-row',
                         isPreview
-                            ? 'border-amber-500/20 bg-amber-500/10'
+                            ? 'border-primary/20 bg-primary/10'
                             : scoreData.passed
                               ? 'border-emerald-500/20 bg-emerald-500/10'
                               : 'border-rose-500/20 bg-rose-500/10',
@@ -228,7 +228,7 @@ export function QuizViewer({
                 >
                     <div className="flex items-center gap-4">
                         {isPreview ? (
-                            <Eye className="h-12 w-12 text-amber-500" />
+                            <Eye className="text-primary h-12 w-12" />
                         ) : scoreData.passed ? (
                             <CheckCircle2 className="h-12 w-12 text-emerald-500" />
                         ) : (

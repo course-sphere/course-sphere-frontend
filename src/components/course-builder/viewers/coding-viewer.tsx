@@ -130,7 +130,7 @@ export function CodingViewer({
                 <div className="bg-card border-border/60 mt-4 flex items-center justify-between rounded-xl border p-4 shadow-sm">
                     <div className="flex-1">
                         {isPreview ? (
-                            <span className="flex items-center gap-2 text-sm font-medium text-amber-600 dark:text-amber-500">
+                            <span className="text-primary flex items-center gap-2 text-sm font-medium">
                                 <Eye className="h-5 w-5" />
                                 Preview Mode (Code editing and submission are
                                 disabled)

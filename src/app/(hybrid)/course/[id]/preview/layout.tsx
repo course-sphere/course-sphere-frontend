@@ -70,13 +70,12 @@ export default function PreviewLayout({
                     onMaterialSelect={handleMaterialSelect}
                 />
             </BaseResizableSidebar>
-
             <main className="bg-background relative flex min-h-screen flex-1 flex-col overflow-hidden">
-                <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-amber-500/20 bg-amber-500/10 px-4 sm:px-6">
+                <header className="border-primary/20 bg-primary/5 sticky top-0 z-30 flex h-16 items-center justify-between border-b px-4 sm:px-6">
                     <div className="flex items-center gap-3">
                         <SidebarTrigger className="text-muted-foreground hover:text-foreground -ml-2" />
                         <div className="bg-border mx-1 hidden h-4 w-px sm:block" />
-                        <div className="flex items-center gap-2 text-sm font-bold text-amber-600 dark:text-amber-500">
+                        <div className="text-primary flex items-center gap-2 text-sm font-bold">
                             <Eye className="h-5 w-5" />
                             Instructor Preview Mode
                         </div>
@@ -88,16 +87,15 @@ export default function PreviewLayout({
                             onClick={() =>
                                 router.push('/course/create/modules')
                             }
-                            className="rounded-xl border-amber-500/30 text-amber-700 hover:bg-amber-500/10 dark:text-amber-400"
+                            className="border-primary/30 text-primary hover:bg-primary/10 hover:text-primary rounded-xl"
                         >
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to Edit
-                        </Button>
-
+                        </Button>{' '}
                         <Button
                             onClick={handleSubmitCourse}
                             disabled={isSubmitting}
-                            className="rounded-xl bg-amber-500 text-white shadow-md hover:bg-amber-600"
+                            className="rounded-xl shadow-md"
                         >
                             {isSubmitting ? (
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -110,7 +108,7 @@ export default function PreviewLayout({
                 </header>
 
                 <div className="flex-1 overflow-y-auto">{children}</div>
-            </main>
+            </main>{' '}
         </SidebarProvider>
     );
 }

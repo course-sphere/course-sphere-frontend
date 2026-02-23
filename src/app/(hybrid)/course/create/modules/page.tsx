@@ -42,6 +42,7 @@ import {
     Pencil,
     Trash2,
     BookOpen,
+    ArrowRight,
 } from 'lucide-react';
 import { PhaseIndicator } from '@/components/course-builder/phase-indicator';
 import { PHASES } from '@/components/course-builder/constant';
@@ -166,11 +167,26 @@ export default function ModuleBuilderPage() {
 
     return (
         <div className="w-full">
-            <Button variant="ghost" className="mb-6" asChild>
-                <Link href="/course/create">
-                    <ArrowLeft className="mr-2 h-4 w-4" /> Back to Course Info
-                </Link>
-            </Button>
+            <div className="mb-6 flex items-center justify-between">
+                <Button
+                    variant="ghost"
+                    className="rounded-xl font-medium"
+                    asChild
+                >
+                    <Link href="/course/create">
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Back to Course Info
+                    </Link>
+                </Button>
+
+                <Button
+                    onClick={() => router.push(`/course/${courseId}/preview`)}
+                    disabled={modules.length === 0}
+                    className="rounded-xl font-medium shadow-md transition-all hover:-translate-y-0.5"
+                >
+                    Continue to Preview <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+            </div>
 
             <div className="mx-auto max-w-4xl">
                 <div className="mb-8 flex items-end justify-between">
