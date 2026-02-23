@@ -15,46 +15,45 @@ import {
 
 type ConfirmDialogProps = {
     open: boolean;
-    onOpenChange: (open: boolean) => void;
+    onOpenChangeAction: (open: boolean) => void;
     title: React.ReactNode;
     description?: React.ReactNode;
     confirmText?: string;
     cancelText?: string;
     destructive?: boolean;
     loading?: boolean;
-    onConfirm?: () => void | Promise<void>;
+    onConfirmAction?: () => void | Promise<void>;
     confirmHref?: string;
 };
 
 export function ConfirmDialog({
     open,
-    onOpenChange,
+    onOpenChangeAction,
     title,
     description,
     confirmText = 'Confirm',
     cancelText = 'Cancel',
     destructive,
     loading,
-    onConfirm,
+    onConfirmAction,
     confirmHref,
 }: ConfirmDialogProps) {
     const ActionBtn = (
         <AlertDialogAction
             disabled={loading}
             className={cn(
-                'rounded-xl',
+                'rounded-xl border-none px-6 font-medium shadow-sm transition-all',
                 destructive
-                    ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90 focus:ring-destructive'
+                    ? 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-600'
                     : 'bg-primary text-primary-foreground hover:bg-primary/90',
             )}
-            onClick={confirmHref ? undefined : onConfirm}
+            onClick={confirmHref ? undefined : onConfirmAction}
         >
             {loading ? 'Processing...' : confirmText}
         </AlertDialogAction>
     );
-
     return (
-        <AlertDialog open={open} onOpenChange={onOpenChange}>
+        <AlertDialog open={open} onOpenChange={onOpenChangeAction}>
             <AlertDialogContent className="border-border bg-card rounded-2xl shadow-lg sm:max-w-md">
                 <AlertDialogHeader>
                     <AlertDialogTitle className="text-foreground text-xl font-bold">
@@ -66,15 +65,13 @@ export function ConfirmDialog({
                         </AlertDialogDescription>
                     )}
                 </AlertDialogHeader>
-
-                <AlertDialogFooter className="mt-6 gap-2 sm:gap-0">
+                <AlertDialogFooter className="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end sm:gap-3 sm:space-x-0">
                     <AlertDialogCancel
                         disabled={loading}
-                        className="border-border hover:bg-muted rounded-xl"
+                        className="border-border rounded-xl font-medium transition-colors hover:bg-slate-100 hover:text-slate-900 sm:mt-0 dark:hover:bg-slate-800 dark:hover:text-slate-50"
                     >
                         {cancelText}
-                    </AlertDialogCancel>
-
+                    </AlertDialogCancel>{' '}
                     {confirmHref ? (
                         <Link href={confirmHref} className="w-full sm:w-auto">
                             {ActionBtn}
@@ -82,7 +79,7 @@ export function ConfirmDialog({
                     ) : (
                         ActionBtn
                     )}
-                </AlertDialogFooter>
+                </AlertDialogFooter>{' '}
             </AlertDialogContent>
         </AlertDialog>
     );
