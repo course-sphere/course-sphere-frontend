@@ -4,7 +4,7 @@ interface StatCardProps {
     title: string;
     value: string;
     change: string;
-    icon: string;
+    icon: React.ReactNode;
 }
 
 export default function StatCard({
@@ -28,7 +28,9 @@ export default function StatCard({
                             {change}
                         </p>
                     </div>
-                    <div className="text-3xl">{icon}</div>
+                    <div className="bg-primary/10 text-primary flex h-12 w-12 items-center justify-center rounded-xl">
+                        {icon}
+                    </div>{' '}
                 </div>
             </CardContent>
         </Card>
