@@ -65,6 +65,7 @@ import {
 } from '@/lib/service/lesson';
 import { Module } from '@/lib/service/module';
 import { generateId } from '@/lib/utils';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 /*
  * TODO: API INTEGRATION (PHASE 3 - LESSON MANAGER)
  *
@@ -112,6 +113,18 @@ export default function LessonManagerPage() {
         useState<LessonItemType | null>(null);
     const [editingMaterial, setEditingMaterial] =
         useState<DraftLessonItem | null>(null);
+
+    const [deleteConfirm, setDeleteConfirm] = useState<{
+        isOpen: boolean;
+        type: 'lesson' | 'material' | null;
+        lessonId: string | null;
+        materialId: string | null;
+    }>({
+        isOpen: false,
+        type: null,
+        lessonId: null,
+        materialId: null,
+    });
 
     useEffect(() => {
         const storedCourseId = localStorage.getItem('course_draft_id');
@@ -193,6 +206,53 @@ export default function LessonManagerPage() {
             saveToLocal([...lessons, newLesson]);
         }
         setIsLessonDialogOpen(false);
+    };
+
+    const handleDeleteLessonClick = (id: string) => {
+        setDeleteConfirm({
+            isOpen: true,
+            type: 'lesson',
+            lessonId: id,
+            materialId: null,
+        });
+    };
+
+    const handleDeleteMaterialClick = (lessonId: string, itemId: string) => {
+        setDeleteConfirm({
+            isOpen: true,
+            type: 'material',
+            lessonId: lessonId,
+            materialId: itemId,
+        });
+    };
+
+    const executeDelete = () => {
+        if (deleteConfirm.type === 'lesson' && deleteConfirm.lessonId) {
+            saveToLocal(lessons.filter((l) => l.id !== deleteConfirm.lessonId));
+        } else if (
+            deleteConfirm.type === 'material' &&
+            deleteConfirm.lessonId &&
+            deleteConfirm.materialId
+        ) {
+            saveToLocal(
+                lessons.map((l) =>
+                    l.id === deleteConfirm.lessonId
+                        ? {
+                              ...l,
+                              items: l.items.filter(
+                                  (i) => i.id !== deleteConfirm.materialId,
+                              ),
+                          }
+                        : l,
+                ),
+            );
+        }
+        setDeleteConfirm({
+            isOpen: false,
+            type: null,
+            lessonId: null,
+            materialId: null,
+        });
     };
 
     const handleDeleteLesson = (id: string) => {
@@ -380,7 +440,7 @@ export default function LessonManagerPage() {
                                     setIsLessonDialogOpen(true);
                                 }}
                                 onDeleteLesson={() =>
-                                    handleDeleteLesson(lesson.id)
+                                    handleDeleteLessonClick(lesson.id)
                                 }
                                 onReorderMaterials={(
                                     newItems: DraftLessonItem[],
@@ -398,7 +458,7 @@ export default function LessonManagerPage() {
                                     )
                                 }
                                 onDeleteMaterial={(itemId: string) =>
-                                    handleDeleteMaterial(lesson.id, itemId)
+                                    handleDeleteMaterialClick(lesson.id, itemId)
                                 }
                             />
                         )}
@@ -420,13 +480,28 @@ export default function LessonManagerPage() {
                 initialData={editingMaterial}
                 onSave={handleSaveMaterial}
             />
+            <ConfirmDialog
+                open={deleteConfirm.isOpen}
+                onOpenChangeAction={(open) =>
+                    setDeleteConfirm((prev) => ({ ...prev, isOpen: open }))
+                }
+                title={
+                    deleteConfirm.type === 'lesson'
+                        ? 'Delete Lesson'
+                        : 'Delete Material'
+                }
+                description={
+                    deleteConfirm.type === 'lesson'
+                        ? 'Are you sure you want to delete this lesson? All materials inside it will also be removed. This action cannot be undone.'
+                        : 'Are you sure you want to remove this material? This action cannot be undone.'
+                }
+                confirmText="Delete"
+                destructive={true}
+                onConfirmAction={executeDelete}
+            />
         </div>
     );
 }
-
-// -------------------------------------------------------------
-// Component LessonCard & MaterialSheet & LessonFormDialog (Giữ nguyên)
-// -------------------------------------------------------------
 
 interface LessonCardProps {
     lesson: DraftLesson;
@@ -535,16 +610,20 @@ function LessonCard({
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="rounded-xl">
-                            <DropdownMenuItem onClick={onEditLesson}>
-                                <Pencil className="mr-2 h-4 w-4" /> Edit Title
+                            <DropdownMenuItem
+                                onClick={onEditLesson}
+                                className="group focus:bg-primary/10 focus:text-primary cursor-pointer font-medium"
+                            >
+                                <Pencil className="text-muted-foreground group-focus:text-primary mr-2 h-4 w-4 transition-colors" />{' '}
+                                Edit Title
                             </DropdownMenuItem>
                             <DropdownMenuItem
                                 onClick={onDeleteLesson}
-                                className="text-destructive"
+                                className="cursor-pointer font-medium text-red-600 focus:bg-red-50 focus:text-red-700 dark:text-red-500 dark:focus:bg-red-950/30"
                             >
                                 <Trash2 className="mr-2 h-4 w-4" /> Delete
                                 Lesson
-                            </DropdownMenuItem>
+                            </DropdownMenuItem>{' '}
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
@@ -588,13 +667,13 @@ function LessonCard({
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="text-destructive hover:bg-destructive/10 h-7 w-7 opacity-0 group-hover:opacity-100"
+                                        className="h-7 w-7 text-red-500 opacity-0 transition-colors group-hover:opacity-100 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/30"
                                         onClick={() =>
                                             onDeleteMaterial(item.id)
                                         }
                                     >
                                         <Trash2 className="h-3.5 w-3.5" />
-                                    </Button>
+                                    </Button>{' '}
                                 </div>
                             );
                         }}
