@@ -20,9 +20,10 @@ export default function HybridLayout({
         return <RoleCheckingLoader />;
     }
     const isLearnRoute = pathname.includes('/learn');
+    const isPreviewRoute = pathname.includes('/preview');
 
     if (isAuthenticated && user) {
-        if (isLearnRoute) {
+        if (isLearnRoute || isPreviewRoute) {
             return <>{children}</>;
         }
         return (
