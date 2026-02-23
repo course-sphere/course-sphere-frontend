@@ -41,8 +41,8 @@ export default function ForbiddenPage() {
             </h1>
 
             <p className="text-muted-foreground mb-8 max-w-md text-lg">
-                Oops! You don't have permission to access this page. It looks
-                like you've wandered into a restricted area.
+                Oops! You don&apos;t have permission to access this page. It
+                looks like you&apos;ve wandered into a restricted area.
             </p>
 
             <Button

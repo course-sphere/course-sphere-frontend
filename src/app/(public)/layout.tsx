@@ -33,7 +33,7 @@ export default function PublicLayout({
                     break;
             }
         }
-    }, [isCheckingAuth, isAuthenticated, user, router]);
+    }, [isCheckingAuth, isAuthenticated, user, router, pathname]);
 
     if (isCheckingAuth) {
         return <RoleCheckingLoader />;
