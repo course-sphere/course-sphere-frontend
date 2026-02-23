@@ -265,3 +265,27 @@ export interface InstructorCourse {
     updatedAt: string;
     rejectReason?: string;
 }
+
+// course approve request
+export type ApprovalStatus = 'pending' | 'approved' | 'rejected';
+
+export interface ApprovalRequest {
+    id: string;
+    courseId: string;
+    courseTitle: string;
+    thumbnail: string;
+    category: string;
+    instructorName: string;
+    instructorEmail: string;
+    instructorAvatar?: string;
+    submittedAt: string;
+    status: ApprovalStatus;
+}
+
+export interface AIEvaluationResult {
+    score: number;
+    compliancePassed: boolean;
+    qualityAnalysis: string;
+    policyFlags: string[];
+    recommendedAction: 'Approve' | 'Review' | 'Reject';
+}
