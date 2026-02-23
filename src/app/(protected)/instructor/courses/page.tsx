@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import {
     PlusCircle,
@@ -39,9 +39,15 @@ export default function TeacherCoursesPage() {
         pageIndex: 0,
     });
 
-    useEffect(() => {
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchQuery(e.target.value);
         setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-    }, [searchQuery, statusFilter]);
+    };
+
+    const handleStatusChange = (val: CourseStatus | 'all') => {
+        setStatusFilter(val);
+        setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+    };
 
     const totalCourses = mockInstructorCourses.length;
     const activeStudents = mockInstructorCourses.reduce(
@@ -119,15 +125,10 @@ export default function TeacherCoursesPage() {
                         placeholder="Search courses..."
                         className="bg-background w-full rounded-xl pl-9"
                         value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onChange={handleSearchChange}
                     />
                 </div>
-                <Select
-                    value={statusFilter}
-                    onValueChange={(val: CourseStatus | 'all') =>
-                        setStatusFilter(val)
-                    }
-                >
+                <Select value={statusFilter} onValueChange={handleStatusChange}>
                     <SelectTrigger className="bg-background w-full rounded-xl sm:w-[180px]">
                         <SelectValue placeholder="Filter by status" />
                     </SelectTrigger>
