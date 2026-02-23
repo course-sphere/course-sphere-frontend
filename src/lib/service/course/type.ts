@@ -224,7 +224,7 @@ export interface CoursePrerequisite {
     course_id: string;
     course_title: string;
 }
-
+// course/{id}
 export interface CourseDetailResponse {
     id: string;
     title: string;
@@ -251,4 +251,17 @@ export interface CourseDetailResponse {
     total_file_resources: number;
     created_at: string;
     updated_at: string;
+}
+
+// instructor/course
+export interface InstructorCourse {
+    id: string;
+    title: string;
+    thumbnail: string;
+    category: string;
+    status: CourseStatus;
+    students: number;
+    revenue: number;
+    updatedAt: string;
+    rejectReason?: string;
 }

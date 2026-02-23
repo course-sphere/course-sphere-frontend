@@ -12,6 +12,7 @@ import {
     CreditCard,
     BarChart3,
     Trophy,
+    Scroll,
 } from 'lucide-react';
 
 export interface NavItem {
@@ -48,6 +49,11 @@ export const INSTRUCTOR_MENU: NavGroup[] = [
                 href: '/teacher/dashboard',
                 icon: LayoutDashboard,
             },
+            {
+                title: 'Course Catalog',
+                href: '/course',
+                icon: Scroll,
+            },
         ],
     },
     {
@@ -55,7 +61,7 @@ export const INSTRUCTOR_MENU: NavGroup[] = [
         items: [
             {
                 title: 'My Courses',
-                href: '/course',
+                href: '/instructor/courses',
                 icon: BookOpen,
             },
             {

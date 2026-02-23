@@ -7,6 +7,7 @@ import type {
     Course,
     CourseDetailResponse,
     CourseModule,
+    InstructorCourse,
 } from '@/lib/service/course';
 import {
     AdminStats,
@@ -1899,6 +1900,55 @@ export const mockCourseDetail: CourseDetailResponse = {
     created_at: '2025-10-12T08:00:00Z',
     updated_at: '2026-02-20T10:30:00Z',
 };
+
+// instructor course list
+export const mockInstructorCourses: InstructorCourse[] = [
+    {
+        id: '1',
+        title: 'Advanced React Patterns & Performance',
+        thumbnail:
+            'https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=800&auto=format&fit=crop',
+        category: 'Web Development',
+        status: 'published',
+        students: 1245,
+        revenue: 45000,
+        updatedAt: '2026-02-20T10:00:00Z',
+    },
+    {
+        id: '2',
+        title: 'AWS Certified Solutions Architect 2026',
+        thumbnail:
+            'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800&auto=format&fit=crop',
+        category: 'Cloud Computing',
+        status: 'pending',
+        students: 0,
+        revenue: 0,
+        updatedAt: '2026-02-23T14:30:00Z',
+    },
+    {
+        id: '3',
+        title: 'Mastering Unity 3D Game Development',
+        thumbnail:
+            'https://images.unsplash.com/photo-1552820728-8b83bb6b773f?q=80&w=800&auto=format&fit=crop',
+        category: 'Game Development',
+        status: 'rejected',
+        students: 0,
+        revenue: 0,
+        updatedAt: '2026-02-22T09:15:00Z',
+        rejectReason: 'Audio quality in Module 2 is too low. Please re-record.',
+    },
+    {
+        id: '4',
+        title: 'Introduction to Japanese N5',
+        thumbnail:
+            'https://images.unsplash.com/photo-1528164344705-47542687000d?q=80&w=800&auto=format&fit=crop',
+        category: 'Language',
+        status: 'draft',
+        students: 0,
+        revenue: 0,
+        updatedAt: '2026-02-24T08:00:00Z',
+    },
+];
 
 // Get course by ID
 export function getCourseById(courseId: string): Course | undefined {
