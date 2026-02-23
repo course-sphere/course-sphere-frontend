@@ -2,7 +2,7 @@
 
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, CheckCircle } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import { mockLearnSyllabus, mockMaterialDetails } from '@constant/sample-data';
 import { ReadingViewer } from '@/components/course-builder/viewers/reading-viewer';
 import { use } from 'react';
@@ -37,12 +37,16 @@ export default function LearnPage({
         );
     };
 
-    const handleNext = () => {
-        // router.push(`/course/${id}/learn?materialId=...`)
-    };
+    const handleCodingSubmit = async (code?: string) => {
+        if (!currentMaterialId) return;
 
-    const handlePrev = () => {
-        // router.push(`/course/${id}/learn?materialId=...`)
+        console.log('POST /api/learn/materials/coding/submit', {
+            materialId: currentMaterialId,
+            submitted_code: code,
+        });
+
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        // await handleComplete();
     };
 
     if (!material) {
@@ -56,7 +60,7 @@ export default function LearnPage({
     const getContainerMaxWidth = (type?: string) => {
         switch (type) {
             case 'coding':
-                return 'max-w-[1400px]';
+                return 'max-w-7xl';
             case 'video':
                 return 'max-w-5xl';
             case 'reading':
@@ -80,7 +84,7 @@ export default function LearnPage({
                 return (
                     <CodingViewer
                         material={material}
-                        onSuccess={handleComplete}
+                        onSuccess={handleCodingSubmit}
                     />
                 );
             case 'quiz':
@@ -119,38 +123,18 @@ export default function LearnPage({
 
                 {renderContent()}
 
-                <div className="border-border/50 mt-16 border-t pt-8 pb-12">
-                    <div className="flex items-center justify-between">
-                        <Button
-                            variant="outline"
-                            onClick={handlePrev}
-                            className="rounded-xl"
-                        >
-                            <ChevronLeft className="mr-2 h-4 w-4" /> Previous
-                        </Button>
-
-                        <div className="flex gap-3">
-                            {needsManualCompletion &&
-                                !material.is_completed && (
-                                    <Button
-                                        onClick={handleComplete}
-                                        variant="secondary"
-                                        className="rounded-xl font-medium"
-                                    >
-                                        <CheckCircle className="mr-2 h-4 w-4" />{' '}
-                                        Mark as Done
-                                    </Button>
-                                )}
-
+                <div className="flex items-center justify-between">
+                    <div className="flex gap-3">
+                        {needsManualCompletion && !material.is_completed && (
                             <Button
-                                variant="default"
-                                onClick={handleNext}
-                                className="rounded-xl shadow-md"
+                                onClick={handleComplete}
+                                variant="secondary"
+                                className="rounded-xl font-medium"
                             >
-                                Next Lesson{' '}
-                                <ChevronRight className="ml-2 h-4 w-4" />
+                                <CheckCircle className="mr-2 h-4 w-4" /> Mark as
+                                Done
                             </Button>
-                        </div>
+                        )}
                     </div>
                 </div>
             </div>
