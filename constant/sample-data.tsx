@@ -4,6 +4,8 @@ import {
     PeerReview,
 } from '@/lib/service/assignment/type';
 import type {
+    AIEvaluationResult,
+    ApprovalRequest,
     Course,
     CourseDetailResponse,
     CourseModule,
@@ -1949,6 +1951,125 @@ export const mockInstructorCourses: InstructorCourse[] = [
         updatedAt: '2026-02-24T08:00:00Z',
     },
 ];
+
+// admin approved course
+export const mockApprovals: ApprovalRequest[] = [
+    {
+        id: 'req-001',
+        courseId: 'c-101',
+        courseTitle: 'Advanced React Patterns & Next.js 15',
+        thumbnail:
+            'https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=400&auto=format&fit=crop',
+        category: 'Web Development',
+        instructorName: 'Nam Dang',
+        instructorEmail: 'namdangcoder@gmail.com',
+        submittedAt: '2026-02-23T08:30:00Z',
+        status: 'pending',
+    },
+    {
+        id: 'req-002',
+        courseId: 'c-102',
+        courseTitle: 'AWS Cloud Practitioner - 2026 Edition',
+        thumbnail:
+            'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=400&auto=format&fit=crop',
+        category: 'Cloud Computing',
+        instructorName: 'John Doe',
+        instructorEmail: 'john.cloud@example.com',
+        submittedAt: '2026-02-22T14:15:00Z',
+        status: 'pending',
+    },
+    {
+        id: 'req-003',
+        courseId: 'c-103',
+        courseTitle: 'Financial Modeling for Startups',
+        thumbnail:
+            'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=400&auto=format&fit=crop',
+        category: 'Finance',
+        instructorName: 'Alice Smith',
+        instructorEmail: 'alice.finance@example.com',
+        submittedAt: '2026-02-21T09:00:00Z',
+        status: 'rejected',
+    },
+    {
+        id: 'req-004',
+        courseId: 'c-104',
+        courseTitle: 'Mastering Figma UI/UX Design',
+        thumbnail:
+            'https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=400&auto=format&fit=crop',
+        category: 'Design',
+        instructorName: 'Emma Wilson',
+        instructorEmail: 'emma.design@example.com',
+        submittedAt: '2026-02-20T16:45:00Z',
+        status: 'approved',
+    },
+    {
+        id: 'req-005',
+        courseId: 'c-105',
+        courseTitle: 'Complete JLPT N3 Preparation',
+        thumbnail:
+            'https://images.unsplash.com/photo-1528164344705-47542687000d?q=80&w=400&auto=format&fit=crop',
+        category: 'Language',
+        instructorName: 'Hiroshi Tanaka',
+        instructorEmail: 'hiroshi.jp@example.com',
+        submittedAt: '2026-02-24T01:20:00Z',
+        status: 'pending',
+    },
+    {
+        id: 'req-006',
+        courseId: 'c-106',
+        courseTitle: 'Advanced DevOps with Kubernetes & AWS',
+        thumbnail:
+            'https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?q=80&w=400&auto=format&fit=crop',
+        category: 'DevOps',
+        instructorName: 'David Chen',
+        instructorEmail: 'david.devops@example.com',
+        submittedAt: '2026-02-24T09:00:00Z',
+        status: 'pending',
+    },
+    {
+        id: 'req-007',
+        courseId: 'c-107',
+        courseTitle: 'Game Development with Unity 2026',
+        thumbnail:
+            'https://images.unsplash.com/photo-1552820728-8b83bb6b773f?q=80&w=400&auto=format&fit=crop',
+        category: 'Game Development',
+        instructorName: 'Sarah Miller',
+        instructorEmail: 'sarah.unity@example.com',
+        submittedAt: '2026-02-23T11:45:00Z',
+        status: 'pending',
+    },
+    {
+        id: 'req-008',
+        courseId: 'c-108',
+        courseTitle: 'Digital Marketing Mastery',
+        thumbnail:
+            'https://images.unsplash.com/photo-1432888117428-5ee4d9351e36?q=80&w=400&auto=format&fit=crop',
+        category: 'Marketing',
+        instructorName: 'Michael Brown',
+        instructorEmail: 'mike.market@example.com',
+        submittedAt: '2026-02-19T10:20:00Z',
+        status: 'approved',
+    },
+];
+
+// AI Course Evaluation
+export const fetchAIEvaluation = async (
+    courseId: string,
+): Promise<AIEvaluationResult> => {
+    console.log(courseId);
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                score: 88,
+                compliancePassed: true,
+                qualityAnalysis:
+                    'The course structure is excellent. Audio quality in Module 3 has a slight echo but remains understandable. Quizzes are well-aligned with the material.',
+                policyFlags: [],
+                recommendedAction: 'Approve',
+            });
+        }, 2000);
+    });
+};
 
 // Get course by ID
 export function getCourseById(courseId: string): Course | undefined {
