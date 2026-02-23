@@ -24,15 +24,14 @@ interface QuizViewerProps {
 export function QuizViewer({ material, onSuccess }: QuizViewerProps) {
     const data = material.quiz_data;
 
-    // Các màn hình: 'intro' (Giới thiệu) -> 'playing' (Đang làm) -> 'result' (Kết quả)
     const [step, setStep] = useState<'intro' | 'playing' | 'result'>('intro');
 
-    // Lưu trữ đáp án user chọn: { [questionId]: array of answerIds }
+    // user answers
     const [selectedAnswers, setSelectedAnswers] = useState<
         Record<string, string[]>
     >({});
 
-    // Lưu kết quả chấm điểm
+    // score state
     const [scoreData, setScoreData] = useState({
         earned: 0,
         max: 0,
@@ -50,18 +49,16 @@ export function QuizViewer({ material, onSuccess }: QuizViewerProps) {
 
     const totalQuestions = data.questions.length;
 
-    // --- LOGIC: CHỌN ĐÁP ÁN ---
     const handleToggleAnswer = (
         questionId: string,
         answerId: string,
         type: string,
     ) => {
-        if (step === 'result') return; // Không cho sửa khi đã nộp
+        if (step === 'result') return;
 
         setSelectedAnswers((prev) => {
             const current = prev[questionId] || [];
             if (type === 'multiple') {
-                // Toggle chọn/bỏ chọn cho multiple choice
                 if (current.includes(answerId)) {
                     return {
                         ...prev,
@@ -70,13 +67,12 @@ export function QuizViewer({ material, onSuccess }: QuizViewerProps) {
                 }
                 return { ...prev, [questionId]: [...current, answerId] };
             } else {
-                // Single / True_False thì ghi đè
                 return { ...prev, [questionId]: [answerId] };
             }
         });
     };
 
-    // --- LOGIC: CHẤM BÀI ---
+    // get results in frontend
     const handleSubmit = () => {
         if (confirm('Are you sure you want to submit your answers?')) {
             let earned = 0;
@@ -84,15 +80,15 @@ export function QuizViewer({ material, onSuccess }: QuizViewerProps) {
 
             data.questions.forEach((q) => {
                 max += q.score;
-                // Lấy mảng ID đáp án đúng
+                // correct ans
                 const correctIds = q.answers
                     .filter((a) => a.is_correct)
                     .map((a) => a.id)
                     .sort();
-                // Lấy mảng ID user chọn
+                // user ans
                 const userIds = (selectedAnswers[q.id] || []).sort();
 
-                // So sánh mảng (user phải chọn đúng VÀ đủ thì mới có điểm)
+                // compared and calculate points
                 if (JSON.stringify(correctIds) === JSON.stringify(userIds)) {
                     earned += q.score;
                 }
@@ -105,7 +101,7 @@ export function QuizViewer({ material, onSuccess }: QuizViewerProps) {
             setStep('result');
 
             if (passed) {
-                onSuccess?.(); // Báo lên page là pass để hiện nút Next Lesson
+                onSuccess?.();
             }
         }
     };
@@ -115,75 +111,82 @@ export function QuizViewer({ material, onSuccess }: QuizViewerProps) {
         setStep('playing');
     };
 
-    // ==========================================
-    // MÀN HÌNH 1: INTRO SCREEN
-    // ==========================================
     if (step === 'intro') {
         return (
-            <div className="mx-auto mt-4 w-full max-w-3xl">
-                <div className="bg-card border-border/60 rounded-2xl border p-8 text-center shadow-sm sm:p-12">
-                    <div className="bg-primary/10 mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full">
-                        <HelpCircle className="text-primary h-10 w-10" />
+            <div className="mx-auto mt-4 w-full max-w-2xl">
+                <div className="bg-card border-border/60 rounded-2xl border p-8 shadow-sm sm:p-12">
+                    <div className="mb-8 text-center">
+                        <h2 className="text-foreground mb-3 text-3xl font-bold tracking-tight">
+                            Final Assessment
+                        </h2>
+                        <p className="text-muted-foreground">
+                            Please review the instructions carefully before
+                            starting.
+                        </p>
                     </div>
-                    <h2 className="mb-4 text-2xl font-bold">
-                        Ready to test your knowledge?
-                    </h2>
 
-                    {data.description && (
-                        <div
-                            className="prose prose-sm dark:prose-invert text-muted-foreground mx-auto mb-8"
-                            dangerouslySetInnerHTML={{
-                                __html: data.description,
-                            }}
-                        />
+                    {data.description && data.description !== '<p></p>' && (
+                        <div className="bg-muted/20 border-border/40 mb-8 rounded-xl border p-6">
+                            <h3 className="text-muted-foreground mb-3 text-sm font-semibold tracking-wider uppercase">
+                                Instructions
+                            </h3>
+                            <div
+                                className="prose prose-sm dark:prose-invert text-foreground prose-p:leading-relaxed max-w-none"
+                                dangerouslySetInnerHTML={{
+                                    __html: data.description,
+                                }}
+                            />
+                        </div>
                     )}
 
-                    <div className="mx-auto mb-10 grid max-w-lg grid-cols-3 gap-4">
-                        <div className="bg-muted/30 border-border/50 rounded-xl border p-4">
-                            <Clock className="mx-auto mb-2 h-5 w-5 text-blue-500" />
-                            <div className="text-muted-foreground text-xs font-semibold uppercase">
+                    <div className="border-border/50 mb-10 grid grid-cols-3 gap-4 border-t pt-8">
+                        <div className="flex flex-col items-center justify-center p-2">
+                            <span className="text-muted-foreground mb-1 text-[11px] font-semibold tracking-wider uppercase">
                                 Time Limit
-                            </div>
-                            <div className="font-bold">
-                                {data.time_limit_minutes} mins
-                            </div>
+                            </span>
+                            <span className="text-foreground text-xl font-bold">
+                                {data.time_limit_minutes}{' '}
+                                <span className="text-muted-foreground text-sm font-medium">
+                                    min
+                                </span>
+                            </span>
                         </div>
-                        <div className="bg-muted/30 border-border/50 rounded-xl border p-4">
-                            <AlertCircle className="mx-auto mb-2 h-5 w-5 text-amber-500" />
-                            <div className="text-muted-foreground text-xs font-semibold uppercase">
+
+                        <div className="border-border/50 flex flex-col items-center justify-center border-x p-2">
+                            <span className="text-muted-foreground mb-1 text-[11px] font-semibold tracking-wider uppercase">
                                 Questions
-                            </div>
-                            <div className="font-bold">{totalQuestions}</div>
+                            </span>
+                            <span className="text-foreground text-xl font-bold">
+                                {totalQuestions}
+                            </span>
                         </div>
-                        <div className="bg-muted/30 border-border/50 rounded-xl border p-4">
-                            <Trophy className="mx-auto mb-2 h-5 w-5 text-emerald-500" />
-                            <div className="text-muted-foreground text-xs font-semibold uppercase">
-                                To Pass
-                            </div>
-                            <div className="font-bold">
+
+                        <div className="flex flex-col items-center justify-center p-2">
+                            <span className="text-muted-foreground mb-1 text-[11px] font-semibold tracking-wider uppercase">
+                                Passing Score
+                            </span>
+                            <span className="text-foreground text-xl font-bold">
                                 {data.passing_score}%
-                            </div>
+                            </span>
                         </div>
                     </div>
 
-                    <Button
-                        size="lg"
-                        onClick={() => setStep('playing')}
-                        className="h-14 rounded-xl px-10 text-lg shadow-md"
-                    >
-                        <PlayCircle className="mr-2 h-5 w-5" /> Start Quiz
-                    </Button>
+                    <div className="flex justify-center">
+                        <Button
+                            size="lg"
+                            onClick={() => setStep('playing')}
+                            className="h-14 min-w-50 rounded-xl px-10 text-lg font-semibold shadow-md transition-all hover:-translate-y-1"
+                        >
+                            Begin Quiz
+                        </Button>
+                    </div>
                 </div>
             </div>
         );
     }
 
-    // ==========================================
-    // MÀN HÌNH 2 & 3: PLAYING & RESULT SCREEN
-    // ==========================================
     return (
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
-            {/* Thanh trạng thái kết quả (Chỉ hiện khi đã nộp) */}
             {step === 'result' && (
                 <div
                     className={cn(
@@ -235,7 +238,6 @@ export function QuizViewer({ material, onSuccess }: QuizViewerProps) {
                 </div>
             )}
 
-            {/* Danh sách câu hỏi */}
             <div className="space-y-6">
                 {data.questions.map((q, index) => {
                     const userSelected = selectedAnswers[q.id] || [];
@@ -246,7 +248,6 @@ export function QuizViewer({ material, onSuccess }: QuizViewerProps) {
                             key={q.id}
                             className="bg-card border-border/60 rounded-2xl border p-6 shadow-sm sm:p-8"
                         >
-                            {/* Tiêu đề câu hỏi */}
                             <div className="mb-6 flex items-start justify-between">
                                 <h3 className="text-foreground text-lg font-semibold">
                                     <span className="text-muted-foreground mr-2">
@@ -265,14 +266,12 @@ export function QuizViewer({ material, onSuccess }: QuizViewerProps) {
                                     : 'Select one answer'}
                             </p>
 
-                            {/* Danh sách đáp án */}
                             <div className="space-y-3">
                                 {q.answers.map((a) => {
                                     const isSelected = userSelected.includes(
                                         a.id,
                                     );
 
-                                    // Logic tô màu khi hiển thị kết quả
                                     let resultStyle =
                                         'hover:bg-muted/50 border-border';
                                     let Icon = null;
@@ -320,7 +319,6 @@ export function QuizViewer({ material, onSuccess }: QuizViewerProps) {
                                                     : 'cursor-default',
                                             )}
                                         >
-                                            {/* Giả lập Radio/Checkbox UI */}
                                             <div
                                                 className={cn(
                                                     'flex h-5 w-5 shrink-0 items-center justify-center border',
@@ -333,7 +331,7 @@ export function QuizViewer({ material, onSuccess }: QuizViewerProps) {
                                                         : 'border-muted-foreground/50',
                                                     step === 'result'
                                                         ? 'hidden'
-                                                        : '', // Ẩn nút radio khi có kết quả
+                                                        : '',
                                                 )}
                                             >
                                                 {isSelected &&
@@ -358,7 +356,6 @@ export function QuizViewer({ material, onSuccess }: QuizViewerProps) {
                                 })}
                             </div>
 
-                            {/* Giải thích (Chỉ hiện khi đã nộp bài VÀ có explanation) */}
                             {step === 'result' &&
                                 q.explanation &&
                                 q.explanation !== '<p></p>' && (
@@ -380,7 +377,6 @@ export function QuizViewer({ material, onSuccess }: QuizViewerProps) {
                 })}
             </div>
 
-            {/* Nút nộp bài */}
             {step === 'playing' && (
                 <div className="mt-4 flex justify-end">
                     <Button
@@ -389,7 +385,7 @@ export function QuizViewer({ material, onSuccess }: QuizViewerProps) {
                         className="h-14 rounded-xl px-10 text-lg shadow-md"
                         disabled={
                             Object.keys(selectedAnswers).length < totalQuestions
-                        } // Bắt buộc chọn hết mới cho nộp
+                        }
                     >
                         Submit Quiz <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>
