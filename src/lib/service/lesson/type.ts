@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { MaterialItemType } from '../syllabus/type';
 
 // ----------------- Schema ---------------------
 export const lessonSchema = z.object({
@@ -131,4 +132,55 @@ export interface Reading {
     duration: number;
     created_at: string;
     updated_at: string;
+}
+
+export interface LearnMaterialContent {
+    id: string;
+    lesson_id: string;
+    item_type: MaterialItemType;
+    title: string;
+    sort_order: number;
+    is_required: boolean;
+    is_preview: boolean;
+    is_completed: boolean;
+
+    video_data?: {
+        video_url: string;
+        duration: number;
+        description: string;
+    };
+    reading_data?: {
+        content: string;
+        duration: number;
+    };
+    quiz_data?: {
+        description: string;
+        time_limit_minutes: number;
+        passing_score: number;
+        questions: {
+            id: string;
+            title: string;
+            question_type: 'single' | 'multiple' | 'true_false';
+            score: number;
+            explanation: string;
+            answers: {
+                id: string;
+                content: string;
+                is_correct: boolean;
+            }[];
+        }[];
+    };
+    coding_data?: {
+        description: string;
+        instructions: string;
+        starter_code: string;
+        language: string;
+        max_score: number;
+        due_days: number;
+    };
+    file_data?: {
+        file_url: string;
+        file_type: string;
+        file_size: number;
+    };
 }

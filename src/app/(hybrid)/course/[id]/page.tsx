@@ -195,10 +195,7 @@ export default function CoursePage({ params }: CoursePageProps) {
             </div>
 
             <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-                {/* Dùng flex thay vì grid để dễ dàng dùng thuộc tính order đảo vị trí trên mobile */}
                 <div className="relative flex flex-col items-start gap-12 lg:flex-row">
-                    {/* RIGHT COLUMN: STICKY CHECKOUT CARD (Đưa lên đầu trong code HTML) */}
-                    {/* Bằng class order-1 trên mobile, order-2 trên desktop, thẻ này sẽ hiển thị dưới Hero ở mobile và sang phải ở Desktop */}
                     <div className="sticky top-24 z-20 order-1 w-full lg:order-2 lg:w-1/3">
                         <div className="bg-card border-border overflow-hidden rounded-2xl border shadow-xl">
                             <div className="group border-border/50 relative flex aspect-video w-full overflow-hidden border-b bg-black">
@@ -314,11 +311,30 @@ export default function CoursePage({ params }: CoursePageProps) {
                                         </Button>
                                     ) : (
                                         <>
-                                            <Button className="h-14 w-full rounded-xl text-lg font-semibold shadow-md">
+                                            <Button
+                                                className="h-14 w-full rounded-xl text-lg font-semibold shadow-md"
+                                                onClick={() => {
+                                                    if (course.is_free) {
+                                                        //TODO: API Call
+                                                        console.log(
+                                                            'Enrolled successfully in free course!',
+                                                        );
+                                                        router.push(
+                                                            `/course/${course.id}/learn`,
+                                                        );
+                                                    } else {
+                                                        //TODO: API Call
+                                                        console.log(
+                                                            'Adding to cart...',
+                                                        );
+                                                    }
+                                                }}
+                                            >
                                                 {course.is_free
                                                     ? 'Enroll for Free'
                                                     : 'Add to Cart'}
                                             </Button>
+
                                             {!course.is_free && (
                                                 <Button
                                                     variant="outline"

@@ -18,6 +18,7 @@ import type { PaginationState } from '@tanstack/react-table';
 import { categories, fakeCourses, levels } from '@constant/sample-data';
 import { useDebounce } from '@/hooks/use-debounce';
 
+//TODO: add filter with level by filter with cost (free or not)
 export default function AllCoursesPage() {
     const [search, setSearch] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');

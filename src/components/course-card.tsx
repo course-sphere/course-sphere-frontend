@@ -96,9 +96,17 @@ export function CourseCard({ course, isLoading }: CourseCardProps) {
             </CardContent>
 
             <CardFooter className="border-border bg-muted/20 flex items-center justify-between border-t p-5">
-                <span className="text-foreground text-xl font-bold">
-                    {course.price}
-                </span>
+                {course.price === '$0' ||
+                course.price === '0' ||
+                Number(course.price.replace('$', '')) === 0 ? (
+                    <span className="text-foreground text-xl font-bold">
+                        Free
+                    </span>
+                ) : (
+                    <span className="text-foreground text-xl font-bold">
+                        {course.price}
+                    </span>
+                )}
                 <Button asChild>
                     <Link href={`/course/${course.id}`}>Explore</Link>
                 </Button>
