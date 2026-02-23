@@ -17,7 +17,7 @@ export default function ProtectedLayout({
 
     useEffect(() => {
         if (!isCheckingAuth && !isAuthenticated) {
-            router.replace('/unauthorized');
+            router.replace('/');
         }
     }, [isCheckingAuth, isAuthenticated, router]);
 

@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/sidebar';
 import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/api-client';
+import { useAuthStore } from '@/lib/stores/use-auth-store';
 
 export interface UserProps {
     name: string;
@@ -30,12 +31,15 @@ export function NavUser({ user }: { user: UserProps }) {
     const { isMobile } = useSidebar();
     const router = useRouter();
     const initial = user.name.charAt(0).toUpperCase();
+    const { logout } = useAuthStore();
 
     const handleSignOut = async () => {
+        router.replace('/');
         await authClient.signOut({
             fetchOptions: {
                 onSuccess: () => {
-                    router.push('/');
+                    logout();
+                    router.refresh();
                 },
             },
         });
