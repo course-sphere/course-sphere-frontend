@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LearnMaterialContent } from '@/lib/service/lesson';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,18 +9,26 @@ import {
     HelpCircle,
     ArrowRight,
     RotateCcw,
+    Eye,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface QuizViewerProps {
     material: LearnMaterialContent;
     onSuccess?: () => void;
+    isPreview?: boolean;
 }
 
-export function QuizViewer({ material, onSuccess }: QuizViewerProps) {
+export function QuizViewer({
+    material,
+    onSuccess,
+    isPreview = false,
+}: QuizViewerProps) {
     const data = material.quiz_data;
 
-    const [step, setStep] = useState<'intro' | 'playing' | 'result'>('intro');
+    const [step, setStep] = useState<'intro' | 'playing' | 'result'>(
+        isPreview ? 'result' : 'intro',
+    );
 
     // user answers
     const [selectedAnswers, setSelectedAnswers] = useState<
@@ -34,6 +42,29 @@ export function QuizViewer({ material, onSuccess }: QuizViewerProps) {
         percentage: 0,
         passed: false,
     });
+
+    useEffect(() => {
+        if (isPreview && data?.questions) {
+            const correctAnswersMap: Record<string, string[]> = {};
+            let totalMaxScore = 0;
+
+            data.questions.forEach((q) => {
+                totalMaxScore += q.score;
+                correctAnswersMap[q.id] = q.answers
+                    .filter((a) => a.is_correct)
+                    .map((a) => a.id);
+            });
+
+            setSelectedAnswers(correctAnswersMap);
+            setScoreData({
+                earned: totalMaxScore,
+                max: totalMaxScore,
+                percentage: 100,
+                passed: true,
+            });
+            setStep('result');
+        }
+    }, [isPreview, data]);
 
     if (!data || !data.questions) {
         return (
@@ -50,7 +81,7 @@ export function QuizViewer({ material, onSuccess }: QuizViewerProps) {
         answerId: string,
         type: string,
     ) => {
-        if (step === 'result') return;
+        if (step === 'result' || isPreview) return;
 
         setSelectedAnswers((prev) => {
             const current = prev[questionId] || [];
@@ -103,11 +134,12 @@ export function QuizViewer({ material, onSuccess }: QuizViewerProps) {
     };
 
     const handleRetry = () => {
+        if (isPreview) return;
         setSelectedAnswers({});
         setStep('playing');
     };
 
-    if (step === 'intro') {
+    if (step === 'intro' && !isPreview) {
         return (
             <div className="mx-auto mt-4 w-full max-w-2xl">
                 <div className="bg-card border-border/60 rounded-2xl border p-8 shadow-sm sm:p-12">
@@ -187,42 +219,55 @@ export function QuizViewer({ material, onSuccess }: QuizViewerProps) {
                 <div
                     className={cn(
                         'flex flex-col items-center justify-between gap-4 rounded-2xl border p-6 shadow-sm sm:flex-row',
-                        scoreData.passed
-                            ? 'border-emerald-500/20 bg-emerald-500/10'
-                            : 'border-rose-500/20 bg-rose-500/10',
+                        isPreview
+                            ? 'border-amber-500/20 bg-amber-500/10'
+                            : scoreData.passed
+                              ? 'border-emerald-500/20 bg-emerald-500/10'
+                              : 'border-rose-500/20 bg-rose-500/10',
                     )}
                 >
                     <div className="flex items-center gap-4">
-                        {scoreData.passed ? (
+                        {isPreview ? (
+                            <Eye className="h-12 w-12 text-amber-500" />
+                        ) : scoreData.passed ? (
                             <CheckCircle2 className="h-12 w-12 text-emerald-500" />
                         ) : (
                             <XCircle className="h-12 w-12 text-rose-500" />
                         )}
                         <div>
                             <h2 className="text-foreground text-xl font-bold">
-                                {scoreData.passed
-                                    ? 'Congratulations! You passed.'
-                                    : 'You did not pass this time.'}
+                                {isPreview
+                                    ? 'Instructor Preview Mode'
+                                    : scoreData.passed
+                                      ? 'Congratulations! You passed.'
+                                      : 'You did not pass this time.'}
                             </h2>
                             <p className="text-muted-foreground mt-1 text-sm">
-                                You scored{' '}
-                                <strong
-                                    className={
-                                        scoreData.passed
-                                            ? 'text-emerald-600 dark:text-emerald-400'
-                                            : 'text-rose-600 dark:text-rose-400'
-                                    }
-                                >
-                                    {scoreData.percentage}%
-                                </strong>{' '}
-                                ({scoreData.earned}/{scoreData.max} points).
-                                {scoreData.passed
-                                    ? ' Great job!'
-                                    : ` You need ${data.passing_score}% to pass.`}
+                                {isPreview ? (
+                                    'This is how students will see the correct answers and explanations after passing.'
+                                ) : (
+                                    <>
+                                        You scored{' '}
+                                        <strong
+                                            className={
+                                                scoreData.passed
+                                                    ? 'text-emerald-600 dark:text-emerald-400'
+                                                    : 'text-rose-600 dark:text-rose-400'
+                                            }
+                                        >
+                                            {scoreData.percentage}%
+                                        </strong>{' '}
+                                        ({scoreData.earned}/{scoreData.max}{' '}
+                                        points).
+                                        {scoreData.passed
+                                            ? ' Great job!'
+                                            : ` You need ${data.passing_score}% to pass.`}
+                                    </>
+                                )}
                             </p>
                         </div>
                     </div>
-                    {!scoreData.passed && (
+                    {!scoreData.passed && !isPreview && (
                         <Button
                             onClick={handleRetry}
                             variant="outline"

@@ -37,6 +37,21 @@ export default function LearnPage({
         );
     };
 
+    const handleCodingSubmit = async (code?: string) => {
+        if (!currentMaterialId) return;
+
+        console.log('POST /api/learn/materials/coding/submit', {
+            materialId: currentMaterialId,
+            submitted_code: code,
+        });
+
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+
+        console.log('Nộp code thành công!');
+
+        // await handleComplete();
+    };
+
     const handleNext = () => {
         // router.push(`/course/${id}/learn?materialId=...`)
     };
@@ -80,7 +95,7 @@ export default function LearnPage({
                 return (
                     <CodingViewer
                         material={material}
-                        onSuccess={handleComplete}
+                        onSuccess={handleCodingSubmit}
                     />
                 );
             case 'quiz':

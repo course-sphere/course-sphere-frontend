@@ -3,15 +3,20 @@
 import { useState } from 'react';
 import { LearnMaterialContent } from '@/lib/service/lesson';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, Code2, Send, CheckCircle2 } from 'lucide-react';
+import { RotateCcw, Code2, Send, CheckCircle2, Eye } from 'lucide-react';
 import { CodeEditor } from '@/components/ui/code-editor';
 
 interface CodingViewerProps {
     material: LearnMaterialContent;
-    onSuccess?: () => void;
+    onSuccess?: (code?: string) => Promise<void> | void;
+    isPreview?: boolean; // Cờ Haki
 }
 
-export function CodingViewer({ material, onSuccess }: CodingViewerProps) {
+export function CodingViewer({
+    material,
+    onSuccess,
+    isPreview = false,
+}: CodingViewerProps) {
     const data = material.coding_data;
 
     const [currentCode, setCurrentCode] = useState(data?.starter_code || '');
@@ -39,13 +44,14 @@ export function CodingViewer({ material, onSuccess }: CodingViewerProps) {
     const handleSubmit = async () => {
         setIsSubmitting(true);
 
-        // POST /api/learn/materials/coding/{id}/submit kèm theo payload { code: currentCode }
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        await onSuccess?.(currentCode);
 
         setIsSubmitting(false);
         setIsSubmitted(true);
-        onSuccess?.();
     };
+
+    const isSubmitDisabled =
+        isPreview || isSubmitting || isSubmitted || !currentCode.trim();
 
     return (
         <div className="mx-auto flex w-full flex-col items-start gap-6 lg:flex-row">
@@ -100,7 +106,7 @@ export function CodingViewer({ material, onSuccess }: CodingViewerProps) {
                         size="sm"
                         onClick={handleReset}
                         className="text-muted-foreground hover:text-foreground hover:bg-muted/40 h-8 px-2 text-xs"
-                        disabled={isSubmitted || isSubmitting}
+                        disabled={isPreview || isSubmitted || isSubmitting} // Haki: Tắt nút Reset khi ở chế độ Preview
                     >
                         <RotateCcw className="mr-1.5 h-3 w-3" />
                         Reset Code
@@ -117,13 +123,19 @@ export function CodingViewer({ material, onSuccess }: CodingViewerProps) {
                         value={currentCode}
                         onChange={(val) => setCurrentCode(val || '')}
                         height="550px"
-                        readOnly={isSubmitted || isSubmitting}
+                        readOnly={isPreview || isSubmitted || isSubmitting} // Haki: Ép readOnly luôn nếu đang preview
                     />
                 </div>
 
                 <div className="bg-card border-border/60 mt-4 flex items-center justify-between rounded-xl border p-4 shadow-sm">
                     <div className="flex-1">
-                        {isSubmitted ? (
+                        {isPreview ? (
+                            <span className="flex items-center gap-2 text-sm font-medium text-amber-600 dark:text-amber-500">
+                                <Eye className="h-5 w-5" />
+                                Preview Mode (Code editing and submission are
+                                disabled)
+                            </span>
+                        ) : isSubmitted ? (
                             <span className="flex items-center gap-2 text-sm font-medium text-emerald-600 dark:text-emerald-500">
                                 <CheckCircle2 className="h-5 w-5" />
                                 Submitted for grading
@@ -138,12 +150,12 @@ export function CodingViewer({ material, onSuccess }: CodingViewerProps) {
 
                     <Button
                         onClick={handleSubmit}
-                        disabled={
-                            isSubmitting || isSubmitted || !currentCode.trim()
-                        }
+                        disabled={isSubmitDisabled}
                         className="min-w-35 rounded-xl shadow-md"
                     >
-                        {isSubmitting ? (
+                        {isPreview ? (
+                            'Submit (Disabled)' // Đổi text khi Preview
+                        ) : isSubmitting ? (
                             'Submitting...'
                         ) : isSubmitted ? (
                             'Submitted'
