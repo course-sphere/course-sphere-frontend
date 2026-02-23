@@ -45,6 +45,7 @@ export default function LearnLayout({
     const syllabus = mockLearnSyllabus;
     const currentMaterialId = searchParams.get('materialId');
 
+    // fetch syllabus to check the last lesson that user learn and change the URL for resume
     useEffect(() => {
         if (!currentMaterialId && syllabus.active_material_id) {
             router.replace(

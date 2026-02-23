@@ -9,6 +9,8 @@ import { use } from 'react';
 import { VideoViewer } from '@/components/course-builder/viewers/video-viewer';
 import { FileViewer } from '@/components/course-builder/viewers/file-viewer';
 import { CodingViewer } from '@/components/course-builder/viewers/coding-viewer';
+import { QuizViewer } from '@/components/course-builder/viewers/quiz-viewer';
+import { cn } from '@/lib/utils';
 
 export default function LearnPage({
     params,
@@ -22,11 +24,12 @@ export default function LearnPage({
     const currentMaterialId =
         searchParams.get('materialId') || mockLearnSyllabus.active_material_id;
 
+    // TODO: Base on the materialId that layout inject, fetch API to get data
     const material = currentMaterialId
         ? mockMaterialDetails[currentMaterialId]
         : null;
 
-    // TODO: API Complete
+    // TODO: API Complete, mark as done
     const handleComplete = () => {
         console.log(
             'POST /api/learn/materials/complete for:',
@@ -50,6 +53,23 @@ export default function LearnPage({
         );
     }
 
+    const getContainerMaxWidth = (type?: string) => {
+        switch (type) {
+            case 'coding':
+                return 'max-w-[1400px]';
+            case 'video':
+                return 'max-w-5xl';
+            case 'reading':
+                return 'max-w-4xl';
+            case 'quiz':
+                return 'max-w-4xl';
+            case 'file':
+                return 'max-w-3xl';
+            default:
+                return 'max-w-5xl';
+        }
+    };
+
     const renderContent = () => {
         switch (material.item_type) {
             case 'reading':
@@ -65,9 +85,10 @@ export default function LearnPage({
                 );
             case 'quiz':
                 return (
-                    <div className="bg-muted/20 rounded-xl border border-dashed p-8 text-center">
-                        Quiz Coming Soon...
-                    </div>
+                    <QuizViewer
+                        material={material}
+                        onSuccess={handleComplete}
+                    />
                 );
             case 'file':
                 return <FileViewer material={material} />;
@@ -79,10 +100,16 @@ export default function LearnPage({
                 );
         }
     };
+    const maxWidthClass = getContainerMaxWidth(material?.item_type);
 
     return (
         <div className="flex min-h-full flex-col">
-            <div className="mx-auto w-full max-w-5xl flex-1 p-4 sm:p-6 lg:p-8">
+            <div
+                className={cn(
+                    'mx-auto w-full flex-1 p-4 sm:p-6 lg:p-8',
+                    maxWidthClass,
+                )}
+            >
                 <h1 className="text-foreground mb-8 text-2xl font-bold sm:text-3xl">
                     {material.title}
                 </h1>
@@ -91,7 +118,7 @@ export default function LearnPage({
             </div>
 
             <div className="border-border/50 bg-background/95 sticky bottom-0 z-20 mt-auto border-t p-4 backdrop-blur sm:px-8">
-                <div className="mx-auto flex max-w-5xl items-center justify-between">
+                <div className="mx-auto flex max-w-7xl items-center justify-between">
                     <Button
                         variant="outline"
                         onClick={handlePrev}
