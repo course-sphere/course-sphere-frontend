@@ -219,29 +219,28 @@ export function ApprovalsTable({ requests }: Props) {
                                                             : 'AI Check'}
                                                     </Button>
                                                 )}
-
                                                 <Button
                                                     size="icon"
                                                     variant="ghost"
-                                                    className="h-9 w-9 rounded-lg text-emerald-600 hover:bg-emerald-50"
+                                                    className="h-9 w-9 rounded-lg text-emerald-600 transition-colors hover:bg-emerald-500/20 hover:text-emerald-700 dark:text-emerald-500 dark:hover:bg-emerald-500/20 dark:hover:text-emerald-400"
                                                     onClick={() => {
                                                         setSelectedReq(req);
                                                         setIsApproveOpen(true);
                                                     }}
                                                 >
-                                                    <CheckCircle2 className="h-4 w-4" />
+                                                    <CheckCircle2 className="h-5 w-5" />
                                                 </Button>
                                                 <Button
                                                     size="icon"
                                                     variant="ghost"
-                                                    className="h-9 w-9 rounded-lg text-rose-600 hover:bg-rose-50"
+                                                    className="h-9 w-9 rounded-lg text-rose-600 transition-colors hover:bg-rose-500/20 hover:text-rose-700 dark:text-rose-500 dark:hover:bg-rose-500/20 dark:hover:text-rose-400"
                                                     onClick={() => {
                                                         setSelectedReq(req);
                                                         setIsRejectOpen(true);
                                                     }}
                                                 >
-                                                    <XCircle className="h-4 w-4" />
-                                                </Button>
+                                                    <XCircle className="h-5 w-5" />
+                                                </Button>{' '}
                                             </>
                                         )}
                                     </div>

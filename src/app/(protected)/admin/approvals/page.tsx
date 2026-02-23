@@ -1,11 +1,5 @@
 'use client';
 
-// ============================================================================
-// TODO: API Integration
-// 1. Endpoint: GET /api/v1/admin/approvals
-// 2. Query Params: search, status (pending/history), page, limit
-// ============================================================================
-
 import { useState, useMemo } from 'react';
 import { Search, FileCheck, CheckCircle2, Bot, Ghost } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -24,6 +18,11 @@ import { mockApprovals } from '@constant/sample-data';
 import StatCard from '@/components/stat-card';
 import { ApprovalsTable } from '@/components/dashboard/approvals-table';
 
+// ============================================================================
+// TODO: API Integration
+// 1. Endpoint: GET /api/v1/admin/approvals
+// 2. Query Params: search, status (pending/history), page, limit
+// ============================================================================
 export default function AdminApprovalsPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState<ApprovalStatus | 'all'>(

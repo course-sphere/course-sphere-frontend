@@ -41,17 +41,19 @@ export function RejectCourseDialog({
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
             <AlertDialogContent className="bg-card rounded-2xl border-rose-500/20 shadow-lg sm:max-w-md">
-                <AlertDialogHeader>
-                    <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-rose-500/10">
-                        <ShieldAlert className="h-6 w-6 text-rose-500" />
+                <AlertDialogHeader className="text-left sm:text-left">
+                    <div className="mb-2 flex items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-500/10">
+                            <ShieldAlert className="h-5 w-5 text-rose-500" />
+                        </div>
+                        <AlertDialogTitle className="text-xl font-bold">
+                            Reject Course
+                        </AlertDialogTitle>
                     </div>
-                    <AlertDialogTitle className="text-center text-xl font-bold">
-                        Reject Course
-                    </AlertDialogTitle>
-                    <AlertDialogDescription className="text-muted-foreground mt-2 text-center">
-                        You are rejecting <strong>{courseTitle}</strong>. Please
-                        provide a clear reason so the instructor can fix the
-                        issues.
+                    <AlertDialogDescription className="text-muted-foreground mt-2">
+                        You are about to reject <strong>{courseTitle}</strong>.
+                        Please provide a clear reason so the instructor can fix
+                        the issues.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
 
