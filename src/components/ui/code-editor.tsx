@@ -1,7 +1,6 @@
 'use client';
 
-import React from 'react';
-import Editor, { useMonaco } from '@monaco-editor/react';
+import Editor from '@monaco-editor/react';
 import { Loader2 } from 'lucide-react';
 
 interface CodeEditorProps {
@@ -19,22 +18,6 @@ export function CodeEditor({
     readOnly = false,
     height = '300px',
 }: CodeEditorProps) {
-    const monaco = useMonaco();
-
-    React.useEffect(() => {
-        if (monaco) {
-            monaco.editor.defineTheme('my-dark-theme', {
-                base: 'vs-dark',
-                inherit: true,
-                rules: [],
-                colors: {
-                    'editor.background': '#0d1117',
-                },
-            });
-            monaco.editor.setTheme('my-dark-theme');
-        }
-    }, [monaco]);
-
     return (
         <div className="border-border bg-muted/10 overflow-hidden rounded-xl border">
             <Editor
@@ -42,7 +25,7 @@ export function CodeEditor({
                 language={language}
                 value={value}
                 onChange={onChange}
-                theme="my-dark-theme"
+                theme="vs-light"
                 options={{
                     minimap: { enabled: false },
                     fontSize: 14,
