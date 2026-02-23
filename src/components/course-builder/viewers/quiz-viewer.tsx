@@ -1,15 +1,11 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { LearnMaterialContent } from '@/lib/service/lesson';
 import { Button } from '@/components/ui/button';
 import {
-    Clock,
-    Trophy,
-    PlayCircle,
     CheckCircle2,
     XCircle,
-    AlertCircle,
     HelpCircle,
     ArrowRight,
     RotateCcw,

@@ -7,7 +7,7 @@ import { LearnMaterialContent } from '@/lib/service/lesson';
 interface VideoViewerProps {
     material: LearnMaterialContent;
 }
-
+// TODO: use onEnded video event to mark as complete instead of make use click button manually
 // handle youtube video and vimeo video. Can be scale to be able to handle mp4 file from cdn (s3)
 const getEmbedUrl = (url?: string) => {
     if (!url) return '';

@@ -101,6 +101,9 @@ export default function LearnPage({
         }
     };
     const maxWidthClass = getContainerMaxWidth(material?.item_type);
+    const needsManualCompletion = ['reading', 'file', 'video'].includes(
+        material.item_type,
+    );
 
     return (
         <div className="flex min-h-full flex-col">
@@ -115,38 +118,39 @@ export default function LearnPage({
                 </h1>
 
                 {renderContent()}
-            </div>
 
-            <div className="border-border/50 bg-background/95 sticky bottom-0 z-20 mt-auto border-t p-4 backdrop-blur sm:px-8">
-                <div className="mx-auto flex max-w-7xl items-center justify-between">
-                    <Button
-                        variant="outline"
-                        onClick={handlePrev}
-                        className="rounded-xl"
-                    >
-                        <ChevronLeft className="mr-2 h-4 w-4" />
-                        Previous
-                    </Button>
-
-                    <div className="flex gap-3">
-                        {!material.is_completed && (
-                            <Button
-                                onClick={handleComplete}
-                                className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-md"
-                            >
-                                <CheckCircle className="mr-2 h-4 w-4" />
-                                Mark as Done
-                            </Button>
-                        )}
-
+                <div className="border-border/50 mt-16 border-t pt-8 pb-12">
+                    <div className="flex items-center justify-between">
                         <Button
-                            variant="default"
-                            onClick={handleNext}
+                            variant="outline"
+                            onClick={handlePrev}
                             className="rounded-xl"
                         >
-                            Next Lesson
-                            <ChevronRight className="ml-2 h-4 w-4" />
+                            <ChevronLeft className="mr-2 h-4 w-4" /> Previous
                         </Button>
+
+                        <div className="flex gap-3">
+                            {needsManualCompletion &&
+                                !material.is_completed && (
+                                    <Button
+                                        onClick={handleComplete}
+                                        variant="secondary"
+                                        className="rounded-xl font-medium"
+                                    >
+                                        <CheckCircle className="mr-2 h-4 w-4" />{' '}
+                                        Mark as Done
+                                    </Button>
+                                )}
+
+                            <Button
+                                variant="default"
+                                onClick={handleNext}
+                                className="rounded-xl shadow-md"
+                            >
+                                Next Lesson{' '}
+                                <ChevronRight className="ml-2 h-4 w-4" />
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>
