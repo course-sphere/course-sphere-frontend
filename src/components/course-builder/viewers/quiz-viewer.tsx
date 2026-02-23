@@ -10,9 +10,11 @@ import {
     ArrowRight,
     RotateCcw,
     Eye,
+    FileQuestion,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ConfirmDialog } from '@/components/confirm-dialog';
+import { EmptyState } from '@/components/ui/empty-state';
 
 interface QuizViewerProps {
     material: LearnMaterialContent;
@@ -72,9 +74,12 @@ export function QuizViewer({
 
     if (!data || !data.questions) {
         return (
-            <div className="text-muted-foreground p-8 text-center">
-                Quiz data is missing.
-            </div>
+            <EmptyState
+                title="Quiz Unavailable"
+                description="The quiz data is missing or has not been configured properly yet."
+                icons={[FileQuestion]}
+                className="my-8 border-dashed"
+            />
         );
     }
 

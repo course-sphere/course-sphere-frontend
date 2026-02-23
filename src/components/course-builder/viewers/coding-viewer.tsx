@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { RotateCcw, Code2, Send, CheckCircle2, Eye } from 'lucide-react';
 import { CodeEditor } from '@/components/ui/code-editor';
 import { ConfirmDialog } from '@/components/confirm-dialog';
+import { EmptyState } from '@/components/ui/empty-state';
 
 interface CodingViewerProps {
     material: LearnMaterialContent;
@@ -28,9 +29,12 @@ export function CodingViewer({
 
     if (!data)
         return (
-            <div className="text-muted-foreground p-8 text-center">
-                Coding data is missing.
-            </div>
+            <EmptyState
+                title="Coding Exercise Unavailable"
+                description="The workspace data is missing or corrupted. Please contact the instructor."
+                icons={[Code2]}
+                className="my-8"
+            />
         );
 
     const handleResetClick = () => {

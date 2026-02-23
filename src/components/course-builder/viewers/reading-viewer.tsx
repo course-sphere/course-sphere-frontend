@@ -1,7 +1,8 @@
 'use client';
 
+import { EmptyState } from '@/components/ui/empty-state';
 import { LearnMaterialContent } from '@/lib/service/lesson';
-import { Clock, BookOpen } from 'lucide-react';
+import { Clock, BookOpen, FileText, BookX } from 'lucide-react';
 
 interface ReadingViewerProps {
     material: LearnMaterialContent;
@@ -12,9 +13,12 @@ export function ReadingViewer({ material }: ReadingViewerProps) {
 
     if (!readingData) {
         return (
-            <div className="text-muted-foreground bg-muted/20 rounded-xl border p-8 text-center">
-                Content is missing or corrupted.
-            </div>
+            <EmptyState
+                title="Content Unavailable"
+                description="The reading material is missing or corrupted. It might have been deleted or not published yet."
+                icons={[FileText, BookOpen, BookX]}
+                className="my-8"
+            />
         );
     }
 

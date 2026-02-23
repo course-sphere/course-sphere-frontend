@@ -8,9 +8,13 @@ import {
     FileCode,
     File as FileIcon,
     ExternalLink,
+    FileWarning,
+    FileQuestion,
+    FileX,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LearnMaterialContent } from '@/lib/service/lesson';
+import { EmptyState } from '@/components/ui/empty-state';
 
 interface FileViewerProps {
     material: LearnMaterialContent;
@@ -43,9 +47,12 @@ export function FileViewer({ material }: FileViewerProps) {
 
     if (!fileData) {
         return (
-            <div className="text-muted-foreground bg-muted/20 rounded-xl border border-dashed p-8 text-center">
-                Attachment data is missing.
-            </div>
+            <EmptyState
+                title="Attachment Unavailable"
+                description="The file data is missing or could not be loaded. Please contact your instructor."
+                icons={[FileWarning, FileQuestion, FileX]}
+                className="my-8"
+            />
         );
     }
 

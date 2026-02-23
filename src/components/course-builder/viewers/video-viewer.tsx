@@ -1,8 +1,9 @@
 'use client';
 
 import { useMemo } from 'react';
-import { PlayCircle, Info } from 'lucide-react';
+import { PlayCircle, Info, Film, PlaySquare, VideoOff } from 'lucide-react';
 import { LearnMaterialContent } from '@/lib/service/lesson';
+import { EmptyState } from '@/components/ui/empty-state';
 
 interface VideoViewerProps {
     material: LearnMaterialContent;
@@ -36,9 +37,12 @@ export function VideoViewer({ material }: VideoViewerProps) {
 
     if (!videoData) {
         return (
-            <div className="text-muted-foreground bg-muted/20 rounded-xl border p-8 text-center">
-                Video data is missing.
-            </div>
+            <EmptyState
+                title="Video Unavailable"
+                description="The video data is missing or the link is broken. Please try again later."
+                icons={[Film, PlaySquare, VideoOff]}
+                className="my-8"
+            />
         );
     }
 
