@@ -174,7 +174,7 @@ export const PaginationControl = ({
                                     </span>
                                 ) : (
                                     <Button
-                                        variant="outline" // LUÔN DÙNG OUTLINE
+                                        variant="outline"
                                         size="sm"
                                         onClick={() =>
                                             setPagination((prev) => ({
@@ -186,8 +186,8 @@ export const PaginationControl = ({
                                         className={cn(
                                             'h-9 w-9 p-0 text-sm font-semibold transition-all duration-200',
                                             currentPage === pageNumber
-                                                ? 'border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary shadow-sm' // TÔNG PASTEL NHẸ NHÀNG
-                                                : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground', // TRẠNG THÁI BÌNH THƯỜNG
+                                                ? 'border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary shadow-sm'
+                                                : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
                                         )}
                                     >
                                         {pageNumber}

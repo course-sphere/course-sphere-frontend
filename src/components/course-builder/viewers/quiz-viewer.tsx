@@ -12,6 +12,7 @@ import {
     Eye,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 
 interface QuizViewerProps {
     material: LearnMaterialContent;
@@ -29,6 +30,7 @@ export function QuizViewer({
     const [step, setStep] = useState<'intro' | 'playing' | 'result'>(
         isPreview ? 'result' : 'intro',
     );
+    const [isSubmitDialogOpen, setIsSubmitDialogOpen] = useState(false);
 
     // user answers
     const [selectedAnswers, setSelectedAnswers] = useState<
@@ -101,37 +103,40 @@ export function QuizViewer({
         });
     };
 
+    const handleSubmitClick = () => {
+        setIsSubmitDialogOpen(true);
+    };
+
     // get results in frontend
-    const handleSubmit = () => {
-        if (confirm('Are you sure you want to submit your answers?')) {
-            let earned = 0;
-            let max = 0;
+    const executeSubmit = () => {
+        let earned = 0;
+        let max = 0;
 
-            data.questions.forEach((q) => {
-                max += q.score;
-                // correct ans
-                const correctIds = q.answers
-                    .filter((a) => a.is_correct)
-                    .map((a) => a.id)
-                    .sort();
-                // user ans
-                const userIds = (selectedAnswers[q.id] || []).sort();
+        data.questions.forEach((q) => {
+            max += q.score;
+            // correct ans
+            const correctIds = q.answers
+                .filter((a) => a.is_correct)
+                .map((a) => a.id)
+                .sort();
+            // user ans
+            const userIds = (selectedAnswers[q.id] || []).sort();
 
-                // compared and calculate points
-                if (JSON.stringify(correctIds) === JSON.stringify(userIds)) {
-                    earned += q.score;
-                }
-            });
-
-            const percentage = Math.round((earned / max) * 100);
-            const passed = percentage >= data.passing_score;
-
-            setScoreData({ earned, max, percentage, passed });
-            setStep('result');
-
-            if (passed) {
-                onSuccess?.();
+            // compared and calculate points
+            if (JSON.stringify(correctIds) === JSON.stringify(userIds)) {
+                earned += q.score;
             }
+        });
+
+        const percentage = Math.round((earned / max) * 100);
+        const passed = percentage >= data.passing_score;
+
+        setScoreData({ earned, max, percentage, passed });
+        setStep('result');
+        setIsSubmitDialogOpen(false);
+
+        if (passed) {
+            onSuccess?.();
         }
     };
 
@@ -424,7 +429,7 @@ export function QuizViewer({
                 <div className="mt-4 flex justify-end">
                     <Button
                         size="lg"
-                        onClick={handleSubmit}
+                        onClick={handleSubmitClick}
                         className="h-14 rounded-xl px-10 text-lg shadow-md"
                         disabled={
                             Object.keys(selectedAnswers).length < totalQuestions
@@ -434,6 +439,15 @@ export function QuizViewer({
                     </Button>
                 </div>
             )}
+
+            <ConfirmDialog
+                open={isSubmitDialogOpen}
+                onOpenChangeAction={setIsSubmitDialogOpen}
+                title="Submit Quiz"
+                description="Are you sure you want to submit your answers? You won't be able to change them afterwards."
+                confirmText="Submit"
+                onConfirmAction={executeSubmit}
+            />
         </div>
     );
 }

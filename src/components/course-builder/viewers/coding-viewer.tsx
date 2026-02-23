@@ -5,11 +5,12 @@ import { LearnMaterialContent } from '@/lib/service/lesson';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, Code2, Send, CheckCircle2, Eye } from 'lucide-react';
 import { CodeEditor } from '@/components/ui/code-editor';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 
 interface CodingViewerProps {
     material: LearnMaterialContent;
     onSuccess?: (code?: string) => Promise<void> | void;
-    isPreview?: boolean; // Cờ Haki
+    isPreview?: boolean;
 }
 
 export function CodingViewer({
@@ -23,6 +24,7 @@ export function CodingViewer({
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [isSubmitted, setIsSubmitted] = useState(material.is_completed);
+    const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
 
     if (!data)
         return (
@@ -31,15 +33,15 @@ export function CodingViewer({
             </div>
         );
 
-    const handleReset = () => {
-        if (
-            confirm(
-                'Are you sure you want to reset your code? All your current changes will be lost.',
-            )
-        ) {
-            setCurrentCode(data.starter_code);
-        }
+    const handleResetClick = () => {
+        setIsResetDialogOpen(true);
     };
+
+    const executeReset = () => {
+        setCurrentCode(data.starter_code);
+        setIsResetDialogOpen(false);
+    };
+
     // submit code and mark as done
     const handleSubmit = async () => {
         setIsSubmitting(true);
@@ -104,9 +106,9 @@ export function CodingViewer({
                     <Button
                         variant="ghost"
                         size="sm"
-                        onClick={handleReset}
+                        onClick={handleResetClick}
                         className="text-muted-foreground hover:text-foreground hover:bg-muted/40 h-8 px-2 text-xs"
-                        disabled={isPreview || isSubmitted || isSubmitting} // Haki: Tắt nút Reset khi ở chế độ Preview
+                        disabled={isPreview || isSubmitted || isSubmitting}
                     >
                         <RotateCcw className="mr-1.5 h-3 w-3" />
                         Reset Code
@@ -123,7 +125,7 @@ export function CodingViewer({
                         value={currentCode}
                         onChange={(val) => setCurrentCode(val || '')}
                         height="550px"
-                        readOnly={isPreview || isSubmitted || isSubmitting} // Haki: Ép readOnly luôn nếu đang preview
+                        readOnly={isPreview || isSubmitted || isSubmitting}
                     />
                 </div>
 
@@ -154,7 +156,7 @@ export function CodingViewer({
                         className="min-w-35 rounded-xl shadow-md"
                     >
                         {isPreview ? (
-                            'Submit (Disabled)' // Đổi text khi Preview
+                            'Submit (Disabled)'
                         ) : isSubmitting ? (
                             'Submitting...'
                         ) : isSubmitted ? (
@@ -168,6 +170,15 @@ export function CodingViewer({
                     </Button>
                 </div>
             </div>
+            <ConfirmDialog
+                open={isResetDialogOpen}
+                onOpenChangeAction={setIsResetDialogOpen}
+                title="Reset Code"
+                description="Are you sure you want to reset your code? All your current changes will be lost and reverted to the starter code."
+                confirmText="Reset"
+                destructive={true}
+                onConfirmAction={executeReset}
+            />
         </div>
     );
 }

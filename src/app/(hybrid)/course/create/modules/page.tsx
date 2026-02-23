@@ -48,6 +48,7 @@ import { PhaseIndicator } from '@/components/course-builder/phase-indicator';
 import { PHASES } from '@/components/course-builder/constant';
 import { Module, ModuleFormValues, moduleSchema } from '@/lib/service/module';
 import { generateId } from '@/lib/utils';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 /*
  * TODO: API INTEGRATION & UI REFACTOR (MODULE BUILDER)
  *
@@ -75,6 +76,13 @@ export default function ModuleBuilderPage() {
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingModule, setEditingModule] = useState<Module | null>(null);
+    const [deleteConfirm, setDeleteConfirm] = useState<{
+        isOpen: boolean;
+        idToDelete: string | null;
+    }>({
+        isOpen: false,
+        idToDelete: null,
+    });
 
     useEffect(() => {
         const storedCourseId = localStorage.getItem('course_draft_id');
@@ -108,11 +116,18 @@ export default function ModuleBuilderPage() {
         saveToLocal(updatedOrder);
     };
 
-    const handleDelete = (id: string) => {
-        if (confirm('Are you sure you want to delete this module?')) {
-            const newArray = modules.filter((m) => m.id !== id);
+    const handleDeleteClick = (id: string) => {
+        setDeleteConfirm({ isOpen: true, idToDelete: id });
+    };
+
+    const executeDelete = () => {
+        if (deleteConfirm.idToDelete) {
+            const newArray = modules.filter(
+                (m) => m.id !== deleteConfirm.idToDelete,
+            );
             saveToLocal(newArray);
         }
+        setDeleteConfirm({ isOpen: false, idToDelete: null });
     };
 
     const openCreateDialog = () => {
@@ -278,26 +293,27 @@ export default function ModuleBuilderPage() {
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent
                                             align="end"
-                                            className="rounded-xl"
+                                            className="min-w-40 rounded-xl"
                                         >
                                             <DropdownMenuItem
                                                 onClick={() =>
                                                     openEditDialog(module)
                                                 }
+                                                className="group focus:bg-primary/10 focus:text-primary cursor-pointer font-medium"
                                             >
-                                                <Pencil className="mr-2 h-4 w-4" />{' '}
-                                                Edit Module Info
-                                            </DropdownMenuItem>
+                                                <Pencil className="text-muted-foreground group-focus:text-primary mr-2 h-4 w-4 transition-colors" />{' '}
+                                                <span>Edit Module Info</span>
+                                            </DropdownMenuItem>{' '}
                                             <DropdownMenuItem
                                                 onClick={() =>
-                                                    handleDelete(module.id)
+                                                    handleDeleteClick(module.id)
                                                 }
-                                                className="text-destructive focus:bg-destructive/10"
+                                                className="cursor-pointer font-medium text-red-600 focus:bg-red-50 focus:text-red-700 dark:text-red-500 dark:focus:bg-red-950/30"
                                             >
                                                 <Trash2 className="mr-2 h-4 w-4" />{' '}
-                                                Delete Module
+                                                <span>Delete Module</span>
                                             </DropdownMenuItem>
-                                        </DropdownMenuContent>
+                                        </DropdownMenuContent>{' '}
                                     </DropdownMenu>
                                 </div>
                             </div>
@@ -311,6 +327,20 @@ export default function ModuleBuilderPage() {
                 onOpenChange={setIsDialogOpen}
                 initialData={editingModule}
                 onSubmit={handleFormSubmit}
+            />
+            <ConfirmDialog
+                open={deleteConfirm.isOpen}
+                onOpenChangeAction={(open) =>
+                    setDeleteConfirm({
+                        isOpen: open,
+                        idToDelete: open ? deleteConfirm.idToDelete : null,
+                    })
+                }
+                title="Delete Module"
+                description="Are you sure you want to delete this module? All lessons inside will also be removed. This action cannot be undone."
+                confirmText="Delete"
+                destructive={true}
+                onConfirmAction={executeDelete}
             />
         </div>
     );
