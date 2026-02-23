@@ -18,7 +18,7 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
     useEffect(() => {
         if (!isCheckingAuth) {
             if (!isAuthenticated) {
-                router.replace('/unauthorized');
+                router.replace('/');
             } else if (user && !allowedRoles.includes(user.role)) {
                 router.replace('/forbidden');
             }

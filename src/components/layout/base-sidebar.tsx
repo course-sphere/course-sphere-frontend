@@ -26,13 +26,26 @@ export function BaseResizableSidebar({
     user,
     collapsible = 'icon',
 }: BaseResizableSidebarProps) {
+    const getHomeLink = () => {
+        if (!user) return '/';
+        switch (user.role) {
+            case 'instructor':
+            case 'admin':
+                return '/dashboard';
+            case 'student':
+                return '/course';
+            default:
+                return '/';
+        }
+    };
+
     return (
         <Sidebar collapsible={collapsible}>
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href="/">
+                            <Link href={getHomeLink()}>
                                 <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                                     <span className="text-sm font-bold">
                                         CS
