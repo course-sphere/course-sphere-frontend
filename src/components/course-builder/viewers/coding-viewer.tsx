@@ -35,7 +35,7 @@ export function CodingViewer({ material, onSuccess }: CodingViewerProps) {
             setCurrentCode(data.starter_code);
         }
     };
-
+    // submit code and mark as done
     const handleSubmit = async () => {
         setIsSubmitting(true);
 
@@ -48,8 +48,14 @@ export function CodingViewer({ material, onSuccess }: CodingViewerProps) {
     };
 
     return (
-        <div className="mx-auto flex w-full max-w-7xl flex-col items-start gap-8 lg:flex-row">
-            <div className="flex w-full flex-col gap-6 lg:w-5/12">
+        <div className="mx-auto flex w-full flex-col items-start gap-6 lg:flex-row">
+            <div className="flex w-full flex-col lg:sticky lg:top-24 lg:w-4/12">
+                <div className="mb-3 flex h-8 items-center px-1">
+                    <span className="text-muted-foreground text-sm font-medium">
+                        Problem Description
+                    </span>
+                </div>
+
                 <div className="bg-card border-border/60 rounded-xl border p-6 shadow-sm">
                     <div className="text-foreground border-border/50 mb-6 flex items-center gap-2 border-b pb-4 font-semibold">
                         <Code2 className="text-primary h-5 w-5" />
@@ -84,8 +90,8 @@ export function CodingViewer({ material, onSuccess }: CodingViewerProps) {
                 </div>
             </div>
 
-            <div className="flex w-full flex-col gap-3 lg:w-7/12">
-                <div className="flex items-center justify-between px-1">
+            <div className="flex w-full flex-col lg:w-8/12">
+                <div className="mb-3 flex h-8 items-center justify-between px-1">
                     <span className="text-muted-foreground text-sm font-medium">
                         Your Solution
                     </span>
@@ -93,7 +99,7 @@ export function CodingViewer({ material, onSuccess }: CodingViewerProps) {
                         variant="ghost"
                         size="sm"
                         onClick={handleReset}
-                        className="text-muted-foreground hover:text-foreground h-8 text-xs"
+                        className="text-muted-foreground hover:text-foreground hover:bg-muted/40 h-8 px-2 text-xs"
                         disabled={isSubmitted || isSubmitting}
                     >
                         <RotateCcw className="mr-1.5 h-3 w-3" />
@@ -101,7 +107,7 @@ export function CodingViewer({ material, onSuccess }: CodingViewerProps) {
                     </Button>
                 </div>
 
-                <div className="shadow-lg">
+                <div className="border-border/60 overflow-hidden rounded-xl border shadow-sm">
                     <CodeEditor
                         language={
                             data.language === 'python'
@@ -110,12 +116,12 @@ export function CodingViewer({ material, onSuccess }: CodingViewerProps) {
                         }
                         value={currentCode}
                         onChange={(val) => setCurrentCode(val || '')}
-                        height="500px"
+                        height="550px"
                         readOnly={isSubmitted || isSubmitting}
                     />
                 </div>
 
-                <div className="bg-card border-border/60 mt-2 flex items-center justify-between rounded-xl border p-4 shadow-sm">
+                <div className="bg-card border-border/60 mt-4 flex items-center justify-between rounded-xl border p-4 shadow-sm">
                     <div className="flex-1">
                         {isSubmitted ? (
                             <span className="flex items-center gap-2 text-sm font-medium text-emerald-600 dark:text-emerald-500">
