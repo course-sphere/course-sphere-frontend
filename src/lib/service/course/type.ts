@@ -163,8 +163,56 @@ export function getDefaultMetadataData(): CourseMetadataFormData {
         target_audience: [],
     };
 }
+// After Refactoring
+export const courseInitSchema = z
+    .object({
+        title: z
+            .string()
+            .min(5, 'Title must be at least 5 characters')
+            .max(100, 'Title too long'),
+        description: z
+            .string()
+            .min(50, 'Description must be at least 50 characters')
+            .max(5000, 'Description too long'),
+        level: z.enum(['beginner', 'intermediate', 'advanced']),
+        categories: z
+            .array(z.object({ id: z.string(), text: z.string() }))
+            .min(1, 'Please select at least one topic'),
+        learning_objectives: z
+            .array(z.object({ value: z.string() }))
+            .min(1, 'At least 1 learning objective is required'),
+        prerequisites: z
+            .array(
+                z.object({ course_id: z.string(), course_title: z.string() }),
+            )
+            .optional(),
 
-//------------------------
+        is_free: z.boolean(),
+        price: z.number().min(0, 'Price cannot be negative'),
+    })
+    .superRefine((data, ctx) => {
+        // Validation 1.99 đô cho dân chơi test payment
+        if (!data.is_free && data.price < 1.99) {
+            ctx.addIssue({
+                code: 'custom',
+                message: 'Minimum price for a paid course is $1.99',
+                path: ['price'],
+            });
+        }
+    });
+
+export type CourseInitFormData = z.infer<typeof courseInitSchema>;
+
+export const defaultInitData: CourseInitFormData = {
+    title: '',
+    description: '',
+    level: 'beginner',
+    categories: [],
+    learning_objectives: [{ value: '' }],
+    prerequisites: [],
+    is_free: false,
+    price: 0,
+}; //------------------------
 export type CourseLesson = {
     id: string;
     title: string;
