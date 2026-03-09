@@ -350,13 +350,6 @@ export function PricingStep() {
     const isFree = watch('is_free');
     const price = watch('price');
 
-    const formatPrice = (value: number) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-        }).format(value);
-    };
-
     return (
         <div className="animate-in fade-in slide-in-from-bottom-4 space-y-6 duration-500">
             <Card className="border-border rounded-2xl shadow-sm">

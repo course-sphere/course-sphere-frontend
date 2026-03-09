@@ -19,7 +19,6 @@ import { RoleGuard } from '@/components/layout/role-gaurd';
 
 import { MetadataStep } from '@/components/course-builder/steps/basic-info-step';
 import { PricingStep } from '@/components/course-builder/steps/pricing-step';
-import { PHASES } from '@/components/course-builder/constant';
 
 export default function CreateCoursePage() {
     const router = useRouter();
@@ -111,11 +110,6 @@ export default function CreateCoursePage() {
                             can add more content later.
                         </p>
                     </div>
-
-                    <PhaseIndicator
-                        phases={PHASES}
-                        currentPhase={currentStep}
-                    />
 
                     <Form {...methods}>
                         <form
