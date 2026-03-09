@@ -17,7 +17,7 @@ import {
 } from '@/lib/service/course';
 import { RoleGuard } from '@/components/layout/role-gaurd';
 
-import { MetadataStep } from '@/components/course-builder/steps/metadata-step';
+import { MetadataStep } from '@/components/course-builder/steps/basic-info-step';
 import { PricingStep } from '@/components/course-builder/steps/pricing-step';
 import { PHASES } from '@/components/course-builder/constant';
 

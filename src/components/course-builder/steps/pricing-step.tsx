@@ -22,12 +22,16 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { DollarSign, Gift, Tag, TrendingUp, AlertCircle } from 'lucide-react';
-import { CoursePricingFormData } from '@/lib/service/course';
+import {
+    CourseInitFormData,
+    CoursePricingFormData,
+} from '@/lib/service/course';
 import { PRICING_TIERS } from '../constant';
 import { formatPrice } from '@/lib/utils';
 
 // IMPORTANT: The logic now is Teacher will have 70% of original course, 30% for CourseSphere
-export function PricingStep() {
+//legacy
+function AddPricingStep() {
     const { control, watch, setValue, clearErrors } =
         useFormContext<CoursePricingFormData>();
 
@@ -327,6 +331,197 @@ export function PricingStep() {
                                             Number(discountPrice || price) *
                                                 0.7,
                                         )}
+                                    </strong>
+                                </span>
+                            )}
+                        </AlertDescription>
+                    </Alert>
+                </div>
+            )}
+        </div>
+    );
+}
+
+// new
+export function PricingStep() {
+    const { control, watch, setValue, clearErrors } =
+        useFormContext<CourseInitFormData>();
+
+    const isFree = watch('is_free');
+    const price = watch('price');
+
+    const formatPrice = (value: number) => {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+        }).format(value);
+    };
+
+    return (
+        <div className="animate-in fade-in slide-in-from-bottom-4 space-y-6 duration-500">
+            <Card className="border-border rounded-2xl shadow-sm">
+                <CardHeader className="pb-4">
+                    <CardTitle className="text-lg">Pricing Model</CardTitle>
+                    <CardDescription>
+                        Choose how you want to monetize your course.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <FormField
+                        control={control}
+                        name="is_free"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormControl>
+                                    <RadioGroup
+                                        onValueChange={(v) => {
+                                            const isNowFree = v === 'free';
+                                            field.onChange(isNowFree);
+
+                                            if (isNowFree) {
+                                                setValue('price', 0, {
+                                                    shouldDirty: true,
+                                                });
+                                                clearErrors(['price']);
+                                            } else {
+                                                setValue('price', 1.99, {
+                                                    shouldDirty: true,
+                                                });
+                                            }
+                                        }}
+                                        value={field.value ? 'free' : 'paid'}
+                                        className="grid grid-cols-1 gap-4 md:grid-cols-2"
+                                    >
+                                        <Label
+                                            htmlFor="free"
+                                            className={`flex cursor-pointer items-start gap-4 rounded-xl border-2 p-5 transition-all ${
+                                                field.value
+                                                    ? 'border-primary bg-primary/5'
+                                                    : 'border-border hover:border-primary/50'
+                                            }`}
+                                        >
+                                            <RadioGroupItem
+                                                value="free"
+                                                id="free"
+                                                className="mt-1"
+                                            />
+                                            <div className="flex-1">
+                                                <div className="mb-1 flex items-center gap-2">
+                                                    <Gift
+                                                        className={`h-5 w-5 ${field.value ? 'text-primary' : 'text-muted-foreground'}`}
+                                                    />
+                                                    <span
+                                                        className={`font-semibold ${field.value ? 'text-primary' : 'text-foreground'}`}
+                                                    >
+                                                        Free Course
+                                                    </span>
+                                                </div>
+                                                <p className="text-muted-foreground text-sm">
+                                                    Make your course freely
+                                                    available to all students.
+                                                </p>
+                                            </div>
+                                        </Label>
+
+                                        <Label
+                                            htmlFor="paid"
+                                            className={`flex cursor-pointer items-start gap-4 rounded-xl border-2 p-5 transition-all ${
+                                                !field.value
+                                                    ? 'border-primary bg-primary/5'
+                                                    : 'border-border hover:border-primary/50'
+                                            }`}
+                                        >
+                                            <RadioGroupItem
+                                                value="paid"
+                                                id="paid"
+                                                className="mt-1"
+                                            />
+                                            <div className="flex-1">
+                                                <div className="mb-1 flex items-center gap-2">
+                                                    <DollarSign
+                                                        className={`h-5 w-5 ${!field.value ? 'text-primary' : 'text-muted-foreground'}`}
+                                                    />
+                                                    <span
+                                                        className={`font-semibold ${!field.value ? 'text-primary' : 'text-foreground'}`}
+                                                    >
+                                                        Paid Course
+                                                    </span>
+                                                </div>
+                                                <p className="text-muted-foreground text-sm">
+                                                    Set a price and earn money
+                                                    from your expertise.
+                                                </p>
+                                            </div>
+                                        </Label>
+                                    </RadioGroup>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </CardContent>
+            </Card>
+
+            {!isFree && (
+                <div className="animate-in fade-in slide-in-from-top-2 space-y-6 duration-300">
+                    <Card className="border-border rounded-2xl shadow-sm">
+                        <CardHeader className="pb-4">
+                            <CardTitle className="flex items-center gap-2 text-lg">
+                                <Tag className="text-primary h-5 w-5" />
+                                Course Price
+                            </CardTitle>
+                            <CardDescription>
+                                Set your course price. Minimum price is $1.99.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            <FormField
+                                control={control}
+                                name="price"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Price (USD)</FormLabel>
+                                        <FormControl>
+                                            <div className="relative max-w-xs">
+                                                <span className="text-muted-foreground absolute top-1/2 left-4 -translate-y-1/2 font-medium">
+                                                    $
+                                                </span>
+                                                <Input
+                                                    type="number"
+                                                    step="0.01"
+                                                    placeholder="1.99"
+                                                    className="h-12 rounded-xl pl-9 text-lg font-semibold"
+                                                    {...field}
+                                                    value={field.value || ''}
+                                                    onChange={(e) => {
+                                                        const val =
+                                                            e.target.value;
+                                                        field.onChange(
+                                                            val === ''
+                                                                ? ''
+                                                                : Number(val),
+                                                        );
+                                                    }}
+                                                />
+                                            </div>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </CardContent>
+                    </Card>
+
+                    <Alert className="border-primary/20 bg-primary/5 rounded-xl">
+                        <AlertCircle className="text-primary h-4 w-4" />
+                        <AlertDescription className="text-sm">
+                            <strong>Revenue Share:</strong> You will receive 70%
+                            of the course price after platform fees.
+                            {Number(price) > 0 && (
+                                <span className="border-primary/10 bg-background/50 mt-2 block rounded-lg border p-3">
+                                    Your estimated earnings per sale:
+                                    <strong className="text-primary ml-1 text-base">
+                                        {formatPrice(Number(price) * 0.7)}
                                     </strong>
                                 </span>
                             )}
