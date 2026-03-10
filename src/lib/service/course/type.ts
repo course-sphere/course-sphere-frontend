@@ -181,13 +181,11 @@ export const courseInitSchema = z
         learning_objectives: z
             .array(z.object({ value: z.string() }))
             .min(1, 'At least 1 learning objective is required'),
-        prerequisites: z
-            .array(
-                z.object({ course_id: z.string(), course_title: z.string() }),
-            )
-            .optional(),
-
+        prerequisites: z.array(
+            z.object({ course_id: z.string(), course_title: z.string() }),
+        ),
         is_free: z.boolean(),
+
         price: z.number().min(0, 'Price cannot be negative'),
     })
     .superRefine((data, ctx) => {
@@ -211,7 +209,8 @@ export const defaultInitData: CourseInitFormData = {
     prerequisites: [],
     is_free: false,
     price: 0,
-}; //------------------------
+};
+//------------------------
 export type CourseLesson = {
     id: string;
     title: string;
@@ -335,4 +334,49 @@ export interface AIEvaluationResult {
     qualityAnalysis: string;
     policyFlags: string[];
     recommendedAction: 'Approve' | 'Review' | 'Reject';
+}
+
+// create course
+export interface CreateCoursePayload {
+    title: string;
+    description: string;
+    level: 'beginner' | 'intermediate' | 'advanced' | string;
+    price: number;
+    categories: string[];
+    learning_objectives: string[];
+    prerequisites: string[];
+}
+
+// api integrated -- get all course response
+export interface CourseInstructor {
+    createdAt: string;
+    displayUsername: string;
+    email: string;
+    emailVerified: boolean;
+    image: string;
+    name: string;
+    role: string;
+    twoFactorEnabled: boolean;
+    updatedAt: string;
+    username: string;
+}
+
+export interface CourseResponse {
+    id: string;
+    title: string;
+    subtitle?: string;
+    description?: string;
+    status: string;
+    level: string;
+    price: number;
+    total: number;
+    total_required: number;
+    thumbnail_url?: string;
+    promo_video_url?: string;
+    categories?: string[];
+    learning_objectives?: string[];
+    requirements?: string[];
+    target_audiences?: string[];
+    prerequisites?: string[];
+    instructor?: CourseInstructor;
 }

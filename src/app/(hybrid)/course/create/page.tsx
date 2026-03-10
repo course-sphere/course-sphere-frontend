@@ -55,6 +55,7 @@ export default function CreateCoursePage() {
     };
 
     const onSubmit = (data: CourseInitFormData) => {
+        if (currentStep !== 2) return;
         mutation.mutate(data);
     };
 
@@ -85,6 +86,15 @@ export default function CreateCoursePage() {
                         <form
                             onSubmit={handleSubmit(onSubmit)}
                             className="space-y-6"
+                            onKeyDown={(e) => {
+                                if (
+                                    e.key === 'Enter' &&
+                                    (e.target as HTMLElement).tagName ===
+                                        'INPUT'
+                                ) {
+                                    e.preventDefault();
+                                }
+                            }}
                         >
                             <div className="min-h-125">
                                 {currentStep === 1 && <MetadataStep />}

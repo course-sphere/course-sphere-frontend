@@ -25,7 +25,7 @@ interface BaseItem {
 
 interface SortableListProps<T extends BaseItem> {
     items: T[];
-    onReorder: (newItems: T[]) => void;
+    onReorder: (newItems: T[], oldIndex: number, newIndex: number) => void;
     renderItem: (
         item: T,
         dragHandleProps: Record<string, unknown> | undefined,
@@ -53,7 +53,7 @@ export function SortableList<T extends BaseItem>({
         if (over && active.id !== over.id) {
             const oldIndex = items.findIndex((item) => item.id === active.id);
             const newIndex = items.findIndex((item) => item.id === over.id);
-            onReorder(arrayMove(items, oldIndex, newIndex));
+            onReorder(arrayMove(items, oldIndex, newIndex), oldIndex, newIndex);
         }
     };
 
