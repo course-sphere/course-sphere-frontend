@@ -27,7 +27,9 @@ export function InlineArrayEdit({
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
-        setCurrentItems([...(items || [])]);
+        if (JSON.stringify(items) !== JSON.stringify(currentItems)) {
+            setCurrentItems([...(items || [])]);
+        }
     }, [items]);
 
     const handleSave = async () => {
