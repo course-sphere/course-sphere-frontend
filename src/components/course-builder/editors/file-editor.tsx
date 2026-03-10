@@ -28,17 +28,8 @@ import {
     type DraftLessonItem,
 } from '@/lib/service/lesson';
 
-/*
- * TODO: API INTEGRATION & UI REFACTOR (FILE EDITOR)
- *
- * 1. S3 DIRECT UPLOAD FLOW:
- * - Request Presigned URL: GET /api/v1/s3/presign?filename={name}&contentType={type}
- * - Upload to S3: PUT file directly to the received AWS S3 URL.
- * - Map the final S3 URL, file size, and extension to the form state before submitting the Material payload to the backend.
- *
- * 2. FUTURE UI UPGRADE:
- * - Replace the native <input type="file"> with a dedicated Dropzone component (e.g., from shadcn-awesome or react-dropzone) to handle drag-and-drop events, loading states, and MIME type validation more gracefully.
- */
+import { useGetPresignedUrl, uploadFileToS3 } from '@/lib/service/storage';
+
 interface FileEditorProps {
     initialData: DraftLessonItem | null;
     onSave: (data: FileMaterialFormValues) => void;
@@ -48,6 +39,7 @@ interface FileEditorProps {
 export function FileEditor({ initialData, onSave, onCancel }: FileEditorProps) {
     const [isUploading, setIsUploading] = useState(false);
     const [uploadSuccess, setUploadSuccess] = useState(false);
+    const { mutateAsync: getPresignedUrl } = useGetPresignedUrl();
 
     const form = useForm<FileMaterialFormValues>({
         resolver: zodResolver(fileMaterialSchema),
@@ -82,25 +74,20 @@ export function FileEditor({ initialData, onSave, onCancel }: FileEditorProps) {
         setUploadSuccess(false);
 
         try {
-            console.log(
-                '1. Gọi API Backend xin Presigned URL cho file:',
-                file.name,
-            );
+            console.log('GET Presigned URL...');
+            const presignedData = await getPresignedUrl({
+                contentType: file.type,
+                fileName: file.name.replace(/[^a-zA-Z0-9.]/g, '_'),
+            });
 
-            console.log(
-                '2. PUT file trực tiếp lên S3 bucket thông qua URL vừa xin',
-            );
+            console.log('Upload cloud:');
+            const finalUrl = await uploadFileToS3(file, presignedData);
 
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-
-            console.log(
-                '3. Tự động điền data vào Form sau khi S3 báo thành công',
-            );
+            console.log('Map data to form:');
             const fileExtension = file.name.split('.').pop() || 'unknown';
-            const fakeS3Url = `https://s3.your-bucket.com/uploads/${Date.now()}_${file.name}`;
             const fileSizeKB = Math.round(file.size / 1024);
 
-            form.setValue('file_url', fakeS3Url, { shouldValidate: true });
+            form.setValue('file_url', finalUrl, { shouldValidate: true });
             form.setValue('file_type', fileExtension, { shouldValidate: true });
             form.setValue('file_size', fileSizeKB, { shouldValidate: true });
 
@@ -114,7 +101,6 @@ export function FileEditor({ initialData, onSave, onCancel }: FileEditorProps) {
             setTimeout(() => setUploadSuccess(false), 3000);
         } catch (error) {
             console.error('Upload failed', error);
-            alert('Upload failed. Please try again.');
         } finally {
             setIsUploading(false);
         }
@@ -156,6 +142,7 @@ export function FileEditor({ initialData, onSave, onCancel }: FileEditorProps) {
                     )}
                 </div>
 
+                {/* --- Phần UI ở dưới Form y chang của sếp, em thu gọn lại cho bớt dòng nha --- */}
                 <div className="bg-muted/30 border-border space-y-4 rounded-xl border p-4">
                     <FormField
                         control={form.control}
@@ -200,7 +187,6 @@ export function FileEditor({ initialData, onSave, onCancel }: FileEditorProps) {
                         <FileIcon className="h-4 w-4" /> File Details
                         (Auto-filled)
                     </div>
-
                     <FormField
                         control={form.control}
                         name="file_url"
@@ -220,7 +206,6 @@ export function FileEditor({ initialData, onSave, onCancel }: FileEditorProps) {
                             </FormItem>
                         )}
                     />
-
                     <div className="grid grid-cols-2 gap-4">
                         <FormField
                             control={form.control}
