@@ -1,35 +1,36 @@
+import { apiClient } from '@/lib/api-client';
+import { ApiError } from '@/lib/api/axios-config';
 import { useMutation } from '@tanstack/react-query';
-//import axios from 'axios';
-//import { apiClient } from '@/lib/api/axios-config';
-import { toast } from 'sonner';
 
-export const useUploadMedia = () => {
-    return useMutation<string, Error, File>({
-        mutationFn: async (file: File) => {
-            console.log(file.name, file.type);
-
-            await new Promise((res) => setTimeout(res, 1500));
-
-            return URL.createObjectURL(file);
-
-            /*
-            const response = await apiClient.post<any, PresignResponse>('/media/presign', {
-                fileName: file.name,
-                contentType: file.type,
-            });
-
-            await axios.put(response.presignedUrl, file, {
-                headers: {
-                    'Content-Type': file.type,
-                },
-            });
-
-            return response.fileUrl;
-            */
-        },
-        onError: (error) => {
-            console.error('Error S3:', error);
-            toast.error(error.message || 'Error when upload file. Try again');
+export const useGetPresignedUrl = () => {
+    return useMutation<
+        PresignedUrlResponse,
+        ApiError | Error,
+        PresignedUrlRequest
+    >({
+        mutationFn: async (payload) => {
+            return await apiClient.post<
+                PresignedUrlResponse,
+                PresignedUrlResponse,
+                PresignedUrlRequest
+            >('/storage/presign/', payload);
         },
     });
+};
+
+export const uploadFileToS3 = async (file: File, responseData: any) => {
+    const presign = responseData.data ? responseData.data : responseData;
+    const formData = new FormData();
+    Object.entries(presign.values).forEach(([key, value]) => {
+        formData.append(key, value as string);
+    });
+    formData.append('file', file);
+    const uploadRes = await fetch(presign.url, {
+        method: 'POST',
+        body: formData,
+    });
+    if (!uploadRes.ok) {
+        throw new Error('Upload S3 thất bại!');
+    }
+    return `${presign.url}/${presign.values.key}`;
 };

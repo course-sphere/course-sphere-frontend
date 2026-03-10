@@ -37,6 +37,7 @@ import { InlineMediaEdit } from '@/components/course-builder/inline-edit/inline-
 import { EmptyState } from '@/components/ui/empty-state';
 import { InlineSelectEdit } from '@/components/course-builder/inline-edit/inline-select-edit';
 import { CoursePrerequisiteSelect } from '@/components/course-prerequisite-select';
+import { useGetPresignedUrl, uploadFileToS3 } from '@/lib/service/storage';
 
 export default function CourseOverviewPage({
     params,
@@ -48,6 +49,7 @@ export default function CourseOverviewPage({
 
     const { data: course, isLoading } = useGetCourseDetail(id);
     const { mutateAsync: updateCourse } = useUpdateCourse(id);
+    const { mutateAsync: getPresignedUrl } = useGetPresignedUrl();
 
     const { data: allCourses } = useGetAllCourses();
 
@@ -133,18 +135,30 @@ export default function CourseOverviewPage({
                         <InlineMediaEdit
                             url={course.thumbnail_url || ''}
                             type="image"
-                            className={`absolute inset-0 z-20 h-full w-full cursor-pointer rounded-none border-0 ${course.thumbnail_url ? 'opacity-30 hover:opacity-50' : 'opacity-0'}`}
+                            className={`absolute inset-0 z-20 h-full w-full cursor-pointer rounded-none border-0 [&_img]:h-full [&_img]:w-full [&_img]:object-cover ${course.thumbnail_url ? 'opacity-0 transition-all duration-300 hover:bg-black/20 hover:opacity-100' : 'opacity-0'}`}
                             onUploadAndSave={async (file) => {
-                                const tempUrl = URL.createObjectURL(file);
+                                const presignedData = await getPresignedUrl({
+                                    contentType: file.type,
+                                    fileName: file.name.replace(
+                                        /[^a-zA-Z0-9.]/g,
+                                        '_',
+                                    ),
+                                });
+                                const finalUrl = await uploadFileToS3(
+                                    file,
+                                    presignedData,
+                                );
                                 await handleUpdateField(
                                     'thumbnail_url',
-                                    tempUrl,
+                                    finalUrl,
                                 );
-                                return tempUrl;
+                                return finalUrl;
                             }}
                         />
 
-                        {!course.thumbnail_url && (
+                        {course.thumbnail_url ? (
+                            <div className="pointer-events-none absolute inset-0 z-10 bg-linear-to-r from-slate-50/95 via-slate-50/80 to-transparent backdrop-blur-[2px]" />
+                        ) : (
                             <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-end justify-center pr-12 lg:pr-24">
                                 <div className="flex animate-pulse flex-col items-center text-center">
                                     <div className="mb-4 rounded-full bg-white p-4 shadow-sm ring-1 ring-slate-200">
@@ -159,14 +173,16 @@ export default function CourseOverviewPage({
                                 </div>
                             </div>
                         )}
-
-                        <div className="pointer-events-none absolute inset-0 z-0 bg-linear-to-r from-slate-50/90 via-slate-50/70 to-transparent" />
+                        {!course.thumbnail_url && (
+                            <div className="pointer-events-none absolute inset-0 z-0 bg-linear-to-r from-slate-50/90 via-slate-50/70 to-transparent" />
+                        )}
                     </div>
 
                     <div className="relative z-30 w-full space-y-6 lg:w-2/3">
                         <div className="flex w-full items-center">
                             <div className="w-full pr-8">
                                 <InlineArrayEdit
+                                    listClassName="flex flex-wrap gap-2 space-y-0"
                                     items={
                                         (course.categories || [])
                                             .map(
@@ -191,7 +207,7 @@ export default function CourseOverviewPage({
                                     renderItem={(item) => (
                                         <Badge
                                             variant="secondary"
-                                            className="mt-1 mr-2 bg-slate-200 text-slate-700 hover:bg-slate-300"
+                                            className="border border-slate-300/50 bg-slate-200 text-slate-700 shadow-sm hover:bg-slate-300"
                                         >
                                             {item}
                                         </Badge>
@@ -206,24 +222,22 @@ export default function CourseOverviewPage({
                             }
                             textClassName="text-4xl font-extrabold tracking-tight md:text-5xl lg:leading-tight text-slate-900"
                         />
-
                         <InlineTextEdit
                             value={course.subtitle || ''}
                             onSave={async (val) =>
                                 await handleUpdateField('subtitle', val)
                             }
-                            textClassName="max-w-2xl text-lg text-slate-600"
+                            textClassName="max-w-2xl text-lg text-slate-600 font-medium drop-shadow-sm"
                             type="textarea"
                             placeholder="Add a catchy subtitle..."
                         />
-
-                        <div className="flex items-center gap-6 pt-2 text-sm text-slate-600">
-                            <div className="flex items-center gap-1 text-amber-500">
+                        <div className="flex items-center gap-6 pt-2 text-sm font-medium text-slate-700">
+                            <div className="flex items-center gap-1 text-amber-500 drop-shadow-sm">
                                 <Star className="h-4 w-4 fill-current" />
                                 <span className="font-bold text-slate-900">
                                     {course.rating || '0.0'}
                                 </span>
-                                <span className="text-slate-500">
+                                <span className="text-slate-600">
                                     ({course.rating_count || 0} ratings)
                                 </span>
                             </div>
@@ -239,7 +253,7 @@ export default function CourseOverviewPage({
                                     onSave={async (val) =>
                                         await handleUpdateField('level', val)
                                     }
-                                    textClassName="capitalize text-slate-600 group-hover:text-slate-900"
+                                    textClassName="capitalize text-slate-700 group-hover:text-slate-900"
                                 />
                             </div>
                         </div>
@@ -344,7 +358,6 @@ export default function CourseOverviewPage({
                                                         typeof req === 'object'
                                                             ? req.course_id
                                                             : req;
-
                                                     const foundCourse =
                                                         allCourses?.find(
                                                             (c) =>
@@ -399,7 +412,7 @@ export default function CourseOverviewPage({
                                         />
                                     </div>
                                 </div>
-                            </div>{' '}
+                            </div>
                         </div>
 
                         <div className="pt-4">
@@ -436,19 +449,30 @@ export default function CourseOverviewPage({
 
                     <div className="sticky top-24 z-20 order-1 w-full lg:order-2 lg:w-1/3">
                         <div className="bg-card border-border overflow-hidden rounded-2xl border shadow-xl">
-                            <div className="border-border relative aspect-video w-full border-b bg-slate-100 dark:bg-slate-900">
+                            <div className="border-border relative aspect-video w-full overflow-hidden border-b bg-slate-100 dark:bg-slate-900">
                                 <InlineMediaEdit
                                     url={course.promo_video_url || ''}
                                     type="video"
-                                    className="h-full w-full rounded-none border-0"
+                                    // 🪄 PHẾ VÕ CÔNG NÚT PLAY: Ép video full viền và tắt event click của nó để bấm Upload cực mượt!
+                                    className="h-full w-full rounded-none border-0 [&_video]:pointer-events-none [&_video]:h-full [&_video]:w-full [&_video]:object-cover"
                                     onUploadAndSave={async (file) => {
-                                        const tempUrl =
-                                            URL.createObjectURL(file);
+                                        const presignedData =
+                                            await getPresignedUrl({
+                                                contentType: file.type,
+                                                fileName: file.name.replace(
+                                                    /[^a-zA-Z0-9.]/g,
+                                                    '_',
+                                                ),
+                                            });
+                                        const finalUrl = await uploadFileToS3(
+                                            file,
+                                            presignedData,
+                                        );
                                         await handleUpdateField(
                                             'promo_video_url',
-                                            tempUrl,
+                                            finalUrl,
                                         );
-                                        return tempUrl;
+                                        return finalUrl;
                                     }}
                                 />
                             </div>

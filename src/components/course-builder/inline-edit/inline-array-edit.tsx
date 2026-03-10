@@ -11,6 +11,7 @@ interface InlineArrayEditProps {
     renderItem: (item: string, index: number) => React.ReactNode;
     emptyMessage?: string;
     className?: string;
+    listClassName?: string; // 👈 Vũ khí mới để nắn gân giao diện
     label?: string;
 }
 
@@ -20,6 +21,7 @@ export function InlineArrayEdit({
     renderItem,
     emptyMessage = 'Click to add items...',
     className = '',
+    listClassName, // 👈 Nhận vũ khí
     label,
 }: InlineArrayEditProps) {
     const [isEditing, setIsEditing] = useState(false);
@@ -154,8 +156,14 @@ export function InlineArrayEdit({
                         {label}
                     </label>
                 )}
+
                 {items && items.length > 0 ? (
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div
+                        className={
+                            listClassName ||
+                            'grid grid-cols-1 gap-4 md:grid-cols-2'
+                        }
+                    >
                         {items.map((item, idx) => (
                             <div key={idx}>{renderItem(item, idx)}</div>
                         ))}
