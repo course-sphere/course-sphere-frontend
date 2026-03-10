@@ -5,12 +5,12 @@ import axios, {
 } from 'axios';
 import { getApiUrl } from './api-url';
 import { useAuthStore } from '../stores/use-auth-store';
+import { authClient } from '@/lib/api-client';
 
 const apiUrl = getApiUrl();
 
 export class ApiError extends Error {
     status?: number;
-
     constructor(message: string, status?: number) {
         super(message);
         this.name = 'ApiError';
@@ -27,11 +27,36 @@ export const apiClient: AxiosInstance = axios.create({
     },
 });
 
+let tokenFetchPromise: Promise<string | null> | null = null;
+
 apiClient.interceptors.request.use(
-    (config) => {
-        console.log(
-            `[API Request] ${config.method?.toUpperCase()} ${config.url}`,
-        );
+    async (config) => {
+        // check store if it have token
+        let token = useAuthStore.getState().jwtToken;
+
+        if (!token) {
+            if (!tokenFetchPromise) {
+                tokenFetchPromise = authClient
+                    .token()
+                    .then(({ data, error }) => {
+                        if (error || !data) {
+                            console.error('Cannot get token', error);
+                            return null;
+                        }
+
+                        const newToken = data.token;
+                        useAuthStore.getState().setJwtToken(newToken);
+                        return newToken;
+                    })
+                    .finally(() => {
+                        tokenFetchPromise = null;
+                    });
+            }
+            token = await tokenFetchPromise;
+        }
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
         return config;
     },
     (error: AxiosError) => Promise.reject(error),
@@ -46,11 +71,10 @@ apiClient.interceptors.response.use(
         const errorData = error.response?.data;
 
         if (status === 401) {
-            useAuthStore.getState().logout();
+            useAuthStore.getState().setJwtToken(null);
         }
 
         let message = 'Internal Server Error';
-
         if (typeof errorData === 'string' && errorData.trim() !== '') {
             message = errorData;
         } else if (
