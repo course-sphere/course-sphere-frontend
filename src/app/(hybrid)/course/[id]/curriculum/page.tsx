@@ -286,7 +286,7 @@ export default function CurriculumManagerPage() {
 
     return (
         <div className="bg-background flex h-screen w-screen overflow-hidden">
-            <div className="border-border bg-sidebar z-20 flex h-full w-[350px] shrink-0 flex-col border-r shadow-lg lg:w-[400px]">
+            <div className="border-border bg-sidebar z-20 flex h-full w-87.5 shrink-0 flex-col border-r shadow-lg lg:w-100">
                 <div className="border-border bg-card flex h-16 shrink-0 items-center gap-3 border-b px-4">
                     <Button
                         variant="ghost"
@@ -341,7 +341,7 @@ export default function CurriculumManagerPage() {
                                         items={lesson.items.map((i) => i.id)}
                                         strategy={verticalListSortingStrategy}
                                     >
-                                        <div className="min-h-[10px] space-y-1.5">
+                                        <div className="min-h-2.5 space-y-1.5">
                                             {lesson.items.map((item) => (
                                                 <DraggableMaterialItem
                                                     key={item.id}

@@ -1,4 +1,10 @@
-export type MaterialKind = 'video' | 'text' | 'quiz' | 'coding' | 'file';
+export type MaterialKind =
+    | 'video'
+    | 'text'
+    | 'quiz'
+    | 'coding'
+    | 'file'
+    | 'assignment';
 
 // GET course material
 export interface Material {
