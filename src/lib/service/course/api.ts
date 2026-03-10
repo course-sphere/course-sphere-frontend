@@ -8,6 +8,7 @@ import {
     CourseInitFormData,
     CourseResponse,
     CreateCoursePayload,
+    UpdateCoursePayload,
 } from '@/lib/service/course';
 
 const mapToCreatePayload = (data: CourseInitFormData): CreateCoursePayload => ({
@@ -78,21 +79,22 @@ export const useGetCourseDetail = (courseId: string) => {
     });
 };
 
+// Nhớ import UpdateCoursePayload vào sếp nhé
 export const useUpdateCourse = (courseId: string) => {
     const queryClient = useQueryClient();
 
     return useMutation<
         CourseDetailResponse,
         ApiError | Error,
-        Partial<CourseDetailResponse>
+        UpdateCoursePayload
     >({
         mutationFn: async (dataToUpdate) => {
-            console.log('Payload update:', dataToUpdate);
+            console.log('Payload PATCH:', dataToUpdate);
 
             const response = await apiClient.patch<
                 CourseDetailResponse,
                 CourseDetailResponse,
-                Partial<CourseDetailResponse>
+                UpdateCoursePayload
             >(`/course/${courseId}`, dataToUpdate);
 
             return response;

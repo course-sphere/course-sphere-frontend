@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { Pencil } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Pencil, Check, X } from 'lucide-react';
 import {
     Select,
     SelectContent,
@@ -9,6 +9,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface Option {
@@ -31,35 +32,34 @@ export function InlineSelectEdit({
     textClassName,
 }: InlineSelectEditProps) {
     const [isEditing, setIsEditing] = useState(false);
-    const [currentValue, setCurrentValue] = useState(value);
+
+    const [draftValue, setDraftValue] = useState(value);
 
     useEffect(() => {
-        setCurrentValue(value);
-    }, [value]);
+        setDraftValue(value);
+    }, [value, isEditing]);
 
-    const handleValueChange = (newValue: string) => {
-        setCurrentValue(newValue);
+    const handleSave = () => {
         setIsEditing(false);
-
-        if (newValue !== value) {
-            onSave(newValue);
+        if (draftValue !== value) {
+            onSave(draftValue);
         }
     };
 
-    const selectedOption = options.find((opt) => opt.value === currentValue);
-    const displayLabel = selectedOption ? selectedOption.label : currentValue;
+    const handleCancel = () => {
+        setDraftValue(value);
+        setIsEditing(false);
+    };
+
+    const selectedOption = options.find((opt) => opt.value === value);
+    const displayLabel = selectedOption ? selectedOption.label : value;
 
     if (isEditing) {
         return (
             <div className="animate-in fade-in zoom-in-95 flex items-center gap-2 duration-200">
-                <Select
-                    value={currentValue}
-                    onValueChange={handleValueChange}
-                    open={isEditing}
-                    onOpenChange={setIsEditing}
-                >
-                    <SelectTrigger className="focus:ring-primary h-8 w-40 border-slate-700 bg-slate-900 text-white">
-                        <SelectValue placeholder="Select level" />
+                <Select value={draftValue} onValueChange={setDraftValue}>
+                    <SelectTrigger className="focus:ring-primary h-9 w-40 border-slate-700 bg-slate-900 text-white">
+                        <SelectValue placeholder="Select option..." />
                     </SelectTrigger>
                     <SelectContent className="border-slate-700 bg-slate-900 text-white">
                         {options.map((opt) => (
@@ -73,6 +73,27 @@ export function InlineSelectEdit({
                         ))}
                     </SelectContent>
                 </Select>
+
+                <div className="flex items-center gap-1">
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleSave}
+                        className="h-8 w-8 rounded-md text-emerald-500 hover:bg-emerald-500/10 hover:text-emerald-400"
+                    >
+                        <Check className="h-4 w-4" />
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleCancel}
+                        className="hover:text-destructive hover:bg-destructive/10 h-8 w-8 rounded-md text-slate-400"
+                    >
+                        <X className="h-4 w-4" />
+                    </Button>
+                </div>
             </div>
         );
     }

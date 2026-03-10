@@ -380,3 +380,20 @@ export interface CourseResponse {
     prerequisites?: string[];
     instructor?: CourseInstructor;
 }
+
+// update course
+export interface UpdateCoursePayload {
+    title?: string;
+    subtitle?: string;
+    description?: string;
+    level?: string;
+    price?: number;
+    status?: string;
+    promo_video_url?: string;
+    thumbnail_url?: string;
+    categories?: string[];
+    learning_objectives?: string[];
+    prerequisites?: string[];
+    requirements?: string[];
+    target_audiences?: string[];
+}
