@@ -49,16 +49,42 @@ export const useGetCurriculum = (courseId: string) => {
                     });
                 }
 
+                const uiType = mapKindToType(mat.kind);
+                let itemData: any = {};
+
+                if (mat.content) {
+                    if (uiType === 'reading') {
+                        itemData = { content: mat.content };
+                    } else if (uiType === 'file') {
+                        itemData = { file_url: mat.content };
+                    } else if (uiType === 'video') {
+                        const dashIndex = mat.content.indexOf('-');
+                        if (dashIndex !== -1) {
+                            itemData = {
+                                video_url: mat.content.substring(0, dashIndex),
+                                description: mat.content.substring(
+                                    dashIndex + 1,
+                                ),
+                            };
+                        } else {
+                            itemData = {
+                                video_url: mat.content,
+                                description: '',
+                            };
+                        }
+                    }
+                }
+
                 lessonMap.get(lessonName)!.items.push({
                     id: mat.id,
                     title: mat.title,
-                    item_type: mapKindToType(mat.kind),
+                    item_type: uiType,
                     sort_order: mat.position,
                     is_required: mat.is_required,
                     is_preview: false,
+                    [`${uiType}_data`]: itemData,
                 });
             });
-
             const sortedLessons = Array.from(lessonMap.values());
             sortedLessons.forEach((lesson) => {
                 lesson.items.sort((a, b) => a.sort_order - b.sort_order);
@@ -72,24 +98,18 @@ export const useGetCurriculum = (courseId: string) => {
 
 export const useCreateMaterial = (courseId: string) => {
     const queryClient = useQueryClient();
-
-    return useMutation<Material, Error, CreateMaterialPayload>({
+    return useMutation<string, Error, CreateMaterialPayload>({
         mutationFn: async (payload) => {
-            const { data } = await apiClient.post<Material>(
+            const res = await apiClient.post(
                 `/course/${courseId}/material`,
                 payload,
             );
-            return data;
+            return (res.data !== undefined ? res.data : res) as string;
         },
         onSuccess: () => {
-            toast.success('Material added!');
             queryClient.invalidateQueries({
                 queryKey: ['curriculum', courseId],
             });
-        },
-        onError: (err) => {
-            toast.error('Failed to create material');
-            console.error(err);
         },
     });
 };

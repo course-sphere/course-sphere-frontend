@@ -15,7 +15,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { Video, Clock, Link as LinkIcon, Loader2 } from 'lucide-react';
+import {
+    Video,
+    Clock,
+    Link as LinkIcon,
+    Loader2,
+    UploadCloud,
+    CheckCircle,
+} from 'lucide-react';
 import { MinimalTiptapEditor } from '@/components/ui/minimal-tiptap';
 
 import {
@@ -23,6 +30,8 @@ import {
     type VideoMaterialFormValues,
     type DraftLessonItem,
 } from '@/lib/service/lesson';
+
+import { useGetPresignedUrl, uploadFileToS3 } from '@/lib/service/storage';
 
 interface VideoEditorProps {
     initialData: DraftLessonItem | null;
@@ -36,6 +45,10 @@ export function VideoEditor({
     onCancel,
 }: VideoEditorProps) {
     const [isFetchingDuration, setIsFetchingDuration] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadSuccess, setUploadSuccess] = useState(false);
+
+    const { mutateAsync: getPresignedUrl } = useGetPresignedUrl();
 
     const form = useForm<VideoMaterialFormValues>({
         resolver: zodResolver(videoMaterialSchema),
@@ -67,37 +80,101 @@ export function VideoEditor({
 
     useEffect(() => {
         if (!videoUrl) return;
-
         const isYoutube =
             /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/.test(
                 videoUrl,
             );
-
         if (isYoutube && !initialData) {
             let isMounted = true;
-
             const fetchDuration = async () => {
                 if (isMounted) setIsFetchingDuration(true);
-
                 await new Promise((resolve) => setTimeout(resolve, 1000));
-
                 if (isMounted) {
                     form.setValue('duration', 15, { shouldValidate: true });
                     setIsFetchingDuration(false);
                 }
             };
-
             fetchDuration();
-
             return () => {
                 isMounted = false;
             };
         }
     }, [videoUrl, form, initialData]);
 
+    const handleVideoUpload = async (
+        event: React.ChangeEvent<HTMLInputElement>,
+    ) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('video/')) {
+            return;
+        }
+
+        setIsUploading(true);
+        setUploadSuccess(false);
+
+        try {
+            const presignedData = await getPresignedUrl({
+                contentType: file.type,
+                fileName: file.name.replace(/[^a-zA-Z0-9.]/g, '_'),
+            });
+            const finalUrl = await uploadFileToS3(file, presignedData);
+            form.setValue('video_url', finalUrl, { shouldValidate: true });
+            form.setValue('duration', 5, { shouldValidate: true });
+            if (!form.getValues('title')) {
+                form.setValue('title', file.name.split('.')[0], {
+                    shouldValidate: true,
+                });
+            }
+            setUploadSuccess(true);
+            setTimeout(() => setUploadSuccess(false), 3000);
+        } catch (error) {
+            console.error('Upload failed', error);
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSave)} className="space-y-6">
+                {/* 🎬 KHU VỰC UPLOAD VIDEO TƯƠNG TỰ FILE EDITOR */}
+                <div className="border-border relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed bg-blue-500/5 p-6 transition-colors hover:bg-blue-500/10">
+                    <input
+                        type="file"
+                        accept="video/*"
+                        className="absolute inset-0 h-full w-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
+                        onChange={handleVideoUpload}
+                        disabled={isUploading}
+                    />
+                    {isUploading ? (
+                        <div className="flex flex-col items-center text-blue-500">
+                            <Loader2 className="mb-2 h-8 w-8 animate-spin" />
+                            <p className="text-sm font-medium">
+                                Uploading Video to Cloud...
+                            </p>
+                        </div>
+                    ) : uploadSuccess ? (
+                        <div className="flex flex-col items-center text-green-500">
+                            <CheckCircle className="mb-2 h-8 w-8" />
+                            <p className="text-sm font-medium">
+                                Video Uploaded!
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="text-muted-foreground pointer-events-none flex flex-col items-center">
+                            <UploadCloud className="mb-2 h-8 w-8 text-blue-500/70" />
+                            <p className="text-foreground text-sm font-medium">
+                                Click or drag video to upload
+                            </p>
+                            <p className="mt-1 text-xs">
+                                Supports MP4, WebM...
+                            </p>
+                        </div>
+                    )}
+                </div>
+
                 <div className="bg-muted/30 border-border space-y-4 rounded-xl border p-4">
                     <FormField
                         control={form.control}
@@ -158,7 +235,6 @@ export function VideoEditor({
                     <div className="flex items-center gap-2 text-sm font-medium text-blue-500">
                         <Video className="h-4 w-4" /> Video Settings
                     </div>
-
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                         <FormField
                             control={form.control}
@@ -171,18 +247,18 @@ export function VideoEditor({
                                     </FormLabel>
                                     <FormControl>
                                         <Input
-                                            placeholder="https://youtube.com/watch?v=..."
+                                            placeholder="https://youtube.com/watch?v=... or S3 Link"
                                             {...field}
                                         />
                                     </FormControl>
                                     <FormDescription>
-                                        YouTube, Vimeo, or direct link.
+                                        YouTube, Vimeo, or auto-filled from
+                                        upload.
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-
                         <FormField
                             control={form.control}
                             name="duration"

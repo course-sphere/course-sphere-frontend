@@ -135,9 +135,11 @@ export default function CurriculumManagerPage() {
         const lesson = store.lessons.find((l) => l.id === lessonId);
         if (!lesson) return;
 
+        const defaultTitle = `New ${type}`;
+
         try {
-            const res = await createMatMutation.mutateAsync({
-                title: `New ${type}`,
+            const materialIdString = await createMatMutation.mutateAsync({
+                title: defaultTitle,
                 kind: mapTypeToKind(type),
                 lesson: lesson.title || 'Untitled Section',
                 is_required: false,
@@ -152,11 +154,11 @@ export default function CurriculumManagerPage() {
                         items: [
                             ...l.items,
                             {
-                                id: res.id,
-                                title: res.title,
+                                id: materialIdString,
+                                title: defaultTitle,
                                 item_type: type,
-                                sort_order: res.position || l.items.length + 1,
-                                is_required: res.is_required || false,
+                                sort_order: l.items.length + 1,
+                                is_required: false,
                                 is_preview: false,
                             },
                         ],
@@ -164,12 +166,14 @@ export default function CurriculumManagerPage() {
                 }
                 return l;
             });
+
             store.setLessons(newLessons);
-            store.setActiveItem(lessonId, res.id);
+            store.setActiveItem(lessonId, materialIdString);
         } catch (error) {
-            console.error('Failed to create material', error);
+            console.error('Failed to create', error);
         }
     };
+
     const handleUpdateMaterialTitle = async (
         lessonId: string,
         materialId: string,
@@ -193,10 +197,10 @@ export default function CurriculumManagerPage() {
     const handleSaveContent = async (formData: any) => {
         if (!store.activeLessonId || !store.activeMaterialId || !activeMaterial)
             return;
-
-        store.updateMaterialData(store.activeLessonId, store.activeMaterialId, {
-            [`${activeMaterial.item_type}_data`]: formData,
-        });
+        const currentLesson = store.lessons.find(
+            (l) => l.id === store.activeLessonId,
+        );
+        const lessonName = currentLesson?.title || 'Untitled Section';
 
         let contentString = '';
 
@@ -210,15 +214,33 @@ export default function CurriculumManagerPage() {
             contentString = `${videoUrl}-${videoDesc}`;
         }
 
-        await updateMatMutation.mutateAsync({
-            materialId: store.activeMaterialId,
-            payload: {
-                content: contentString,
-                title: formData.title || activeMaterial.title,
-            },
+        store.updateMaterialData(store.activeLessonId, store.activeMaterialId, {
+            [`${activeMaterial.item_type}_data`]: formData,
         });
+        if (formData.title && formData.title !== activeMaterial.title) {
+            store.updateMaterialTitle(
+                store.activeLessonId,
+                store.activeMaterialId,
+                formData.title,
+            );
+        }
+        try {
+            await updateMatMutation.mutateAsync({
+                materialId: store.activeMaterialId,
+                payload: {
+                    title: formData.title || activeMaterial.title,
+                    lesson: lessonName,
+                    content: contentString,
+                    is_required:
+                        formData.is_required ?? activeMaterial.is_required,
+                    required_peers: 0,
+                    required_score: 0,
+                },
+            });
+        } catch (error) {
+            console.error('Failed to save content', error);
+        }
     };
-
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
         useSensor(KeyboardSensor, {
