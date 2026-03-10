@@ -33,7 +33,8 @@ export default function CreateCoursePage() {
 
     const { trigger, handleSubmit } = methods;
 
-    const handleNext = async () => {
+    const handleNext = async (e: React.MouseEvent) => {
+        e.preventDefault();
         const isStep1Valid = await trigger([
             'title',
             'description',
@@ -84,7 +85,7 @@ export default function CreateCoursePage() {
 
                     <Form {...methods}>
                         <form
-                            onSubmit={handleSubmit(onSubmit)}
+                            onSubmit={(e) => e.preventDefault()}
                             className="space-y-6"
                             onKeyDown={(e) => {
                                 if (
@@ -128,7 +129,8 @@ export default function CreateCoursePage() {
                                         </Button>
                                     ) : (
                                         <Button
-                                            type="submit"
+                                            type="button"
+                                            onClick={handleSubmit(onSubmit)}
                                             disabled={mutation.isPending}
                                             className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl shadow-lg"
                                         >

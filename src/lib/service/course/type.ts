@@ -189,7 +189,7 @@ export const courseInitSchema = z
         price: z.number().min(0, 'Price cannot be negative'),
     })
     .superRefine((data, ctx) => {
-        if (!data.is_free && data.price < 1.99) {
+        if (data.price > 0 && data.price < 1.99) {
             ctx.addIssue({
                 code: 'custom',
                 message: 'Minimum price for a paid course is $1.99',
