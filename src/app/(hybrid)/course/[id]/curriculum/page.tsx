@@ -56,7 +56,6 @@ import {
     type DraftLessonItem,
     type LessonItemType,
 } from '@/lib/service/lesson';
-import { MaterialKind } from '@/lib/service/curriculum/type';
 
 import { useCurriculumStore } from '@/lib/stores/use-curriculum-store';
 import {
@@ -65,6 +64,7 @@ import {
     useUpdateMaterial,
     useDeleteMaterial,
     useMoveMaterial,
+    mapTypeToKind,
 } from '@/lib/service/curriculum/api';
 
 const MATERIAL_CONFIG: Record<
@@ -132,19 +132,44 @@ export default function CurriculumManagerPage() {
         lessonId: string,
         type: LessonItemType,
     ) => {
-        const tempItem = store.addMaterial(lessonId, type);
-        if (!tempItem) return;
+        const lesson = store.lessons.find((l) => l.id === lessonId);
+        if (!lesson) return;
 
-        const res = await createMatMutation.mutateAsync({
-            title: tempItem.title,
-            kind: type as MaterialKind,
-            lesson: lessonId,
-            is_required: true,
-        });
+        try {
+            const res = await createMatMutation.mutateAsync({
+                title: `New ${type}`,
+                kind: mapTypeToKind(type),
+                lesson: lesson.title || 'Untitled Section',
+                is_required: false,
+                required_peers: 0,
+                required_score: 0,
+            });
 
-        store.setActiveItem(lessonId, res.id);
+            const newLessons = store.lessons.map((l) => {
+                if (l.id === lessonId) {
+                    return {
+                        ...l,
+                        items: [
+                            ...l.items,
+                            {
+                                id: res.id,
+                                title: res.title,
+                                item_type: type,
+                                sort_order: res.position || l.items.length + 1,
+                                is_required: res.is_required || false,
+                                is_preview: false,
+                            },
+                        ],
+                    };
+                }
+                return l;
+            });
+            store.setLessons(newLessons);
+            store.setActiveItem(lessonId, res.id);
+        } catch (error) {
+            console.error('Failed to create material', error);
+        }
     };
-
     const handleUpdateMaterialTitle = async (
         lessonId: string,
         materialId: string,
@@ -165,7 +190,7 @@ export default function CurriculumManagerPage() {
         await deleteMatMutation.mutateAsync(materialId);
     };
 
-    const handleSaveContent = async (formData: Record<string, unknown>) => {
+    const handleSaveContent = async (formData: any) => {
         if (!store.activeLessonId || !store.activeMaterialId || !activeMaterial)
             return;
 
@@ -173,12 +198,23 @@ export default function CurriculumManagerPage() {
             [`${activeMaterial.item_type}_data`]: formData,
         });
 
+        let contentString = '';
+
+        if (activeMaterial.item_type === 'reading') {
+            contentString = formData.content || '';
+        } else if (activeMaterial.item_type === 'file') {
+            contentString = formData.file_url || '';
+        } else if (activeMaterial.item_type === 'video') {
+            const videoUrl = formData.video_url || '';
+            const videoDesc = formData.description || '';
+            contentString = `${videoUrl}-${videoDesc}`;
+        }
+
         await updateMatMutation.mutateAsync({
             materialId: store.activeMaterialId,
             payload: {
-                content: formData.content
-                    ? String(formData.content)
-                    : JSON.stringify(formData),
+                content: contentString,
+                title: formData.title || activeMaterial.title,
             },
         });
     };

@@ -43,7 +43,7 @@ export const useCurriculumStore = create<CurriculumState>((set, get) => ({
 
     addLesson: () => {
         const newLesson: DraftLesson = {
-            id: generateId('lesson'),
+            id: crypto.randomUUID(),
             title: 'New Section',
             sort_order: get().lessons.length + 1,
             items: [],
