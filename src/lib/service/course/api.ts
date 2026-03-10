@@ -67,19 +67,17 @@ const mapToCreatePayload = (data: CourseInitFormData): CreateCoursePayload => ({
 
 export const useCreateCourse = () => {
     const router = useRouter();
-
     const mutation = useMutation<string, ApiError | Error, CourseInitFormData>({
         mutationFn: async (values) => {
-            // const payload = mapToCreatePayload(values);
-            // const response = await apiClient.post<CreateCoursePayload, string>(
-            //     '/course',
-            //     payload,
-            // );
+            const payload = mapToCreatePayload(values);
 
-            //return response;
-            console.log(values);
-            await new Promise((res) => setTimeout(res, 1000));
-            return MOCK_ID;
+            const response = await apiClient.post<
+                string,
+                string,
+                CreateCoursePayload
+            >('/course/', payload);
+
+            return response;
         },
         onSuccess: (courseId) => {
             toast.success('Course created successfully!');
@@ -91,7 +89,6 @@ export const useCreateCourse = () => {
             );
         },
     });
-
     return { mutation };
 };
 

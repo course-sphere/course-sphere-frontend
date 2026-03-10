@@ -21,13 +21,14 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-
+import { COURSE_LEVELS } from '@/components/course-builder/constant';
 import { useGetCourseDetail, useUpdateCourse } from '@/lib/service/course';
 import { InlineTextEdit } from '@/components/course-builder/inline-edit/inline-text-edit';
 import { InlineRichTextEdit } from '@/components/course-builder/inline-edit/inline-richtext-edit';
 import { InlineArrayEdit } from '@/components/course-builder/inline-edit/inline-array-edit';
 import { InlineMediaEdit } from '@/components/course-builder/inline-edit/inline-media-edit';
 import { EmptyState } from '@/components/ui/empty-state';
+import { InlineSelectEdit } from '@/components/course-builder/inline-edit/inline-select-edit';
 
 export default function CourseOverviewPage({
     params,
@@ -134,9 +135,17 @@ export default function CourseOverviewPage({
                                 <Users className="h-4 w-4" />{' '}
                                 {course.enrolled_students || 0} students
                             </div>
-                            <div className="flex items-center gap-2">
-                                <Globe className="h-4 w-4" /> {course.level}
-                            </div>
+                            <div className="flex items-center gap-1">
+                                <Globe className="h-4 w-4" />
+                                <InlineSelectEdit
+                                    value={course.level}
+                                    options={COURSE_LEVELS}
+                                    onSave={(val) =>
+                                        handleUpdateField('level', val)
+                                    }
+                                    textClassName="capitalize text-slate-300 group-hover:text-white"
+                                />
+                            </div>{' '}
                         </div>
                     </div>
                 </div>
