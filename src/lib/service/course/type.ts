@@ -191,7 +191,6 @@ export const courseInitSchema = z
         price: z.number().min(0, 'Price cannot be negative'),
     })
     .superRefine((data, ctx) => {
-        // Validation 1.99 đô cho dân chơi test payment
         if (!data.is_free && data.price < 1.99) {
             ctx.addIssue({
                 code: 'custom',
