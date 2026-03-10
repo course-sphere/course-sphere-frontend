@@ -23,7 +23,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { COURSE_LEVELS } from '@/components/course-builder/constant';
-import { useGetCourseDetail, useUpdateCourse } from '@/lib/service/course';
+import {
+    UpdateCoursePayload,
+    useGetCourseDetail,
+    useUpdateCourse,
+} from '@/lib/service/course';
 import { InlineTextEdit } from '@/components/course-builder/inline-edit/inline-text-edit';
 import { InlineRichTextEdit } from '@/components/course-builder/inline-edit/inline-richtext-edit';
 import { InlineArrayEdit } from '@/components/course-builder/inline-edit/inline-array-edit';
@@ -42,8 +46,23 @@ export default function CourseOverviewPage({
     const { data: course, isLoading } = useGetCourseDetail(id);
     const { mutateAsync: updateCourse } = useUpdateCourse(id);
 
-    const handleUpdateField = async (field: string, newValue: unknown) => {
-        await updateCourse({ [field]: newValue });
+    const handleUpdateField = async (
+        field: keyof UpdateCoursePayload,
+        newValue: unknown,
+    ) => {
+        try {
+            const cleanValue = Array.isArray(newValue)
+                ? newValue.filter((val) =>
+                      typeof val === 'string'
+                          ? val.trim() !== ''
+                          : Boolean(val),
+                  )
+                : newValue;
+
+            await updateCourse({ [field]: cleanValue });
+        } catch (error) {
+            console.error(`Failed to update ${field}:`, error);
+        }
     };
 
     if (isLoading) {
@@ -74,17 +93,18 @@ export default function CourseOverviewPage({
             </div>
         );
     }
+
     return (
         <div className="bg-background min-h-screen pb-20">
             <div className="mx-auto max-w-6xl px-4 pt-8 sm:px-6 lg:px-8">
-                <div className="group relative overflow-hidden rounded-3xl bg-slate-950 px-6 py-12 text-slate-50 shadow-2xl md:px-12 md:py-20">
+                <div className="group relative flex min-h-90 items-center overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 px-6 py-12 text-slate-900 shadow-sm md:px-12 md:py-20">
                     <div
-                        className={`absolute inset-0 z-0 transition-all duration-300 ${!course.thumbnail_url ? 'm-4 rounded-2xl border-2 border-dashed border-slate-600/50 bg-slate-900/50 hover:border-slate-500 hover:bg-slate-800/80 sm:m-6' : ''}`}
+                        className={`absolute inset-0 z-0 transition-all duration-300 ${!course.thumbnail_url ? 'm-4 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-100/50 hover:bg-slate-200/50 sm:m-6' : ''}`}
                     >
                         <InlineMediaEdit
                             url={course.thumbnail_url || ''}
                             type="image"
-                            className={`absolute inset-0 z-20 h-full w-full cursor-pointer rounded-none border-0 ${course.thumbnail_url ? 'opacity-40 hover:opacity-60' : 'opacity-0'}`}
+                            className={`absolute inset-0 z-20 h-full w-full cursor-pointer rounded-none border-0 ${course.thumbnail_url ? 'opacity-30 hover:opacity-50' : 'opacity-0'}`}
                             onUploadAndSave={async (file) => {
                                 const tempUrl = URL.createObjectURL(file);
                                 await handleUpdateField(
@@ -98,10 +118,10 @@ export default function CourseOverviewPage({
                         {!course.thumbnail_url && (
                             <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-end justify-center pr-12 lg:pr-24">
                                 <div className="flex animate-pulse flex-col items-center text-center">
-                                    <div className="mb-4 rounded-full bg-slate-800 p-4 shadow-lg ring-1 ring-slate-700">
-                                        <UploadCloud className="h-8 w-8 text-slate-300" />
+                                    <div className="mb-4 rounded-full bg-white p-4 shadow-sm ring-1 ring-slate-200">
+                                        <UploadCloud className="h-8 w-8 text-slate-400" />
                                     </div>
-                                    <span className="text-xl font-bold tracking-tight text-slate-200">
+                                    <span className="text-xl font-bold tracking-tight text-slate-700">
                                         Upload Cover Image
                                     </span>
                                     <span className="mt-2 text-sm font-medium text-slate-500">
@@ -111,42 +131,56 @@ export default function CourseOverviewPage({
                             </div>
                         )}
 
-                        <div className="pointer-events-none absolute inset-0 z-0 bg-linear-to-r from-slate-950 via-slate-900/90 to-transparent" />
+                        <div className="pointer-events-none absolute inset-0 z-0 bg-linear-to-r from-slate-50/90 via-slate-50/70 to-transparent" />
                     </div>
-                    <div className="relative z-10 w-full space-y-6 lg:w-2/3">
-                        <div className="flex flex-wrap items-center gap-2">
-                            {course.category?.map((cat: any) => (
-                                <Badge
-                                    key={cat.id || cat}
-                                    variant="secondary"
-                                    className="bg-slate-800/80 text-slate-200"
-                                >
-                                    {cat.text || cat}
-                                </Badge>
-                            ))}
+
+                    <div className="relative z-30 w-full space-y-6 lg:w-2/3">
+                        <div className="flex items-center gap-2">
+                            <InlineArrayEdit
+                                items={
+                                    course.category?.map(
+                                        (cat: { text?: string } | string) =>
+                                            typeof cat === 'object'
+                                                ? cat.text
+                                                : cat,
+                                    ) || []
+                                }
+                                emptyMessage="Add topics to classify your course"
+                                onSave={(items) =>
+                                    handleUpdateField('categories', items)
+                                }
+                                renderItem={(item) => (
+                                    <Badge
+                                        variant="secondary"
+                                        className="bg-slate-200 text-slate-700 hover:bg-slate-300"
+                                    >
+                                        {item}
+                                    </Badge>
+                                )}
+                            />
                         </div>
 
                         <InlineTextEdit
                             value={course.title}
                             onSave={(val) => handleUpdateField('title', val)}
-                            textClassName="text-4xl font-extrabold tracking-tight md:text-5xl lg:leading-tight text-white"
+                            textClassName="text-4xl font-extrabold tracking-tight md:text-5xl lg:leading-tight text-slate-900"
                         />
 
                         <InlineTextEdit
                             value={course.subtitle || ''}
                             onSave={(val) => handleUpdateField('subtitle', val)}
-                            textClassName="max-w-2xl text-lg text-slate-300"
+                            textClassName="max-w-2xl text-lg text-slate-600"
                             type="textarea"
                             placeholder="Add a catchy subtitle..."
                         />
 
-                        <div className="flex items-center gap-6 pt-2 text-sm text-slate-300">
-                            <div className="flex items-center gap-1 text-yellow-400">
+                        <div className="flex items-center gap-6 pt-2 text-sm text-slate-600">
+                            <div className="flex items-center gap-1 text-amber-500">
                                 <Star className="h-4 w-4 fill-current" />
-                                <span className="font-bold text-white">
+                                <span className="font-bold text-slate-900">
                                     {course.rating || '0.0'}
                                 </span>
-                                <span className="text-slate-400">
+                                <span className="text-slate-500">
                                     ({course.rating_count || 0} ratings)
                                 </span>
                             </div>
@@ -162,9 +196,9 @@ export default function CourseOverviewPage({
                                     onSave={(val) =>
                                         handleUpdateField('level', val)
                                     }
-                                    textClassName="capitalize text-slate-300 group-hover:text-white"
+                                    textClassName="capitalize text-slate-600 group-hover:text-slate-900"
                                 />
-                            </div>{' '}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -175,7 +209,7 @@ export default function CourseOverviewPage({
                     <div className="order-2 w-full space-y-12 lg:order-1 lg:w-2/3">
                         <div className="border-border bg-card rounded-2xl border p-8 shadow-sm">
                             <h2 className="mb-6 text-2xl font-bold">
-                                What you'll learn
+                                What you will learn
                             </h2>
                             <InlineArrayEdit
                                 items={course.learning_objectives}
@@ -196,7 +230,7 @@ export default function CourseOverviewPage({
                             />
                         </div>
 
-                        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+                        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-2">
                             <div>
                                 <h2 className="mb-4 text-2xl font-bold">
                                     Requirements
@@ -235,6 +269,42 @@ export default function CourseOverviewPage({
                                         <div className="flex items-center gap-3 py-1.5">
                                             <Crosshair className="text-primary h-4 w-4 shrink-0" />
                                             <span className="text-foreground/80 text-sm">
+                                                {item}
+                                            </span>
+                                        </div>
+                                    )}
+                                />
+                            </div>
+
+                            {/* 📦 PREREQUISITES: Mục mới thêm */}
+                            <div className="md:col-span-2">
+                                <h2 className="mt-4 mb-4 text-2xl font-bold">
+                                    Prerequisites
+                                </h2>
+                                <InlineArrayEdit
+                                    items={
+                                        course.prerequisites?.map(
+                                            (
+                                                pre:
+                                                    | { course_title?: string }
+                                                    | string,
+                                            ) =>
+                                                typeof pre === 'object'
+                                                    ? pre.course_title
+                                                    : pre,
+                                        ) || []
+                                    }
+                                    emptyMessage="No prerequisite courses."
+                                    onSave={(items) => {
+                                        console.log(
+                                            'Mảng text Prerequisites nè sếp (Đợi mai mốt ráp UI Search nha):',
+                                            items,
+                                        );
+                                    }}
+                                    renderItem={(item) => (
+                                        <div className="flex items-center gap-3 py-1.5">
+                                            <BookOpen className="h-4 w-4 shrink-0 text-amber-500" />
+                                            <span className="text-foreground/80 text-sm font-medium">
                                                 {item}
                                             </span>
                                         </div>
