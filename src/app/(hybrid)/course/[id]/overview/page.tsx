@@ -17,6 +17,7 @@ import {
     Video,
     Files,
     FileQuestion,
+    UploadCloud,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -41,7 +42,7 @@ export default function CourseOverviewPage({
     const { data: course, isLoading } = useGetCourseDetail(id);
     const { mutateAsync: updateCourse } = useUpdateCourse(id);
 
-    const handleUpdateField = async (field: string, newValue: any) => {
+    const handleUpdateField = async (field: string, newValue: unknown) => {
         await updateCourse({ [field]: newValue });
     };
 
@@ -77,11 +78,13 @@ export default function CourseOverviewPage({
         <div className="bg-background min-h-screen pb-20">
             <div className="mx-auto max-w-6xl px-4 pt-8 sm:px-6 lg:px-8">
                 <div className="group relative overflow-hidden rounded-3xl bg-slate-950 px-6 py-12 text-slate-50 shadow-2xl md:px-12 md:py-20">
-                    <div className="absolute inset-0 z-0">
+                    <div
+                        className={`absolute inset-0 z-0 transition-all duration-300 ${!course.thumbnail_url ? 'm-4 rounded-2xl border-2 border-dashed border-slate-600/50 bg-slate-900/50 hover:border-slate-500 hover:bg-slate-800/80 sm:m-6' : ''}`}
+                    >
                         <InlineMediaEdit
                             url={course.thumbnail_url || ''}
                             type="image"
-                            className="h-full w-full rounded-none border-0 opacity-40 hover:opacity-60"
+                            className={`absolute inset-0 z-20 h-full w-full cursor-pointer rounded-none border-0 ${course.thumbnail_url ? 'opacity-40 hover:opacity-60' : 'opacity-0'}`}
                             onUploadAndSave={async (file) => {
                                 const tempUrl = URL.createObjectURL(file);
                                 await handleUpdateField(
@@ -91,9 +94,25 @@ export default function CourseOverviewPage({
                                 return tempUrl;
                             }}
                         />
-                        <div className="pointer-events-none absolute inset-0 bg-linear-to-r from-slate-950 via-slate-900/80 to-transparent" />
-                    </div>
 
+                        {!course.thumbnail_url && (
+                            <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-end justify-center pr-12 lg:pr-24">
+                                <div className="flex animate-pulse flex-col items-center text-center">
+                                    <div className="mb-4 rounded-full bg-slate-800 p-4 shadow-lg ring-1 ring-slate-700">
+                                        <UploadCloud className="h-8 w-8 text-slate-300" />
+                                    </div>
+                                    <span className="text-xl font-bold tracking-tight text-slate-200">
+                                        Upload Cover Image
+                                    </span>
+                                    <span className="mt-2 text-sm font-medium text-slate-500">
+                                        1920x1080 recommended
+                                    </span>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="pointer-events-none absolute inset-0 z-0 bg-linear-to-r from-slate-950 via-slate-900/90 to-transparent" />
+                    </div>
                     <div className="relative z-10 w-full space-y-6 lg:w-2/3">
                         <div className="flex flex-wrap items-center gap-2">
                             {course.category?.map((cat: any) => (
