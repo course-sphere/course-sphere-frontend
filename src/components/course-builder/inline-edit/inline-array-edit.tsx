@@ -27,10 +27,13 @@ export function InlineArrayEdit({
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
-        if (JSON.stringify(items) !== JSON.stringify(currentItems)) {
+        if (
+            !isEditing &&
+            JSON.stringify(items) !== JSON.stringify(currentItems)
+        ) {
             setCurrentItems([...(items || [])]);
         }
-    }, [items]);
+    }, [items, isEditing]);
 
     const handleSave = async () => {
         const cleanItems = currentItems.filter((i) => i.trim() !== '');
