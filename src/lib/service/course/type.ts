@@ -276,7 +276,7 @@ export interface CourseDetailResponse {
     title: string;
     subtitle: string;
     description: string;
-    category: CourseCategory[];
+    categories: CourseCategory[];
     level: CourseLevel;
     thumbnail_url: string;
     promo_video_url: string | null;

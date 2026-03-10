@@ -18,6 +18,7 @@ import {
     Files,
     FileQuestion,
     UploadCloud,
+    X,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -27,6 +28,7 @@ import {
     UpdateCoursePayload,
     useGetCourseDetail,
     useUpdateCourse,
+    useGetAllCourses,
 } from '@/lib/service/course';
 import { InlineTextEdit } from '@/components/course-builder/inline-edit/inline-text-edit';
 import { InlineRichTextEdit } from '@/components/course-builder/inline-edit/inline-richtext-edit';
@@ -34,6 +36,7 @@ import { InlineArrayEdit } from '@/components/course-builder/inline-edit/inline-
 import { InlineMediaEdit } from '@/components/course-builder/inline-edit/inline-media-edit';
 import { EmptyState } from '@/components/ui/empty-state';
 import { InlineSelectEdit } from '@/components/course-builder/inline-edit/inline-select-edit';
+import { CoursePrerequisiteSelect } from '@/components/course-prerequisite-select';
 
 export default function CourseOverviewPage({
     params,
@@ -45,6 +48,8 @@ export default function CourseOverviewPage({
 
     const { data: course, isLoading } = useGetCourseDetail(id);
     const { mutateAsync: updateCourse } = useUpdateCourse(id);
+
+    const { data: allCourses } = useGetAllCourses();
 
     const handleUpdateField = async (
         field: keyof UpdateCoursePayload,
@@ -63,6 +68,30 @@ export default function CourseOverviewPage({
         } catch (error) {
             console.error(`Failed to update ${field}:`, error);
         }
+    };
+
+    const handleAddPrerequisite = async (courseId: string) => {
+        if (!courseId) return;
+
+        const current = course?.prerequisites || [];
+        const currentIds = current.map((p: { course_id: string } | string) =>
+            typeof p === 'object' ? p.course_id : p,
+        );
+
+        if (!currentIds.includes(courseId)) {
+            const newIds = [...currentIds, courseId];
+            await handleUpdateField('prerequisites', newIds as string[]);
+        }
+    };
+
+    const handleRemovePrerequisite = async (courseId: string) => {
+        if (!course?.prerequisites) return;
+        const currentIds = course.prerequisites.map(
+            (p: { course_id: string } | string) =>
+                typeof p === 'object' ? p.course_id : p,
+        );
+        const newIds = currentIds.filter((id: string) => id !== courseId);
+        await handleUpdateField('prerequisites', newIds as string[]);
     };
 
     if (isLoading) {
@@ -99,7 +128,7 @@ export default function CourseOverviewPage({
             <div className="mx-auto max-w-6xl px-4 pt-8 sm:px-6 lg:px-8">
                 <div className="group relative flex min-h-90 items-center overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 px-6 py-12 text-slate-900 shadow-sm md:px-12 md:py-20">
                     <div
-                        className={`absolute inset-0 z-0 transition-all duration-300 ${!course.thumbnail_url ? 'm-4 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-100/50 hover:bg-slate-200/50 sm:m-6' : ''}`}
+                        className={`absolute inset-0 z-0 transition-all duration-300 ${!course.thumbnail_url ? 'm-4 rounded-2xl border-4 border-dashed border-slate-300 bg-slate-100/50 hover:bg-slate-200/50 sm:m-6' : ''}`}
                     >
                         <InlineMediaEdit
                             url={course.thumbnail_url || ''}
@@ -135,40 +164,54 @@ export default function CourseOverviewPage({
                     </div>
 
                     <div className="relative z-30 w-full space-y-6 lg:w-2/3">
-                        <div className="flex items-center gap-2">
-                            <InlineArrayEdit
-                                items={
-                                    course.category?.map(
-                                        (cat: { text?: string } | string) =>
-                                            typeof cat === 'object'
-                                                ? cat.text
-                                                : cat,
-                                    ) || []
-                                }
-                                emptyMessage="Add topics to classify your course"
-                                onSave={(items) =>
-                                    handleUpdateField('categories', items)
-                                }
-                                renderItem={(item) => (
-                                    <Badge
-                                        variant="secondary"
-                                        className="bg-slate-200 text-slate-700 hover:bg-slate-300"
-                                    >
-                                        {item}
-                                    </Badge>
-                                )}
-                            />
+                        <div className="flex w-full items-center">
+                            <div className="w-full pr-8">
+                                <InlineArrayEdit
+                                    items={
+                                        (course.categories || [])
+                                            .map(
+                                                (
+                                                    cat:
+                                                        | { text?: string }
+                                                        | string,
+                                                ) =>
+                                                    typeof cat === 'object'
+                                                        ? cat.text
+                                                        : cat,
+                                            )
+                                            .filter(Boolean) as string[]
+                                    }
+                                    emptyMessage="Add topics"
+                                    onSave={async (items) =>
+                                        await handleUpdateField(
+                                            'categories',
+                                            items,
+                                        )
+                                    }
+                                    renderItem={(item) => (
+                                        <Badge
+                                            variant="secondary"
+                                            className="mt-1 mr-2 bg-slate-200 text-slate-700 hover:bg-slate-300"
+                                        >
+                                            {item}
+                                        </Badge>
+                                    )}
+                                />
+                            </div>
                         </div>
-
                         <InlineTextEdit
                             value={course.title}
-                            onSave={(val) => handleUpdateField('title', val)}
+                            onSave={async (val) =>
+                                await handleUpdateField('title', val)
+                            }
                             textClassName="text-4xl font-extrabold tracking-tight md:text-5xl lg:leading-tight text-slate-900"
                         />
 
                         <InlineTextEdit
                             value={course.subtitle || ''}
-                            onSave={(val) => handleUpdateField('subtitle', val)}
+                            onSave={async (val) =>
+                                await handleUpdateField('subtitle', val)
+                            }
                             textClassName="max-w-2xl text-lg text-slate-600"
                             type="textarea"
                             placeholder="Add a catchy subtitle..."
@@ -193,8 +236,8 @@ export default function CourseOverviewPage({
                                 <InlineSelectEdit
                                     value={course.level}
                                     options={COURSE_LEVELS}
-                                    onSave={(val) =>
-                                        handleUpdateField('level', val)
+                                    onSave={async (val) =>
+                                        await handleUpdateField('level', val)
                                     }
                                     textClassName="capitalize text-slate-600 group-hover:text-slate-900"
                                 />
@@ -213,8 +256,8 @@ export default function CourseOverviewPage({
                             </h2>
                             <InlineArrayEdit
                                 items={course.learning_objectives}
-                                onSave={(items) =>
-                                    handleUpdateField(
+                                onSave={async (items) =>
+                                    await handleUpdateField(
                                         'learning_objectives',
                                         items,
                                     )
@@ -238,8 +281,11 @@ export default function CourseOverviewPage({
                                 <InlineArrayEdit
                                     items={course.requirements}
                                     emptyMessage="No requirements added."
-                                    onSave={(items) =>
-                                        handleUpdateField('requirements', items)
+                                    onSave={async (items) =>
+                                        await handleUpdateField(
+                                            'requirements',
+                                            items,
+                                        )
                                     }
                                     renderItem={(item) => (
                                         <div className="flex items-center gap-3 py-1.5">
@@ -251,16 +297,18 @@ export default function CourseOverviewPage({
                                     )}
                                 />
                             </div>
-
                             <div>
                                 <h2 className="mb-4 text-2xl font-bold">
                                     Who this course is for
                                 </h2>
                                 <InlineArrayEdit
-                                    items={course.target_audience}
+                                    items={
+                                        course.target_audience ||
+                                        course.target_audience
+                                    }
                                     emptyMessage="Add target audience."
-                                    onSave={(items) =>
-                                        handleUpdateField(
+                                    onSave={async (items) =>
+                                        await handleUpdateField(
                                             'target_audiences',
                                             items,
                                         )
@@ -275,42 +323,83 @@ export default function CourseOverviewPage({
                                     )}
                                 />
                             </div>
-
-                            {/* 📦 PREREQUISITES: Mục mới thêm */}
                             <div className="md:col-span-2">
                                 <h2 className="mt-4 mb-4 text-2xl font-bold">
                                     Prerequisites
                                 </h2>
-                                <InlineArrayEdit
-                                    items={
-                                        course.prerequisites?.map(
-                                            (
-                                                pre:
-                                                    | { course_title?: string }
-                                                    | string,
-                                            ) =>
-                                                typeof pre === 'object'
-                                                    ? pre.course_title
-                                                    : pre,
-                                        ) || []
-                                    }
-                                    emptyMessage="No prerequisite courses."
-                                    onSave={(items) => {
-                                        console.log(
-                                            'Mảng text Prerequisites nè sếp (Đợi mai mốt ráp UI Search nha):',
-                                            items,
-                                        );
-                                    }}
-                                    renderItem={(item) => (
-                                        <div className="flex items-center gap-3 py-1.5">
-                                            <BookOpen className="h-4 w-4 shrink-0 text-amber-500" />
-                                            <span className="text-foreground/80 text-sm font-medium">
-                                                {item}
-                                            </span>
+                                <div className="space-y-4">
+                                    {course.prerequisites &&
+                                    course.prerequisites.length > 0 ? (
+                                        <div className="space-y-2">
+                                            {course.prerequisites.map(
+                                                (
+                                                    req:
+                                                        | {
+                                                              course_id: string;
+                                                              course_title?: string;
+                                                          }
+                                                        | string,
+                                                ) => {
+                                                    const reqId =
+                                                        typeof req === 'object'
+                                                            ? req.course_id
+                                                            : req;
+
+                                                    const foundCourse =
+                                                        allCourses?.find(
+                                                            (c) =>
+                                                                c.id === reqId,
+                                                        );
+                                                    const displayTitle =
+                                                        foundCourse?.title ||
+                                                        (typeof req ===
+                                                            'object' &&
+                                                        'course_title' in req
+                                                            ? req.course_title
+                                                            : reqId);
+
+                                                    return (
+                                                        <div
+                                                            key={reqId}
+                                                            className="border-border bg-muted/30 flex items-center gap-3 rounded-xl border p-3"
+                                                        >
+                                                            <BookOpen className="h-4 w-4 shrink-0 text-amber-500" />
+                                                            <span className="text-foreground/80 flex-1 text-sm font-medium">
+                                                                {displayTitle}
+                                                            </span>
+                                                            <Button
+                                                                type="button"
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="text-muted-foreground hover:text-destructive h-8 w-8"
+                                                                onClick={() =>
+                                                                    handleRemovePrerequisite(
+                                                                        reqId,
+                                                                    )
+                                                                }
+                                                            >
+                                                                <X className="h-4 w-4" />
+                                                            </Button>
+                                                        </div>
+                                                    );
+                                                },
+                                            )}
                                         </div>
+                                    ) : (
+                                        <p className="text-muted-foreground mb-2 text-sm italic">
+                                            No prerequisite courses.
+                                        </p>
                                     )}
-                                />
-                            </div>
+                                    <div className="max-w-md">
+                                        <CoursePrerequisiteSelect
+                                            value=""
+                                            onChange={(val) =>
+                                                handleAddPrerequisite(val)
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                            </div>{' '}
                         </div>
 
                         <div className="pt-4">
