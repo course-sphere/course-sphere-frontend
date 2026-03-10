@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,6 @@ import { Form } from '@/components/ui/form';
 import { ArrowLeft, ArrowRight, Loader2, Rocket } from 'lucide-react';
 import Link from 'next/link';
 
-import { PhaseIndicator } from '@/components/course-builder/phase-indicator';
 import {
     courseInitSchema,
     type CourseInitFormData,
@@ -20,10 +18,12 @@ import { RoleGuard } from '@/components/layout/role-gaurd';
 import { MetadataStep } from '@/components/course-builder/steps/basic-info-step';
 import { PricingStep } from '@/components/course-builder/steps/pricing-step';
 
+import { useCreateCourse } from '@/lib/service/course';
+
 export default function CreateCoursePage() {
-    const router = useRouter();
     const [currentStep, setCurrentStep] = useState(1);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const { mutation } = useCreateCourse();
 
     const methods = useForm<CourseInitFormData>({
         resolver: zodResolver(courseInitSchema),
@@ -54,38 +54,8 @@ export default function CreateCoursePage() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const processPayloadForBackend = (data: CourseInitFormData) => {
-        return {
-            title: data.title,
-            description: data.description,
-            level: data.level,
-            price: data.is_free ? 0 : data.price,
-            categories: data.categories.map((cat) => cat.text),
-            learning_objectives: data.learning_objectives
-                .map((obj) => obj.value)
-                .filter((val) => val.trim() !== ''),
-            prerequisites: data.prerequisites
-                ? data.prerequisites.map((pre) => pre.course_id)
-                : [],
-        };
-    };
-
-    const onSubmit = async (data: CourseInitFormData) => {
-        setIsSubmitting(true);
-        try {
-            const finalPayload = processPayloadForBackend(data);
-
-            console.log('Payload', JSON.stringify(finalPayload, null, 2));
-
-            await new Promise((resolve) => setTimeout(resolve, 1500));
-
-            const fakeCourseId = `course-${Date.now()}`;
-            router.push(`/dashboard/courses/${fakeCourseId}/overview`);
-        } catch (error) {
-            console.error('Failed to create course:', error);
-        } finally {
-            setIsSubmitting(false);
-        }
+    const onSubmit = (data: CourseInitFormData) => {
+        mutation.mutate(data);
     };
 
     return (
@@ -149,10 +119,10 @@ export default function CreateCoursePage() {
                                     ) : (
                                         <Button
                                             type="submit"
-                                            disabled={isSubmitting}
+                                            disabled={mutation.isPending}
                                             className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl shadow-lg"
                                         >
-                                            {isSubmitting ? (
+                                            {mutation.isPending ? (
                                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                             ) : (
                                                 <Rocket className="mr-2 h-4 w-4" />
