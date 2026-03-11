@@ -6,6 +6,7 @@ import { apiClient, ApiError } from '@/lib/api/axios-config';
 import {
     CourseDetailResponse,
     CourseInitFormData,
+    CourseMaterialItem,
     CourseResponse,
     CreateCoursePayload,
     UpdateCoursePayload,
@@ -108,5 +109,18 @@ export const useUpdateCourse = (courseId: string) => {
                 error.message || 'Failed to save changes. Please try again.',
             );
         },
+    });
+};
+
+export const useGetCourseMaterials = (courseId: string) => {
+    return useQuery<CourseMaterialItem[], ApiError | Error>({
+        queryKey: ['course-materials', courseId],
+        queryFn: async () => {
+            const res = await apiClient.get<any>(
+                `/course/${courseId}/material`,
+            );
+            return Array.isArray(res) ? res : res.data || [];
+        },
+        enabled: !!courseId,
     });
 };

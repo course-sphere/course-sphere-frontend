@@ -388,7 +388,7 @@ export interface UpdateCoursePayload {
     description?: string;
     level?: string;
     price?: number;
-    status?: string;
+    status?: CourseStatusNew;
     promo_video_url?: string;
     thumbnail_url?: string;
     categories?: string[];
@@ -397,3 +397,20 @@ export interface UpdateCoursePayload {
     requirements?: string[];
     target_audiences?: string[];
 }
+
+export interface CourseMaterialItem {
+    id: string;
+    title: string;
+    kind: string;
+    lesson: string;
+    position: number;
+    is_required: boolean;
+    content?: string;
+}
+
+export type CourseStatusNew =
+    | 'draft'
+    | 'need-review'
+    | 'ai-approved'
+    | 'approved'
+    | 'removed';

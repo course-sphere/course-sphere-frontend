@@ -20,6 +20,14 @@ const nextConfig: NextConfig = {
                 protocol: 'https',
                 hostname: 'course-sphere.hcm.ss.bfcplatform.vn',
             },
+            {
+                protocol: 'https',
+                hostname: 'placehold.co',
+            },
+            {
+                protocol: 'https',
+                hostname: 'fakeimg.pl',
+            },
         ],
     },
 };

@@ -7,10 +7,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Course } from '@/lib/service/course';
+
+import { CourseResponse } from '@/lib/service/course';
 
 interface CourseCardProps {
-    course?: Course;
+    course?: CourseResponse;
     isLoading?: boolean;
 }
 
@@ -46,13 +47,30 @@ export function CourseCard({ course, isLoading }: CourseCardProps) {
         );
     }
 
+    // 2. Map data an toàn: Tránh crash nếu backend trả về null/undefined
+    const imageUrl =
+        course.thumbnail_url || 'https://placehold.co/600x400?text=No+Image';
+    const category =
+        course.categories && course.categories.length > 0
+            ? course.categories[0]
+            : 'Uncategorized';
+    const instructorName =
+        course.instructor?.name ||
+        course.instructor?.displayUsername ||
+        'Unknown';
+
+    // Mấy field backend chưa trả về thì mock tạm là 0 cho đẹp form
+    const rating = 0;
+    const ratingCount = 0;
+    const students = 0;
+
     return (
         <Card className="flex h-full flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-            <div className="relative h-48 w-full">
+            <div className="bg-muted relative h-48 w-full">
                 <Image
                     className="object-cover"
-                    src={course.image}
-                    alt={course.title}
+                    src={imageUrl}
+                    alt={course.title || 'Course Image'}
                     fill
                     sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                 />
@@ -62,17 +80,20 @@ export function CourseCard({ course, isLoading }: CourseCardProps) {
                 <div>
                     <div className="mb-3 flex flex-wrap gap-2">
                         <Badge variant="outline" className="text-xs">
-                            {course.category}
+                            {category}
                         </Badge>
-                        <Badge variant="secondary" className="text-xs">
-                            {course.level}
+                        <Badge
+                            variant="secondary"
+                            className="text-xs capitalize"
+                        >
+                            {course.level || 'Beginner'}
                         </Badge>
                     </div>
                     <h3 className="text-foreground line-clamp-2 text-lg leading-snug font-semibold">
                         {course.title}
                     </h3>
                     <p className="text-muted-foreground mt-2 text-sm">
-                        by {course.instructor}
+                        by {instructorName}
                     </p>
                 </div>
 
@@ -81,30 +102,30 @@ export function CourseCard({ course, isLoading }: CourseCardProps) {
                         <div className="flex items-center gap-1">
                             <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
                             <span className="text-foreground text-sm font-medium">
-                                {course.rating}
+                                {rating}
                             </span>
                             <span className="text-muted-foreground text-sm">
-                                ({course.ratingCount})
+                                ({ratingCount})
                             </span>
                         </div>
                         <div className="text-muted-foreground flex items-center gap-1 text-sm">
                             <Users className="h-4 w-4" />
-                            {course.students.toLocaleString()}
+                            {/* Đã gán mạc định = 0 nên gọi toLocaleString() vô tư */}
+                            {students.toLocaleString()}
                         </div>
                     </div>
                 </div>
             </CardContent>
 
             <CardFooter className="border-border bg-muted/20 flex items-center justify-between border-t p-5">
-                {course.price === '$0' ||
-                course.price === '0' ||
-                Number(course.price.replace('$', '')) === 0 ? (
+                {/* Price giờ là dạng number nên check rất gọn */}
+                {course.price === 0 ? (
                     <span className="text-foreground text-xl font-bold">
                         Free
                     </span>
                 ) : (
                     <span className="text-foreground text-xl font-bold">
-                        {course.price}
+                        ${course.price}
                     </span>
                 )}
                 <Button asChild>

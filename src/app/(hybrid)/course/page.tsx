@@ -15,10 +15,10 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { PaginationControl } from '@/components/ui/pagination-control';
 import { CourseCard } from '@/components/course-card';
 import type { PaginationState } from '@tanstack/react-table';
-import { categories, fakeCourses, levels } from '@constant/sample-data';
+import { categories, levels } from '@constant/sample-data';
 import { useDebounce } from '@/hooks/use-debounce';
+import { useGetAllCourses } from '@/lib/service/course';
 
-//TODO: add filter with level by filter with cost (free or not)
 export default function AllCoursesPage() {
     const [search, setSearch] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
@@ -28,8 +28,16 @@ export default function AllCoursesPage() {
         pageSize: 8,
         pageIndex: 0,
     });
+
+    // Gọi API thật lấy khóa học
+    const { data: allCourses = [], isLoading: isApiLoading } =
+        useGetAllCourses();
+
     const [isPending, setIsPending] = useState(false);
     const debouncedSearch = useDebounce(search, 400);
+
+    // Gom chung 2 trạng thái loading (API loading + UX loading lúc gõ phím)
+    const showLoading = isPending || isApiLoading;
 
     useEffect(() => {
         const startTimer = setTimeout(() => setIsPending(true), 0);
@@ -56,39 +64,50 @@ export default function AllCoursesPage() {
         setPagination((prev) => ({ ...prev, pageIndex: 0 }));
     };
 
-    const { paginatedCourses, totalElements } = useMemo(() => {
-        const filtered = fakeCourses.filter((course) => {
-            const matchesSearch =
-                course.title
-                    .toLowerCase()
-                    .includes(debouncedSearch.toLowerCase()) ||
-                course.instructor
-                    .toLowerCase()
-                    .includes(debouncedSearch.toLowerCase());
+    const { paginatedCourses, totalElements, totalApprovedCourses } =
+        useMemo(() => {
+            // 1. LỌC CỨNG: Chỉ lấy những khoá học có status là 'approved'
+            const approvedCourses = allCourses.filter(
+                (course) => course.status === 'approved',
+            );
 
-            const matchesCategory =
-                selectedCategory === 'all' ||
-                course.category === selectedCategory;
-            const matchesLevel =
-                selectedLevel === 'all' || course.level === selectedLevel;
+            // 2. Lọc theo UX của user (Search, Category, Level)
+            const filtered = approvedCourses.filter((course) => {
+                const matchesSearch =
+                    course.title
+                        ?.toLowerCase()
+                        .includes(debouncedSearch.toLowerCase()) ||
+                    (course.instructor?.name || '')
+                        .toLowerCase()
+                        .includes(debouncedSearch.toLowerCase());
 
-            return matchesSearch && matchesCategory && matchesLevel;
-        });
+                const matchesCategory =
+                    selectedCategory === 'all' ||
+                    (course.categories &&
+                        course.categories.includes(selectedCategory));
 
-        const start = pagination.pageIndex * pagination.pageSize;
-        const end = start + pagination.pageSize;
+                const matchesLevel =
+                    selectedLevel === 'all' || course.level === selectedLevel;
 
-        return {
-            paginatedCourses: filtered.slice(start, end),
-            totalElements: filtered.length,
-        };
-    }, [
-        debouncedSearch,
-        selectedCategory,
-        selectedLevel,
-        pagination.pageIndex,
-        pagination.pageSize,
-    ]);
+                return matchesSearch && matchesCategory && matchesLevel;
+            });
+
+            const start = pagination.pageIndex * pagination.pageSize;
+            const end = start + pagination.pageSize;
+
+            return {
+                paginatedCourses: filtered.slice(start, end),
+                totalElements: filtered.length,
+                totalApprovedCourses: approvedCourses.length, // Lấy tổng số để show trên header
+            };
+        }, [
+            allCourses,
+            debouncedSearch,
+            selectedCategory,
+            selectedLevel,
+            pagination.pageIndex,
+            pagination.pageSize,
+        ]);
 
     return (
         <div className="bg-background min-h-screen">
@@ -100,7 +119,8 @@ export default function AllCoursesPage() {
                             All Courses
                         </Badge>
                         <h1 className="text-foreground text-4xl font-bold text-balance sm:text-5xl">
-                            Expand Your Skills with {fakeCourses.length}+
+                            {/* Hiển thị số lượng khóa học thật đã được approve */}
+                            Expand Your Skills with {totalApprovedCourses}+
                             Courses
                         </h1>
                         <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
@@ -133,7 +153,7 @@ export default function AllCoursesPage() {
                                 Course Catalog
                             </h2>
                             <p className="text-muted-foreground mt-1">
-                                {isPending
+                                {showLoading
                                     ? 'Loading results...'
                                     : `Showing ${totalElements} courses`}
                             </p>
@@ -181,7 +201,7 @@ export default function AllCoursesPage() {
                     </div>
 
                     <div className="min-h-[50vh]">
-                        {isPending ? (
+                        {showLoading ? (
                             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                                 {Array.from({
                                     length: pagination.pageSize,
@@ -202,7 +222,6 @@ export default function AllCoursesPage() {
                                             setSearch('');
                                             setSelectedCategory('all');
                                             setSelectedLevel('all');
-                                            // Chỗ này cũng tự reset về 0 luôn cho chắc cú
                                             setPagination((prev) => ({
                                                 ...prev,
                                                 pageIndex: 0,
@@ -216,14 +235,14 @@ export default function AllCoursesPage() {
                                 {paginatedCourses.map((course) => (
                                     <CourseCard
                                         key={course.id}
-                                        course={course}
+                                        course={course as any} // Ép kiểu tạm nếu CourseCard chưa update theo type mới
                                     />
                                 ))}
                             </div>
                         )}
                     </div>
 
-                    {totalElements > 0 && !isPending && (
+                    {totalElements > 0 && !showLoading && (
                         <div className="mt-12 flex justify-center">
                             <PaginationControl
                                 itemCount={totalElements}

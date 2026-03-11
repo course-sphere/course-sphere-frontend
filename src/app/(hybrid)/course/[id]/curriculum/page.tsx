@@ -66,6 +66,7 @@ import {
     useMoveMaterial,
     mapTypeToKind,
 } from '@/lib/service/curriculum/api';
+import { useUpdateCourse } from '@/lib/service/course';
 
 const MATERIAL_CONFIG: Record<
     LessonItemType,
@@ -107,6 +108,16 @@ export default function CurriculumManagerPage() {
     const updateMatMutation = useUpdateMaterial(courseId);
     const deleteMatMutation = useDeleteMaterial(courseId);
     const moveMatMutation = useMoveMaterial(courseId);
+    const updateCourseMutation = useUpdateCourse(courseId);
+
+    const handlePublish = async () => {
+        try {
+            await updateCourseMutation.mutateAsync({ status: 'need-review' });
+            router.push(`/`);
+        } catch (error) {
+            console.error('Lỗi khi publish:', error);
+        }
+    };
 
     const store = useCurriculumStore();
     const [activeDragItem, setActiveDragItem] =
@@ -557,9 +568,14 @@ export default function CurriculumManagerPage() {
                         variant="default"
                         size="sm"
                         className="rounded-full px-6 font-semibold shadow-md"
+                        onClick={handlePublish}
+                        disabled={updateCourseMutation.isPending}
                     >
+                        {updateCourseMutation.isPending && (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        )}
                         Publish Changes
-                    </Button>
+                    </Button>{' '}
                 </div>
 
                 <div className="flex-1 overflow-x-hidden overflow-y-auto scroll-smooth p-6 pb-32 lg:p-10">
