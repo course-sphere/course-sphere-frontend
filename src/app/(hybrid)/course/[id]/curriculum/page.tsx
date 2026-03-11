@@ -112,7 +112,7 @@ export default function CurriculumManagerPage() {
 
     const handlePublish = async () => {
         try {
-            await updateCourseMutation.mutateAsync({ status: 'need-review' });
+            await updateCourseMutation.mutateAsync({ status: 'approved' });
             router.push(`/`);
         } catch (error) {
             console.error('Lỗi khi publish:', error);

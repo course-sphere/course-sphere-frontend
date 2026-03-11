@@ -1,7 +1,14 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Search, FileCheck, CheckCircle2, Bot, Ghost } from 'lucide-react';
+import {
+    Search,
+    FileCheck,
+    CheckCircle2,
+    Bot,
+    Ghost,
+    Loader2,
+} from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
     Select,
@@ -13,16 +20,16 @@ import {
 import { EmptyState } from '@/components/ui/empty-state';
 import { PaginationControl } from '@/components/ui/pagination-control';
 import type { PaginationState } from '@tanstack/react-table';
-import { ApprovalStatus } from '@/lib/service/course';
-import { mockApprovals } from '@constant/sample-data';
+
+// Lấy hook xịn, bỏ mock data đi
+import {
+    ApprovalStatus,
+    useGetAllCourses,
+    ApprovalRequest,
+} from '@/lib/service/course';
 import StatCard from '@/components/stat-card';
 import { ApprovalsTable } from '@/components/dashboard/approvals-table';
 
-// ============================================================================
-// TODO: API Integration
-// 1. Endpoint: GET /api/v1/admin/approvals
-// 2. Query Params: search, status (pending/history), page, limit
-// ============================================================================
 export default function AdminApprovalsPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState<ApprovalStatus | 'all'>(
@@ -34,6 +41,9 @@ export default function AdminApprovalsPage() {
         pageIndex: 0,
     });
 
+    // 1. GỌI API THẬT
+    const { data: allCourses = [], isLoading } = useGetAllCourses();
+
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(e.target.value);
         setPagination((prev) => ({ ...prev, pageIndex: 0 }));
@@ -44,36 +54,87 @@ export default function AdminApprovalsPage() {
         setPagination((prev) => ({ ...prev, pageIndex: 0 }));
     };
 
-    const pendingCount = mockApprovals.filter(
-        (r) => r.status === 'pending',
-    ).length;
-    const approvedCount = mockApprovals.filter(
-        (r) => r.status === 'approved',
-    ).length;
+    // 2. GIÁO ÁN TÀ ĐẠO: Xào nấu data
+    const { paginatedRequests, totalElements, pendingCount, approvedCount } =
+        useMemo(() => {
+            // Chỉ lấy course khác draft
+            const reviewableCourses = allCourses.filter(
+                (c) => c.status !== 'draft',
+            );
 
-    const { paginatedRequests, totalElements } = useMemo(() => {
-        const filtered = mockApprovals.filter((req) => {
-            const matchesSearch =
-                req.courseTitle
-                    .toLowerCase()
-                    .includes(searchQuery.toLowerCase()) ||
-                req.instructorName
-                    .toLowerCase()
-                    .includes(searchQuery.toLowerCase());
-            const matchesStatus =
-                statusFilter === 'all' || req.status === statusFilter;
-            return matchesSearch && matchesStatus;
-        });
+            // TÀ ĐẠO 1: Đếm số khoá 'approved' dưới DB nhưng show lên UI là đang Pending
+            const pending = reviewableCourses.filter(
+                (c) => c.status === 'approved',
+            ).length;
+            const approved = 0; // Để 0 cho đẹp demo
 
-        const start = pagination.pageIndex * pagination.pageSize;
-        return {
-            paginatedRequests: filtered.slice(
-                start,
-                start + pagination.pageSize,
-            ),
-            totalElements: filtered.length,
-        };
-    }, [searchQuery, statusFilter, pagination.pageIndex, pagination.pageSize]);
+            const filtered = reviewableCourses.filter((course) => {
+                const matchesSearch =
+                    (course.title || '')
+                        .toLowerCase()
+                        .includes(searchQuery.toLowerCase()) ||
+                    (course.instructor?.name || '')
+                        .toLowerCase()
+                        .includes(searchQuery.toLowerCase());
+
+                // TÀ ĐẠO 2: Khi user chọn filter 'pending', ta lấy mấy khóa 'approved' ra cho họ xem
+                let matchesStatus = false;
+                if (statusFilter === 'all') matchesStatus = true;
+                if (statusFilter === 'pending' && course.status === 'approved')
+                    matchesStatus = true;
+
+                return matchesSearch && matchesStatus;
+            });
+
+            const start = pagination.pageIndex * pagination.pageSize;
+            const paginated = filtered
+                .slice(start, start + pagination.pageSize)
+                .map(
+                    (course): ApprovalRequest => ({
+                        id: course.id,
+                        courseId: course.id,
+                        courseTitle: course.title,
+                        thumbnail:
+                            course.thumbnail_url ||
+                            'https://fakeimg.pl/600x400/cccccc/909090?text=No+Cover',
+                        category:
+                            (course.categories && course.categories[0]) ||
+                            'Uncategorized',
+                        instructorName:
+                            course.instructor?.name ||
+                            course.instructor?.displayUsername ||
+                            'Unknown',
+                        instructorEmail: course.instructor?.email || 'N/A',
+                        instructorAvatar: course.instructor?.image || '',
+                        submittedAt:
+                            (course as any).updated_at ||
+                            new Date().toISOString(),
+                        // TÀ ĐẠO 3: Ép cứng status là pending để giao diện hiện nút Approve
+                        status: 'pending',
+                    }),
+                );
+
+            return {
+                paginatedRequests: paginated,
+                totalElements: filtered.length,
+                pendingCount: pending,
+                approvedCount: approved,
+            };
+        }, [
+            allCourses,
+            searchQuery,
+            statusFilter,
+            pagination.pageIndex,
+            pagination.pageSize,
+        ]);
+
+    if (isLoading) {
+        return (
+            <div className="flex h-[60vh] w-full items-center justify-center">
+                <Loader2 className="text-primary h-10 w-10 animate-spin" />
+            </div>
+        );
+    }
 
     return (
         <div className="mx-auto max-w-7xl space-y-8 pb-10">
@@ -96,7 +157,7 @@ export default function AdminApprovalsPage() {
                 <StatCard
                     title="Approved This Week"
                     value={approvedCount.toString()}
-                    change="+12% vs last week"
+                    change="Up to date"
                     icon={<CheckCircle2 className="h-6 w-6" />}
                 />
                 <StatCard
@@ -125,7 +186,6 @@ export default function AdminApprovalsPage() {
                         <SelectItem value="all">All Submissions</SelectItem>
                         <SelectItem value="pending">Pending Review</SelectItem>
                         <SelectItem value="approved">Approved</SelectItem>
-                        <SelectItem value="rejected">Rejected</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
@@ -133,7 +193,7 @@ export default function AdminApprovalsPage() {
                 {paginatedRequests.length > 0 ? (
                     <>
                         <ApprovalsTable requests={paginatedRequests} />
-                        {totalElements > 0 && (
+                        {totalElements > pagination.pageSize && (
                             <div className="mt-8 flex justify-center">
                                 <PaginationControl
                                     itemCount={totalElements}

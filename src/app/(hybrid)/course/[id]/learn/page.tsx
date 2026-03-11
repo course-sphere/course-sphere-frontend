@@ -2,108 +2,54 @@
 
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Loader2 } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
+import { mockLearnSyllabus, mockMaterialDetails } from '@constant/sample-data';
 import { ReadingViewer } from '@/components/course-builder/viewers/reading-viewer';
-import { use, useMemo } from 'react';
+import { use } from 'react';
 import { VideoViewer } from '@/components/course-builder/viewers/video-viewer';
 import { FileViewer } from '@/components/course-builder/viewers/file-viewer';
 import { CodingViewer } from '@/components/course-builder/viewers/coding-viewer';
 import { QuizViewer } from '@/components/course-builder/viewers/quiz-viewer';
 import { cn } from '@/lib/utils';
-import { useGetCourseMaterials } from '@/lib/service/course';
 
 export default function LearnPage({
     params,
 }: {
     params: Promise<{ id: string }>;
 }) {
-    const { id: courseId } = use(params);
+    const { id } = use(params);
+    console.log(id);
     const searchParams = useSearchParams();
-    const currentMaterialId = searchParams.get('materialId');
 
-    const { data: rawMaterials = [], isLoading } =
-        useGetCourseMaterials(courseId);
+    const currentMaterialId =
+        searchParams.get('materialId') || mockLearnSyllabus.active_material_id;
 
-    const activeMaterial = useMemo(() => {
-        if (!rawMaterials.length) return null;
-
-        const foundRaw = currentMaterialId
-            ? rawMaterials.find((m) => m.id === currentMaterialId)
-            : rawMaterials[0];
-
-        if (!foundRaw) return null;
-
-        let mappedType = foundRaw.kind;
-        if (mappedType === 'text') mappedType = 'reading';
-        if (mappedType === 'assignment') mappedType = 'coding';
-
-        const result: any = {
-            id: foundRaw.id,
-            title: foundRaw.title,
-            item_type: mappedType,
-            is_completed: false,
-        };
-
-        const contentStr = foundRaw.content || '';
-
-        if (mappedType === 'reading') {
-            result.reading_data = {
-                content: contentStr,
-                duration: 5,
-            };
-        } else if (mappedType === 'file') {
-            const ext = contentStr.split('.').pop() || 'unknown';
-            result.file_data = {
-                file_url: contentStr,
-                file_type: ext.length <= 4 ? ext : 'file',
-                file_size: 0,
-            };
-        } else if (mappedType === 'video') {
-            let vUrl = contentStr;
-            let vDesc = '';
-            const dashIndex = contentStr.indexOf('-');
-
-            if (dashIndex !== -1) {
-                vUrl = contentStr.substring(0, dashIndex);
-                vDesc = contentStr.substring(dashIndex + 1);
-            }
-
-            result.video_data = {
-                video_url: vUrl,
-                description: vDesc,
-                duration: 10,
-            };
-        }
-
-        return result;
-    }, [rawMaterials, currentMaterialId]);
+    // TODO: Base on the materialId that layout inject, fetch API to get data
+    const material = currentMaterialId
+        ? mockMaterialDetails[currentMaterialId]
+        : null;
 
     // TODO: API Complete, mark as done
     const handleComplete = () => {
         console.log(
             'POST /api/learn/materials/complete for:',
-            activeMaterial?.id,
+            currentMaterialId,
         );
     };
 
     const handleCodingSubmit = async (code?: string) => {
-        if (!activeMaterial?.id) return;
+        if (!currentMaterialId) return;
+
         console.log('POST /api/learn/materials/coding/submit', {
-            materialId: activeMaterial.id,
+            materialId: currentMaterialId,
             submitted_code: code,
         });
+
         await new Promise((resolve) => setTimeout(resolve, 1500));
+        // await handleComplete();
     };
 
-    if (isLoading) {
-        return (
-            <div className="flex h-full items-center justify-center">
-                <Loader2 className="text-primary h-8 w-8 animate-spin" />
-            </div>
-        );
-    }
-
-    if (!activeMaterial) {
+    if (!material) {
         return (
             <div className="text-muted-foreground flex h-full items-center justify-center">
                 <p>Select a lesson from the sidebar to start learning.</p>
@@ -129,27 +75,27 @@ export default function LearnPage({
     };
 
     const renderContent = () => {
-        switch (activeMaterial.item_type) {
+        switch (material.item_type) {
             case 'reading':
-                return <ReadingViewer material={activeMaterial} />;
+                return <ReadingViewer material={material} />;
             case 'video':
-                return <VideoViewer material={activeMaterial} />;
-            case 'file':
-                return <FileViewer material={activeMaterial} />;
+                return <VideoViewer material={material} />;
             case 'coding':
                 return (
                     <CodingViewer
-                        material={activeMaterial}
+                        material={material}
                         onSuccess={handleCodingSubmit}
                     />
                 );
             case 'quiz':
                 return (
                     <QuizViewer
-                        material={activeMaterial}
+                        material={material}
                         onSuccess={handleComplete}
                     />
                 );
+            case 'file':
+                return <FileViewer material={material} />;
             default:
                 return (
                     <div className="text-destructive bg-destructive/10 rounded-xl p-8">
@@ -158,10 +104,9 @@ export default function LearnPage({
                 );
         }
     };
-
-    const maxWidthClass = getContainerMaxWidth(activeMaterial.item_type);
+    const maxWidthClass = getContainerMaxWidth(material?.item_type);
     const needsManualCompletion = ['reading', 'file', 'video'].includes(
-        activeMaterial.item_type,
+        material.item_type,
     );
 
     return (
@@ -173,24 +118,23 @@ export default function LearnPage({
                 )}
             >
                 <h1 className="text-foreground mb-8 text-2xl font-bold sm:text-3xl">
-                    {activeMaterial.title}
+                    {material.title}
                 </h1>
 
                 {renderContent()}
 
-                <div className="mt-10 flex items-center justify-between">
+                <div className="flex items-center justify-between">
                     <div className="flex gap-3">
-                        {needsManualCompletion &&
-                            !activeMaterial.is_completed && (
-                                <Button
-                                    onClick={handleComplete}
-                                    variant="secondary"
-                                    className="rounded-xl font-medium"
-                                >
-                                    <CheckCircle className="mr-2 h-4 w-4" />{' '}
-                                    Mark as Done
-                                </Button>
-                            )}
+                        {needsManualCompletion && !material.is_completed && (
+                            <Button
+                                onClick={handleComplete}
+                                variant="secondary"
+                                className="rounded-xl font-medium"
+                            >
+                                <CheckCircle className="mr-2 h-4 w-4" /> Mark as
+                                Done
+                            </Button>
+                        )}
                     </div>
                 </div>
             </div>
