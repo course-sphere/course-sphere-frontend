@@ -14,6 +14,8 @@ interface AuthState {
     isAuthenticated: boolean;
     isCheckingAuth: boolean;
     setAuth: (user: User | null) => void;
+    jwtToken: string | null;
+    setJwtToken: (token: string | null) => void;
     logout: () => void;
 }
 
@@ -23,6 +25,13 @@ export const useAuthStore = create<AuthState>((set) => ({
     isCheckingAuth: true,
     setAuth: (user) =>
         set({ user, isAuthenticated: !!user, isCheckingAuth: false }),
+    jwtToken: null,
+    setJwtToken: (token) => set({ jwtToken: token }),
     logout: () =>
-        set({ user: null, isAuthenticated: false, isCheckingAuth: false }),
+        set({
+            user: null,
+            isAuthenticated: false,
+            isCheckingAuth: false,
+            jwtToken: null,
+        }),
 }));

@@ -9,7 +9,7 @@ export interface Phase {
 }
 
 // 3 phase to create a course, 1 phase have 3 steps
-export const PHASES: Phase[] = [
+export const PHASES_LEGACY: Phase[] = [
     { id: 1, title: 'Course Info', description: 'Set up your course details' },
     {
         id: 2,
@@ -17,6 +17,11 @@ export const PHASES: Phase[] = [
         description: 'Create learning content',
     },
     { id: 3, title: 'Review', description: 'Review & submit' },
+];
+
+export const PHASES: Phase[] = [
+    { id: 1, title: 'Course Setup', description: 'Basic info & goals' },
+    { id: 2, title: 'Pricing', description: 'Set your price' },
 ];
 
 export const PHASE_ICONS = [BookOpen, Layers, ClipboardCheck];

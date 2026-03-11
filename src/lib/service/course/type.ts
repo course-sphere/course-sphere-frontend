@@ -163,7 +163,53 @@ export function getDefaultMetadataData(): CourseMetadataFormData {
         target_audience: [],
     };
 }
+// After Refactoring
+export const courseInitSchema = z
+    .object({
+        title: z
+            .string()
+            .min(5, 'Title must be at least 5 characters')
+            .max(100, 'Title too long'),
+        description: z
+            .string()
+            .min(50, 'Description must be at least 50 characters')
+            .max(5000, 'Description too long'),
+        level: z.enum(['beginner', 'intermediate', 'advanced']),
+        categories: z
+            .array(z.object({ id: z.string(), text: z.string() }))
+            .min(1, 'Please select at least one topic'),
+        learning_objectives: z
+            .array(z.object({ value: z.string() }))
+            .min(1, 'At least 1 learning objective is required'),
+        prerequisites: z.array(
+            z.object({ course_id: z.string(), course_title: z.string() }),
+        ),
+        is_free: z.boolean(),
 
+        price: z.number().min(0, 'Price cannot be negative'),
+    })
+    .superRefine((data, ctx) => {
+        if (data.price > 0 && data.price < 1.99) {
+            ctx.addIssue({
+                code: 'custom',
+                message: 'Minimum price for a paid course is $1.99',
+                path: ['price'],
+            });
+        }
+    });
+
+export type CourseInitFormData = z.infer<typeof courseInitSchema>;
+
+export const defaultInitData: CourseInitFormData = {
+    title: '',
+    description: '',
+    level: 'beginner',
+    categories: [],
+    learning_objectives: [{ value: '' }],
+    prerequisites: [],
+    is_free: false,
+    price: 0,
+};
 //------------------------
 export type CourseLesson = {
     id: string;
@@ -230,7 +276,7 @@ export interface CourseDetailResponse {
     title: string;
     subtitle: string;
     description: string;
-    category: CourseCategory[];
+    categories: CourseCategory[];
     level: CourseLevel;
     thumbnail_url: string;
     promo_video_url: string | null;
@@ -289,3 +335,82 @@ export interface AIEvaluationResult {
     policyFlags: string[];
     recommendedAction: 'Approve' | 'Review' | 'Reject';
 }
+
+// create course
+export interface CreateCoursePayload {
+    title: string;
+    description: string;
+    level: 'beginner' | 'intermediate' | 'advanced' | string;
+    price: number;
+    categories: string[];
+    learning_objectives: string[];
+    prerequisites: string[];
+}
+
+// api integrated -- get all course response
+export interface CourseInstructor {
+    createdAt: string;
+    displayUsername: string;
+    email: string;
+    emailVerified: boolean;
+    image: string;
+    name: string;
+    role: string;
+    twoFactorEnabled: boolean;
+    updatedAt: string;
+    username: string;
+}
+
+export interface CourseResponse {
+    id: string;
+    title: string;
+    subtitle?: string;
+    description?: string;
+    status: string;
+    level: string;
+    price: number;
+    total: number;
+    total_required: number;
+    thumbnail_url?: string;
+    promo_video_url?: string;
+    categories?: string[];
+    learning_objectives?: string[];
+    requirements?: string[];
+    target_audiences?: string[];
+    prerequisites?: string[];
+    instructor?: CourseInstructor;
+}
+
+// update course
+export interface UpdateCoursePayload {
+    title?: string;
+    subtitle?: string;
+    description?: string;
+    level?: string;
+    price?: number;
+    status?: CourseStatusNew;
+    promo_video_url?: string;
+    thumbnail_url?: string;
+    categories?: string[];
+    learning_objectives?: string[];
+    prerequisites?: string[];
+    requirements?: string[];
+    target_audiences?: string[];
+}
+
+export interface CourseMaterialItem {
+    id: string;
+    title: string;
+    kind: string;
+    lesson: string;
+    position: number;
+    is_required: boolean;
+    content?: string;
+}
+
+export type CourseStatusNew =
+    | 'draft'
+    | 'need-review'
+    | 'ai-approved'
+    | 'approved'
+    | 'removed';

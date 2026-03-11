@@ -5,6 +5,7 @@ import axios, {
 } from 'axios';
 import { authConfig, config } from './config';
 import { createAuthClient } from 'better-auth/react';
+import { jwtClient } from 'better-auth/client/plugins';
 
 export const apiClient = axios.create(config);
 
@@ -28,4 +29,7 @@ apiClient.interceptors.response.use(
     },
 );
 
-export const authClient = createAuthClient(authConfig);
+export const authClient = createAuthClient({
+    ...authConfig,
+    plugins: [jwtClient()],
+});

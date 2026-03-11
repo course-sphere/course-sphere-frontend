@@ -21,9 +21,10 @@ export default function HybridLayout({
     }
     const isLearnRoute = pathname.includes('/learn');
     const isPreviewRoute = pathname.includes('/preview');
+    const isCurriculum = pathname.includes('/curriculum');
 
     if (isAuthenticated && user) {
-        if (isLearnRoute || isPreviewRoute) {
+        if (isLearnRoute || isPreviewRoute || isCurriculum) {
             return <>{children}</>;
         }
         return (
