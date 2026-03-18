@@ -3,11 +3,11 @@ import axios, {
     type AxiosInstance,
     type AxiosResponse,
 } from 'axios';
-import { getApiUrl } from './api-url';
 import { useAuthStore } from '../stores/use-auth-store';
 import { authClient } from '@/lib/api-client';
+import { API_URL } from '../api-client/config';
 
-const apiUrl = getApiUrl();
+const apiUrl = API_URL;
 
 export class ApiError extends Error {
     status?: number;
