@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
     ArrowLeft,
@@ -131,7 +131,7 @@ export default function CurriculumManagerPage() {
         }
     }, [fetchedLessons, setLessons]);
 
-    const activeMaterial = React.useMemo(() => {
+    const activeMaterial = useMemo(() => {
         if (!store.activeLessonId || !store.activeMaterialId) return null;
         const lesson = store.lessons.find((l) => l.id === store.activeLessonId);
         return (
@@ -205,7 +205,17 @@ export default function CurriculumManagerPage() {
         await deleteMatMutation.mutateAsync(materialId);
     };
 
-    const handleSaveContent = async (formData: any) => {
+    interface MaterialFormData {
+        title?: string;
+        content?: string;
+        file_url?: string;
+        video_url?: string;
+        description?: string;
+        is_required?: boolean;
+        [key: string]: unknown;
+    }
+
+    const handleSaveContent = async (formData: MaterialFormData) => {
         if (!store.activeLessonId || !store.activeMaterialId || !activeMaterial)
             return;
         const currentLesson = store.lessons.find(
@@ -516,26 +526,26 @@ export default function CurriculumManagerPage() {
                         >
                             {activeDragItem
                                 ? (() => {
-                                      const dragConfig =
-                                          MATERIAL_CONFIG[
-                                              activeDragItem.item_type as LessonItemType
-                                          ] || MATERIAL_CONFIG.file;
-                                      return (
-                                          <div className="bg-primary/5 border-primary/30 flex cursor-grabbing items-center gap-2 rounded-xl border p-2.5 opacity-90 shadow-2xl backdrop-blur-sm">
-                                              <GripVertical className="text-primary h-4 w-4 shrink-0" />
-                                              <div
-                                                  className={`rounded-md p-1.5 ${dragConfig.bgColor}`}
-                                              >
-                                                  <dragConfig.icon
-                                                      className={`h-4 w-4 ${dragConfig.color}`}
-                                                  />
-                                              </div>
-                                              <span className="text-primary text-sm font-medium">
-                                                  {activeDragItem.title}
-                                              </span>
-                                          </div>
-                                      );
-                                  })()
+                                    const dragConfig =
+                                        MATERIAL_CONFIG[
+                                        activeDragItem.item_type as LessonItemType
+                                        ] || MATERIAL_CONFIG.file;
+                                    return (
+                                        <div className="bg-primary/5 border-primary/30 flex cursor-grabbing items-center gap-2 rounded-xl border p-2.5 opacity-90 shadow-2xl backdrop-blur-sm">
+                                            <GripVertical className="text-primary h-4 w-4 shrink-0" />
+                                            <div
+                                                className={`rounded-md p-1.5 ${dragConfig.bgColor}`}
+                                            >
+                                                <dragConfig.icon
+                                                    className={`h-4 w-4 ${dragConfig.color}`}
+                                                />
+                                            </div>
+                                            <span className="text-primary text-sm font-medium">
+                                                {activeDragItem.title}
+                                            </span>
+                                        </div>
+                                    );
+                                })()
                                 : null}
                         </DragOverlay>
                     </DndContext>
@@ -593,7 +603,7 @@ export default function CurriculumManagerPage() {
                             (() => {
                                 const activeConfig =
                                     MATERIAL_CONFIG[
-                                        activeMaterial.item_type as LessonItemType
+                                    activeMaterial.item_type as LessonItemType
                                     ] || MATERIAL_CONFIG.file;
                                 return (
                                     <div className="animate-in fade-in zoom-in-95 space-y-6 duration-300">
@@ -616,44 +626,44 @@ export default function CurriculumManagerPage() {
                                         <div className="bg-background border-border rounded-2xl border p-6 shadow-xl md:p-8">
                                             {activeMaterial.item_type ===
                                                 'video' && (
-                                                <VideoEditor
-                                                    initialData={activeMaterial}
-                                                    onSave={handleSaveContent}
-                                                    onCancel={() => {}}
-                                                />
-                                            )}
+                                                    <VideoEditor
+                                                        initialData={activeMaterial}
+                                                        onSave={handleSaveContent}
+                                                        onCancel={() => { }}
+                                                    />
+                                                )}
                                             {activeMaterial.item_type ===
                                                 'reading' && (
-                                                <ReadingEditor
-                                                    initialData={activeMaterial}
-                                                    onSave={handleSaveContent}
-                                                    onCancel={() => {}}
-                                                />
-                                            )}
+                                                    <ReadingEditor
+                                                        initialData={activeMaterial}
+                                                        onSave={handleSaveContent}
+                                                        onCancel={() => { }}
+                                                    />
+                                                )}
                                             {activeMaterial.item_type ===
                                                 'coding' && (
-                                                <CodingEditor
-                                                    initialData={activeMaterial}
-                                                    onSave={handleSaveContent}
-                                                    onCancel={() => {}}
-                                                />
-                                            )}
+                                                    <CodingEditor
+                                                        initialData={activeMaterial}
+                                                        onSave={handleSaveContent}
+                                                        onCancel={() => { }}
+                                                    />
+                                                )}
                                             {activeMaterial.item_type ===
                                                 'file' && (
-                                                <FileEditor
-                                                    initialData={activeMaterial}
-                                                    onSave={handleSaveContent}
-                                                    onCancel={() => {}}
-                                                />
-                                            )}
+                                                    <FileEditor
+                                                        initialData={activeMaterial}
+                                                        onSave={handleSaveContent}
+                                                        onCancel={() => { }}
+                                                    />
+                                                )}
                                             {activeMaterial.item_type ===
                                                 'quiz' && (
-                                                <QuizEditor
-                                                    initialData={activeMaterial}
-                                                    onSave={handleSaveContent}
-                                                    onCancel={() => {}}
-                                                />
-                                            )}
+                                                    <QuizEditor
+                                                        initialData={activeMaterial}
+                                                        onSave={handleSaveContent}
+                                                        onCancel={() => { }}
+                                                    />
+                                                )}
                                         </div>
                                     </div>
                                 );

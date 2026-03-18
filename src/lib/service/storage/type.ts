@@ -1,9 +1,9 @@
-interface PresignedUrlRequest {
+export interface PresignedUrlRequest {
     contentType: string;
     fileName: string;
 }
 
-interface PresignedUrlResponse {
+export interface PresignedUrlResponse {
     url: string;
     values: {
         'Content-Type': string;

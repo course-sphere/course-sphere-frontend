@@ -36,7 +36,7 @@ export function ApprovalsTable({ requests }: Props) {
     const [isRejectOpen, setIsRejectOpen] = useState(false);
     const [isAiSheetOpen, setIsAiSheetOpen] = useState(false);
 
-    const [evaluatingId, setEvaluatingId] = useState<string | null>(null);
+    const [, setEvaluatingId] = useState<string | null>(null);
     const [aiResults, setAiResults] = useState<
         Record<string, AIEvaluationResult>
     >({});
@@ -58,7 +58,7 @@ export function ApprovalsTable({ requests }: Props) {
         setSelectedReq(null);
     };
 
-    const handleReject = async (reason: string) => {
+    const handleReject = async () => {
         if (!selectedReq) return;
         toast.success(`Course "${selectedReq.courseTitle}" has been rejected.`);
         setHiddenIds((prev) => new Set(prev).add(selectedReq.id));

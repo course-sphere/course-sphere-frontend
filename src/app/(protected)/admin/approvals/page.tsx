@@ -26,6 +26,7 @@ import {
     ApprovalStatus,
     useGetAllCourses,
     ApprovalRequest,
+    CourseResponse,
 } from '@/lib/service/course';
 import StatCard from '@/components/stat-card';
 import { ApprovalsTable } from '@/components/dashboard/approvals-table';
@@ -107,8 +108,11 @@ export default function AdminApprovalsPage() {
                         instructorEmail: course.instructor?.email || 'N/A',
                         instructorAvatar: course.instructor?.image || '',
                         submittedAt:
-                            (course as any).updated_at ||
-                            new Date().toISOString(),
+                            (
+                                course as CourseResponse & {
+                                    updated_at?: string;
+                                }
+                            ).updated_at || new Date().toISOString(),
                         // TÀ ĐẠO 3: Ép cứng status là pending để giao diện hiện nút Approve
                         status: 'pending',
                     }),
