@@ -116,10 +116,11 @@ export const useGetCourseMaterials = (courseId: string) => {
     return useQuery<CourseMaterialItem[], ApiError | Error>({
         queryKey: ['course-materials', courseId],
         queryFn: async () => {
-            const res = await apiClient.get<any>(
-                `/course/${courseId}/material`,
-            );
-            return Array.isArray(res) ? res : res.data || [];
+            const res = await apiClient.get<
+                CourseMaterialItem[],
+                CourseMaterialItem[]
+            >(`/course/${courseId}/material`);
+            return Array.isArray(res) ? res : [];
         },
         enabled: !!courseId,
     });

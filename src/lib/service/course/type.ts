@@ -257,11 +257,21 @@ export type CourseStatus =
     | 'rejected'
     | 'published';
 
-// type for course/{id} page
+// Unified instructor type for both CourseDetailResponse and CourseResponse
+// The second declaration at line ~351 is removed below; this is the single source of truth.
 export interface CourseInstructor {
     id: string;
     name: string;
     avatar_url?: string;
+    createdAt?: string;
+    displayUsername?: string;
+    email?: string;
+    emailVerified?: boolean;
+    image?: string;
+    role?: string;
+    twoFactorEnabled?: boolean;
+    updatedAt?: string;
+    username?: string;
 }
 
 export type CourseLevel = 'beginner' | 'intermediate' | 'advanced' | 'all';
@@ -347,19 +357,7 @@ export interface CreateCoursePayload {
     prerequisites: string[];
 }
 
-// api integrated -- get all course response
-export interface CourseInstructor {
-    createdAt: string;
-    displayUsername: string;
-    email: string;
-    emailVerified: boolean;
-    image: string;
-    name: string;
-    role: string;
-    twoFactorEnabled: boolean;
-    updatedAt: string;
-    username: string;
-}
+// CourseInstructor is already defined above (unified interface)
 
 export interface CourseResponse {
     id: string;

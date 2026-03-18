@@ -1,6 +1,7 @@
 import { apiClient } from '@/lib/api-client';
 import { ApiError } from '@/lib/api/axios-config';
 import { useMutation } from '@tanstack/react-query';
+import { PresignedUrlRequest, PresignedUrlResponse } from './type';
 
 export const useGetPresignedUrl = () => {
     return useMutation<
@@ -18,8 +19,12 @@ export const useGetPresignedUrl = () => {
     });
 };
 
-export const uploadFileToS3 = async (file: File, responseData: any) => {
-    const presign = responseData.data ? responseData.data : responseData;
+export const uploadFileToS3 = async (
+    file: File,
+    responseData: PresignedUrlResponse | { data: PresignedUrlResponse },
+) => {
+    const presign =
+        'data' in responseData ? responseData.data : responseData;
     const formData = new FormData();
     Object.entries(presign.values).forEach(([key, value]) => {
         formData.append(key, value as string);

@@ -1857,7 +1857,7 @@ export const mockCourseDetail: CourseDetailResponse = {
         'Apply Python to real ML problems with feature engineering, training, and model evaluation.',
     description:
         'A comprehensive guide to practical Machine Learning. You will learn data preprocessing, feature engineering, and how to build robust predictive models using Python, Scikit-Learn, and Pandas.',
-    category: [
+    categories: [
         { id: 'cat-ds', text: 'Data Science' },
         { id: 'cat-ml', text: 'Machine Learning' },
     ],

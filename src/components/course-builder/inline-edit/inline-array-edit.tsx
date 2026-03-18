@@ -35,7 +35,7 @@ export function InlineArrayEdit({
         ) {
             setCurrentItems([...(items || [])]);
         }
-    }, [items, isEditing]);
+    }, [items, isEditing, currentItems]);
 
     const handleSave = async () => {
         const cleanItems = currentItems.filter((i) => i.trim() !== '');

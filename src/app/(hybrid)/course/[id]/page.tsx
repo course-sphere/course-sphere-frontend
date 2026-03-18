@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, use, useMemo, useEffect } from 'react';
+import React, { useState, use, useMemo } from 'react';
 import Image from 'next/image';
 import {
     Play,
@@ -24,6 +24,7 @@ import { notFound, useRouter } from 'next/navigation';
 import {
     useGetCourseDetail,
     useGetCourseMaterials,
+    CourseCategory,
 } from '@/lib/service/course';
 import { useAuthStore } from '@/lib/stores/use-auth-store';
 import { getYouTubeEmbedUrl } from '@/lib/utils';
@@ -37,6 +38,18 @@ const materialIconMap: Record<string, React.ElementType> = {
     assignment: CodeIcon, // fallback cho data thật
     file: FileText,
 };
+
+interface SyllabusMaterial {
+    id: string;
+    title: string;
+    kind: string;
+    item_type: string;
+    position: number;
+    is_required: boolean;
+    is_preview: boolean;
+    content?: string;
+    lesson?: string;
+}
 
 interface CoursePageProps {
     params: Promise<{
@@ -52,7 +65,7 @@ export default function CoursePage({ params }: CoursePageProps) {
     const isInstructor = user?.role === 'instructor' || user?.role === 'admin';
     const isEnrolled = false; // TODO: Lấy status enroll sau
 
-    const [expandedModules, setExpandedModules] = useState<string[]>([]);
+    const [expandedModules, setExpandedModules] = useState<string[] | null>(null);
     const [isPlayingPreview, setIsPlayingPreview] = useState(false);
 
     // 1. Gọi API lấy thông tin khoá học
@@ -66,7 +79,7 @@ export default function CoursePage({ params }: CoursePageProps) {
     const syllabusModules = useMemo(() => {
         if (!rawMaterials || rawMaterials.length === 0) return [];
 
-        const lessonMap = new Map<string, any[]>();
+        const lessonMap = new Map<string, SyllabusMaterial[]>();
 
         rawMaterials.forEach((mat) => {
             const lessonName = mat.lesson || 'General Contents';
@@ -80,8 +93,8 @@ export default function CoursePage({ params }: CoursePageProps) {
                     mat.kind === 'text'
                         ? 'reading'
                         : mat.kind === 'assignment'
-                          ? 'coding'
-                          : mat.kind,
+                            ? 'coding'
+                            : mat.kind,
                 is_preview: false, // Mặc định false nếu backend chưa trả
             });
         });
@@ -104,19 +117,20 @@ export default function CoursePage({ params }: CoursePageProps) {
         return modules;
     }, [rawMaterials]);
 
-    // Tự động mở Tab đầu tiên khi load xong data
-    useEffect(() => {
-        if (syllabusModules.length > 0 && expandedModules.length === 0) {
-            setExpandedModules([syllabusModules[0].id]);
-        }
-    }, [syllabusModules]);
+    // Auto-expand first module via derived state (avoids setState in useEffect)
+    const resolvedExpanded = useMemo(() => {
+        if (expandedModules !== null) return expandedModules;
+        if (syllabusModules.length > 0) return [syllabusModules[0].id];
+        return [];
+    }, [expandedModules, syllabusModules]);
 
     const toggleModule = (moduleId: string) => {
-        setExpandedModules((prev) =>
-            prev.includes(moduleId)
-                ? prev.filter((mId) => mId !== moduleId)
-                : [...prev, moduleId],
-        );
+        setExpandedModules((prev) => {
+            const current = prev ?? resolvedExpanded;
+            return current.includes(moduleId)
+                ? current.filter((mId) => mId !== moduleId)
+                : [...current, moduleId];
+        });
     };
 
     if (isCourseLoading) {
@@ -163,7 +177,10 @@ export default function CoursePage({ params }: CoursePageProps) {
                         <div className="space-y-6 lg:col-span-2">
                             <div className="flex flex-wrap items-center gap-3">
                                 {course.categories?.map(
-                                    (cat: any, idx: number) => (
+                                    (
+                                        cat: string | CourseCategory,
+                                        idx: number,
+                                    ) => (
                                         <Badge
                                             key={idx}
                                             variant="secondary"
@@ -183,7 +200,7 @@ export default function CoursePage({ params }: CoursePageProps) {
                             <p className="max-w-2xl text-lg text-pretty text-slate-300">
                                 {course.subtitle ||
                                     course.description?.substring(0, 150) +
-                                        '...'}
+                                    '...'}
                             </p>
 
                             <div className="flex items-center gap-3 pt-2">
@@ -253,9 +270,9 @@ export default function CoursePage({ params }: CoursePageProps) {
                         <div className="bg-card border-border overflow-hidden rounded-2xl border shadow-xl">
                             <div className="group border-border/50 relative flex aspect-video w-full overflow-hidden border-b bg-black">
                                 {isPlayingPreview &&
-                                getYouTubeEmbedUrl(
-                                    course.promo_video_url || '',
-                                ) ? (
+                                    getYouTubeEmbedUrl(
+                                        course.promo_video_url || '',
+                                    ) ? (
                                     <iframe
                                         width="100%"
                                         height="100%"
@@ -463,7 +480,7 @@ export default function CoursePage({ params }: CoursePageProps) {
                                 <div className="space-y-4">
                                     {syllabusModules.map((module) => {
                                         const isExpanded =
-                                            expandedModules.includes(module.id);
+                                            resolvedExpanded.includes(module.id);
                                         return (
                                             <Card
                                                 key={module.id}
@@ -504,7 +521,7 @@ export default function CoursePage({ params }: CoursePageProps) {
                                                                     }
                                                                     className={
                                                                         idx !==
-                                                                        0
+                                                                            0
                                                                             ? 'mt-6'
                                                                             : ''
                                                                     }
@@ -512,13 +529,13 @@ export default function CoursePage({ params }: CoursePageProps) {
                                                                     <div className="border-border/60 space-y-1 pl-2">
                                                                         {lesson.materials.map(
                                                                             (
-                                                                                material: any,
+                                                                                material: SyllabusMaterial,
                                                                             ) => {
                                                                                 // Ánh xạ Icon chuẩn xác
                                                                                 const MaterialIcon =
                                                                                     materialIconMap[
-                                                                                        material
-                                                                                            .item_type
+                                                                                    material
+                                                                                        .item_type
                                                                                     ] ||
                                                                                     FileText;
                                                                                 return (

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Pencil, Check, X } from 'lucide-react';
 import {
     Select,
@@ -35,9 +35,10 @@ export function InlineSelectEdit({
 
     const [draftValue, setDraftValue] = useState(value);
 
-    useEffect(() => {
+    // Re-sync draft when value prop changes (without useEffect)
+    if (!isEditing && draftValue !== value) {
         setDraftValue(value);
-    }, [value, isEditing]);
+    }
 
     const handleSave = () => {
         setIsEditing(false);

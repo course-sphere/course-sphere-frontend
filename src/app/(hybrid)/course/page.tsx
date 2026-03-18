@@ -235,7 +235,7 @@ export default function AllCoursesPage() {
                                 {paginatedCourses.map((course) => (
                                     <CourseCard
                                         key={course.id}
-                                        course={course as any} // Ép kiểu tạm nếu CourseCard chưa update theo type mới
+                                        course={course}
                                     />
                                 ))}
                             </div>

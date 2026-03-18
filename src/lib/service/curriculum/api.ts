@@ -50,7 +50,7 @@ export const useGetCurriculum = (courseId: string) => {
                 }
 
                 const uiType = mapKindToType(mat.kind);
-                let itemData: any = {};
+                let itemData: Record<string, string> = {};
 
                 if (mat.content) {
                     if (uiType === 'reading') {
