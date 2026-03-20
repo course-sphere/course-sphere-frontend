@@ -40,6 +40,7 @@
         "@tiptap/pm": "^3.20.0",
         "@tiptap/react": "^3.20.0",
         "@tiptap/starter-kit": "^3.20.0",
+        "@xyflow/react": "^12.10.1",
         "axios": "^1.13.3",
         "better-auth": "^1.4.17",
         "class-variance-authority": "^0.7.1",
