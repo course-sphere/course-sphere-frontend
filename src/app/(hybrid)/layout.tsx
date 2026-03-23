@@ -22,9 +22,9 @@ export default function HybridLayout({
     const isLearnRoute = pathname.includes('/learn');
     const isPreviewRoute = pathname.includes('/preview');
     const isCurriculum = pathname.includes('/curriculum');
-
+    const isRoadmapCreate = pathname.includes('/roadmap/create');
     if (isAuthenticated && user) {
-        if (isLearnRoute || isPreviewRoute || isCurriculum) {
+        if (isLearnRoute || isPreviewRoute || isCurriculum || isRoadmapCreate) {
             return <>{children}</>;
         }
         return (

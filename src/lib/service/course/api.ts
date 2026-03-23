@@ -80,7 +80,6 @@ export const useGetCourseDetail = (courseId: string) => {
     });
 };
 
-// Nhớ import UpdateCoursePayload vào sếp nhé
 export const useUpdateCourse = (courseId: string) => {
     const queryClient = useQueryClient();
 
