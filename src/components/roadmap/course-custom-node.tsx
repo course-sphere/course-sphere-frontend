@@ -3,44 +3,85 @@
 import Image from 'next/image';
 import { Handle, Position } from '@xyflow/react';
 import { Badge } from '@/components/ui/badge';
-import { CourseNodeData } from '@/lib/stores/use-roadmap-store';
+import {
+    CourseNodeData,
+    useRoadmapStore,
+} from '@/lib/stores/use-roadmap-store';
+import { cn } from '@/lib/utils';
+import { Trash2 } from 'lucide-react';
 
-export function CourseCustomNode({ data }: { data: CourseNodeData }) {
+export function CourseCustomNode({
+    id,
+    data,
+    selected,
+}: {
+    id: string;
+    data: CourseNodeData;
+    selected?: boolean;
+}) {
+    const removeNode = useRoadmapStore((state) => state.removeNode);
+
     return (
-        <div className="bg-card ring-border/50 w-68 overflow-hidden rounded-2xl border shadow-sm ring-1 transition-all hover:shadow-md">
+        <div
+            className={cn(
+                'group bg-card relative w-70 overflow-hidden rounded-xl border transition-all',
+                selected
+                    ? 'border-primary ring-primary shadow-md ring-1'
+                    : 'border-border shadow-sm hover:shadow-md',
+            )}
+        >
+            <button
+                onClick={() => removeNode(id)}
+                className="bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground absolute top-2 right-2 z-10 rounded-md p-1.5 opacity-0 transition-opacity group-hover:opacity-100"
+                title="Remove course"
+            >
+                <Trash2 className="h-3.5 w-3.5" />
+            </button>
+
             <Handle
                 type="target"
                 position={Position.Left}
-                className="border-background bg-primary h-3 w-3 border-2"
+                className={cn(
+                    'border-background z-20 h-5 w-5 border-2 transition-colors',
+                    selected
+                        ? 'bg-primary'
+                        : 'bg-muted-foreground/30 hover:bg-primary',
+                )}
             />
 
             <div className="p-4">
                 <div className="flex gap-3">
-                    <div className="bg-muted relative h-16 w-20 shrink-0 overflow-hidden rounded-xl">
+                    <div className="bg-muted border-border/50 relative h-16 w-20 shrink-0 overflow-hidden rounded-lg border">
                         <Image
-                            src={data.thumbnail || '/placeholder.jpg'}
+                            src={data.thumbnailUrl || '/placeholder.jpg'}
                             alt={data.title}
                             fill
                             className="object-cover"
                             sizes="80px"
                         />
                     </div>
-
                     <div className="min-w-0 flex-1">
-                        <div className="mb-2 flex flex-wrap gap-2">
-                            <Badge variant="outline" className="text-[10px]">
-                                {data.category}
-                            </Badge>
-                            <Badge variant="secondary" className="text-[10px]">
+                        <div className="mb-2 flex flex-wrap items-center gap-2 pr-6">
+                            {data.categories && data.categories[0] && (
+                                <Badge
+                                    variant="secondary"
+                                    className="max-w-25 truncate text-[10px] font-medium"
+                                >
+                                    {data.categories[0]}
+                                </Badge>
+                            )}
+                            <span className="text-muted-foreground shrink-0 text-[10px] font-bold tracking-wider uppercase">
                                 {data.level}
-                            </Badge>
+                            </span>
                         </div>
-
-                        <h3 className="text-foreground line-clamp-2 text-sm leading-snug font-semibold">
+                        <h3
+                            className="text-foreground line-clamp-2 pr-2 text-sm leading-snug font-semibold"
+                            title={data.title}
+                        >
                             {data.title}
                         </h3>
                         <p className="text-muted-foreground mt-1 line-clamp-1 text-xs">
-                            by {data.instructor}
+                            by {data.instructorName}
                         </p>
                     </div>
                 </div>
@@ -49,7 +90,12 @@ export function CourseCustomNode({ data }: { data: CourseNodeData }) {
             <Handle
                 type="source"
                 position={Position.Right}
-                className="border-background bg-primary h-3 w-3 border-2"
+                className={cn(
+                    'border-background z-20 h-5 w-5 border-2 transition-colors',
+                    selected
+                        ? 'bg-primary'
+                        : 'bg-muted-foreground/30 hover:bg-primary',
+                )}
             />
         </div>
     );

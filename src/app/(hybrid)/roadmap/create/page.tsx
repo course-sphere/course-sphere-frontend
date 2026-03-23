@@ -170,7 +170,7 @@ export default function CreateRoadmapPage() {
                         next_id: targetNode.data.courseId,
                     },
                 });
-            } catch (error) {
+            } catch {
                 removeEdge(newEdge.id);
             }
         }
@@ -196,7 +196,6 @@ export default function CreateRoadmapPage() {
     return (
         <RoleGuard allowedRoles={['instructor', 'admin', 'student']}>
             <div className="bg-background flex h-screen w-full overflow-hidden">
-                {/* Component Inventory mới cực kỳ thông minh */}
                 <RoadmapInventory
                     title={title}
                     description={description}
@@ -208,7 +207,7 @@ export default function CreateRoadmapPage() {
 
                 <main
                     ref={reactFlowWrapper}
-                    className="bg-dot-black/[0.1] dark:bg-dot-white/[0.1] relative flex-1" // Background pattern xịn hơn
+                    className="bg-dot-black/[0.1] dark:bg-dot-white/[0.1] relative flex-1"
                     onDrop={onDrop}
                     onDragOver={onDragOver}
                 >
@@ -232,13 +231,13 @@ export default function CreateRoadmapPage() {
                             className="opacity-20"
                         />
                         <Controls
-                            className="border-border !mb-6 !ml-6 shadow-md"
+                            className="border-border mb-6! ml-6! shadow-md"
                             showInteractive={false}
                         />
                         <MiniMap
                             zoomable
                             pannable
-                            className="border-border !right-6 !bottom-6 rounded-xl border shadow-md"
+                            className="border-border right-6! bottom-6! rounded-xl border shadow-md"
                         />
                     </ReactFlow>
                 </main>
