@@ -11,3 +11,23 @@ export interface Roadmap {
     created_at: string;
     updated_at: string;
 }
+//------------
+export interface CreateRoadmapPayload {
+    title: string;
+    description: string;
+}
+
+export interface UpdateRoadmapPayload {
+    title?: string;
+    description?: string;
+    position?: number;
+}
+
+export interface RoadmapCoursePayload {
+    course_id: string;
+}
+
+export interface MoveRoadmapCoursePayload {
+    prev_id: string;
+    next_id: string;
+}
