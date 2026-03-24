@@ -170,7 +170,6 @@ export default function RoadmapDetailPage({
 
                     <Button
                         onClick={() => {
-                            // Gọi hàm apply, thành công phát là đá sang course đầu tiên
                             applyRoadmap(roadmapId, {
                                 onSuccess: () => {
                                     if (orderedCourses.length > 0) {
@@ -208,7 +207,6 @@ export default function RoadmapDetailPage({
                 </div>
 
                 {isLoadingCourses ? (
-                    // SKELETON GỌN GÀNG
                     <div className="space-y-8 pl-4">
                         {[1, 2, 3].map((i) => (
                             <div key={i} className="flex gap-6 md:gap-8">
