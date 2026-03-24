@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import {
     ArrowDownToLine,
@@ -30,8 +30,11 @@ import {
     useGetWallet,
     useGetWalletHistories,
     useCreatePaymentLink,
+    usePaymentCallback,
 } from '@/lib/service/wallet';
 import { RoleGuard } from '@/components/layout/role-gaurd';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
 
 const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -79,22 +82,64 @@ const MOCK_HISTORIES = [
 ];
 
 export default function WalletPage() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
     const { data: wallet, isLoading: isWalletLoading } = useGetWallet();
     const { data: realHistories = [], isLoading: isHistoryLoading } =
         useGetWalletHistories();
     const { mutateAsync: createPaymentLink, isPending: isCreatingLink } =
         useCreatePaymentLink();
+    const { mutateAsync: paymentCallback, isPending: isProcessingCallback } =
+        usePaymentCallback();
 
     const [depositAmount, setDepositAmount] = useState('');
     const [isDepositOpen, setIsDepositOpen] = useState(false);
 
+    useEffect(() => {
+        const handlePayOSCallback = async () => {
+            const code = searchParams.get('code');
+            const cancel = searchParams.get('cancel');
+            const orderCode = searchParams.get('orderCode');
+
+            // if do not have code, do nothing
+            if (!code || !orderCode) return;
+
+            if (cancel === 'true') {
+                toast.error('Bạn đã huỷ giao dịch nạp tiền.');
+                router.replace('/payment/wallet', { scroll: false });
+                return;
+            }
+
+            if (code === '00' && cancel === 'false') {
+                try {
+                    await paymentCallback({
+                        orderCode: Number(orderCode),
+                        amount: Number(searchParams.get('amount')) || 0,
+                        description:
+                            searchParams.get('description') || 'PayOS Callback',
+                    });
+
+                    toast.success('Deposit successfully');
+                } catch (error) {
+                    console.error('Callback error', error);
+                } finally {
+                    router.replace('/payment/wallet', { scroll: false });
+                }
+            }
+        };
+
+        handlePayOSCallback();
+    }, [searchParams, paymentCallback, router]);
+
     const handleDeposit = async () => {
         const amount = Number(depositAmount);
-        // Nạp tối thiểu 10k, ít quá bắt đi ra
         if (!amount || amount < 10000) return;
 
         try {
-            const paymentUrl = await createPaymentLink({ amount });
+            const paymentUrl = await createPaymentLink({
+                amount,
+                description: `Deposit ${formatCurrency(amount)} to wallet`,
+            });
 
             if (paymentUrl) {
                 window.location.href = paymentUrl;

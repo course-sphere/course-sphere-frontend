@@ -66,12 +66,21 @@ export const useWithdraw = () => {
 };
 
 export const usePaymentCallback = () => {
+    const queryClient = useQueryClient();
+
     return useMutation<string, ApiError | Error, PaymentCallbackPayload>({
         mutationFn: async (payload) => {
             return await apiClient.post<string, string, PaymentCallbackPayload>(
                 '/payment/callback',
                 payload,
             );
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['wallet'] });
+            queryClient.invalidateQueries({ queryKey: ['wallet-histories'] });
+        },
+        onError: (error) => {
+            toast.error(error.message || 'Error when update money');
         },
     });
 };
