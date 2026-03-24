@@ -31,7 +31,8 @@ import {
     type DraftLessonItem,
 } from '@/lib/service/lesson';
 
-import { useGetPresignedUrl, uploadFileToS3 } from '@/lib/service/storage';
+import { useParams } from 'next/navigation';
+import { useUploadPrivateFile } from '@/lib/service/storage';
 
 interface VideoEditorProps {
     initialData: DraftLessonItem | null;
@@ -47,8 +48,8 @@ export function VideoEditor({
     const [isFetchingDuration, setIsFetchingDuration] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [uploadSuccess, setUploadSuccess] = useState(false);
-
-    const { mutateAsync: getPresignedUrl } = useGetPresignedUrl();
+    const { id: courseId } = useParams() as { id: string };
+    const { mutateAsync: uploadPrivateFile } = useUploadPrivateFile();
 
     const form = useForm<VideoMaterialFormValues>({
         resolver: zodResolver(videoMaterialSchema),
@@ -105,28 +106,24 @@ export function VideoEditor({
         event: React.ChangeEvent<HTMLInputElement>,
     ) => {
         const file = event.target.files?.[0];
-        if (!file) return;
-
-        if (!file.type.startsWith('video/')) {
-            return;
-        }
+        if (!file || !file.type.startsWith('video/')) return;
 
         setIsUploading(true);
         setUploadSuccess(false);
 
         try {
-            const presignedData = await getPresignedUrl({
-                contentType: file.type,
-                fileName: file.name.replace(/[^a-zA-Z0-9.]/g, '_'),
-            });
-            const finalUrl = await uploadFileToS3(file, presignedData);
+            const res = await uploadPrivateFile({ file, courseId });
+            const finalUrl = res.url;
+
             form.setValue('video_url', finalUrl, { shouldValidate: true });
             form.setValue('duration', 5, { shouldValidate: true });
+
             if (!form.getValues('title')) {
                 form.setValue('title', file.name.split('.')[0], {
                     shouldValidate: true,
                 });
             }
+
             setUploadSuccess(true);
             setTimeout(() => setUploadSuccess(false), 3000);
         } catch (error) {
@@ -139,7 +136,6 @@ export function VideoEditor({
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSave)} className="space-y-6">
-                {/* 🎬 KHU VỰC UPLOAD VIDEO TƯƠNG TỰ FILE EDITOR */}
                 <div className="border-border relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed bg-blue-500/5 p-6 transition-colors hover:bg-blue-500/10">
                     <input
                         type="file"

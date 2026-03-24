@@ -408,7 +408,12 @@ export interface CourseMaterialItem {
 
 export type CourseStatusNew =
     | 'draft'
-    | 'need-review'
+    | 'reviewing'
     | 'ai-approved'
     | 'approved'
     | 'removed';
+
+export interface MoveMaterialPayload {
+    prev_id: string;
+    next_id: string;
+}

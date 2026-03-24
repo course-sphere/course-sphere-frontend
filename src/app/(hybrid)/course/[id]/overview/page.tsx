@@ -37,7 +37,7 @@ import { InlineMediaEdit } from '@/components/course-builder/inline-edit/inline-
 import { EmptyState } from '@/components/ui/empty-state';
 import { InlineSelectEdit } from '@/components/course-builder/inline-edit/inline-select-edit';
 import { CoursePrerequisiteSelect } from '@/components/course-prerequisite-select';
-import { useGetPresignedUrl, uploadFileToS3 } from '@/lib/service/storage';
+import { useUploadPublicFile } from '@/lib/service/storage';
 
 export default function CourseOverviewPage({
     params,
@@ -49,9 +49,9 @@ export default function CourseOverviewPage({
 
     const { data: course, isLoading } = useGetCourseDetail(id);
     const { mutateAsync: updateCourse } = useUpdateCourse(id);
-    const { mutateAsync: getPresignedUrl } = useGetPresignedUrl();
 
     const { data: allCourses } = useGetAllCourses();
+    const { mutateAsync: uploadPublicFile } = useUploadPublicFile();
 
     const handleUpdateField = async (
         field: keyof UpdateCoursePayload,
@@ -137,17 +137,9 @@ export default function CourseOverviewPage({
                             type="image"
                             className={`absolute inset-0 z-20 h-full w-full cursor-pointer rounded-none border-0 [&_img]:h-full [&_img]:w-full [&_img]:object-cover ${course.thumbnail_url ? 'opacity-0 transition-all duration-300 hover:bg-black/20 hover:opacity-100' : 'opacity-0'}`}
                             onUploadAndSave={async (file) => {
-                                const presignedData = await getPresignedUrl({
-                                    contentType: file.type,
-                                    fileName: file.name.replace(
-                                        /[^a-zA-Z0-9.]/g,
-                                        '_',
-                                    ),
-                                });
-                                const finalUrl = await uploadFileToS3(
-                                    file,
-                                    presignedData,
-                                );
+                                const res = await uploadPublicFile(file);
+                                const finalUrl = res.url;
+
                                 await handleUpdateField(
                                     'thumbnail_url',
                                     finalUrl,
@@ -453,21 +445,12 @@ export default function CourseOverviewPage({
                                 <InlineMediaEdit
                                     url={course.promo_video_url || ''}
                                     type="video"
-                                    // 🪄 PHẾ VÕ CÔNG NÚT PLAY: Ép video full viền và tắt event click của nó để bấm Upload cực mượt!
                                     className="h-full w-full rounded-none border-0 [&_video]:pointer-events-none [&_video]:h-full [&_video]:w-full [&_video]:object-cover"
                                     onUploadAndSave={async (file) => {
-                                        const presignedData =
-                                            await getPresignedUrl({
-                                                contentType: file.type,
-                                                fileName: file.name.replace(
-                                                    /[^a-zA-Z0-9.]/g,
-                                                    '_',
-                                                ),
-                                            });
-                                        const finalUrl = await uploadFileToS3(
-                                            file,
-                                            presignedData,
-                                        );
+                                        const res =
+                                            await uploadPublicFile(file);
+                                        const finalUrl = res.url;
+
                                         await handleUpdateField(
                                             'promo_video_url',
                                             finalUrl,

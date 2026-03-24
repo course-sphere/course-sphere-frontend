@@ -1,7 +1,11 @@
 import { apiClient } from '@/lib/api-client';
 import { ApiError } from '@/lib/api/axios-config';
 import { useMutation } from '@tanstack/react-query';
-import { PresignedUrlRequest, PresignedUrlResponse } from './type';
+import {
+    PresignedUrlRequest,
+    PresignedUrlResponse,
+    UploadResponse,
+} from './type';
 
 export const useGetPresignedUrl = () => {
     return useMutation<
@@ -23,8 +27,7 @@ export const uploadFileToS3 = async (
     file: File,
     responseData: PresignedUrlResponse | { data: PresignedUrlResponse },
 ) => {
-    const presign =
-        'data' in responseData ? responseData.data : responseData;
+    const presign = 'data' in responseData ? responseData.data : responseData;
     const formData = new FormData();
     Object.entries(presign.values).forEach(([key, value]) => {
         formData.append(key, value as string);
@@ -38,4 +41,42 @@ export const uploadFileToS3 = async (
         throw new Error('Upload S3 thất bại!');
     }
     return `${presign.url}/${presign.values.key}`;
+};
+
+export const useUploadPublicFile = () => {
+    return useMutation<UploadResponse, ApiError | Error, File>({
+        mutationFn: async (file) => {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            return await apiClient.post<
+                UploadResponse,
+                UploadResponse,
+                FormData
+            >('/storage/upload', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+        },
+    });
+};
+
+export const useUploadPrivateFile = () => {
+    return useMutation<
+        UploadResponse,
+        ApiError | Error,
+        { file: File; courseId: string }
+    >({
+        mutationFn: async ({ file, courseId }) => {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            return await apiClient.post<
+                UploadResponse,
+                UploadResponse,
+                FormData
+            >(`/storage/upload/${courseId}`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+        },
+    });
 };

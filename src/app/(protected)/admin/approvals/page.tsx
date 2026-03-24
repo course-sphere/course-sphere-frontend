@@ -21,7 +21,6 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { PaginationControl } from '@/components/ui/pagination-control';
 import type { PaginationState } from '@tanstack/react-table';
 
-// Lấy hook xịn, bỏ mock data đi
 import {
     ApprovalStatus,
     useGetAllCourses,
@@ -30,6 +29,15 @@ import {
 } from '@/lib/service/course';
 import StatCard from '@/components/stat-card';
 import { ApprovalsTable } from '@/components/dashboard/approvals-table';
+
+// Helper to map backend course status to UI approval status
+const mapCourseStatusToApproval = (courseStatus: string): ApprovalStatus => {
+    if (courseStatus === 'approved') return 'approved';
+    if (courseStatus === 'rejected' || courseStatus === 'removed')
+        return 'rejected';
+    // 'reviewing' or 'ai-approved' are considered pending for the admin
+    return 'pending';
+};
 
 export default function AdminApprovalsPage() {
     const [searchQuery, setSearchQuery] = useState('');
@@ -42,7 +50,6 @@ export default function AdminApprovalsPage() {
         pageIndex: 0,
     });
 
-    // 1. GỌI API THẬT
     const { data: allCourses = [], isLoading } = useGetAllCourses();
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,19 +62,21 @@ export default function AdminApprovalsPage() {
         setPagination((prev) => ({ ...prev, pageIndex: 0 }));
     };
 
-    // 2. GIÁO ÁN TÀ ĐẠO: Xào nấu data
     const { paginatedRequests, totalElements, pendingCount, approvedCount } =
         useMemo(() => {
-            // Chỉ lấy course khác draft
+            // Filter out drafts and removed courses from the review queue
             const reviewableCourses = allCourses.filter(
-                (c) => c.status !== 'draft',
+                (c) => c.status !== 'draft' && c.status !== 'removed',
             );
 
-            // TÀ ĐẠO 1: Đếm số khoá 'approved' dưới DB nhưng show lên UI là đang Pending
+            // Calculate accurate stats based on real backend statuses
             const pending = reviewableCourses.filter(
+                (c) => c.status === 'reviewing' || c.status === 'ai-approved',
+            ).length;
+
+            const approved = reviewableCourses.filter(
                 (c) => c.status === 'approved',
             ).length;
-            const approved = 0; // Để 0 cho đẹp demo
 
             const filtered = reviewableCourses.filter((course) => {
                 const matchesSearch =
@@ -78,11 +87,14 @@ export default function AdminApprovalsPage() {
                         .toLowerCase()
                         .includes(searchQuery.toLowerCase());
 
-                // TÀ ĐẠO 2: Khi user chọn filter 'pending', ta lấy mấy khóa 'approved' ra cho họ xem
+                const mappedStatus = mapCourseStatusToApproval(course.status);
+
                 let matchesStatus = false;
-                if (statusFilter === 'all') matchesStatus = true;
-                if (statusFilter === 'pending' && course.status === 'approved')
+                if (statusFilter === 'all') {
                     matchesStatus = true;
+                } else if (statusFilter === mappedStatus) {
+                    matchesStatus = true;
+                }
 
                 return matchesSearch && matchesStatus;
             });
@@ -108,13 +120,9 @@ export default function AdminApprovalsPage() {
                         instructorEmail: course.instructor?.email || 'N/A',
                         instructorAvatar: course.instructor?.image || '',
                         submittedAt:
-                            (
-                                course as CourseResponse & {
-                                    updated_at?: string;
-                                }
-                            ).updated_at || new Date().toISOString(),
-                        // TÀ ĐẠO 3: Ép cứng status là pending để giao diện hiện nút Approve
-                        status: 'pending',
+                            (course as CourseResponse & { updated_at?: string })
+                                .updated_at || new Date().toISOString(),
+                        status: mapCourseStatusToApproval(course.status),
                     }),
                 );
 
