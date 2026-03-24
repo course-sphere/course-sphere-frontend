@@ -31,3 +31,21 @@ export interface MoveRoadmapCoursePayload {
     prev_id: string;
     next_id: string;
 }
+
+export interface RoadmapDetailRaw {
+    author_id: string;
+    position: number;
+    title: string;
+    description: string;
+    courses: string[];
+}
+
+export interface RoadmapAggregated {
+    id: string;
+    author_id: string;
+    position: number;
+    title: string;
+    description: string;
+    courseIds: string[];
+    courseCount: number;
+}
