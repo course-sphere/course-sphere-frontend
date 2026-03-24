@@ -9,6 +9,7 @@ import {
     RoadmapDetailRaw,
     UpdateRoadmapPayload,
 } from '@/lib/service/roadmap';
+import { CourseDetailResponse } from '../course';
 
 export const useCreateRoadmap = () => {
     return useMutation<string, ApiError | Error, CreateRoadmapPayload>({
@@ -121,5 +122,47 @@ export const useGetAllRoadmapsAggregated = () => {
             return results.filter(Boolean) as RoadmapAggregated[];
         },
         staleTime: 1000 * 60 * 5,
+    });
+};
+
+export const useGetRoadmapDetail = (id: string) => {
+    return useQuery<RoadmapDetailRaw, ApiError | Error>({
+        queryKey: ['roadmap-detail', id],
+        queryFn: async () => {
+            return await apiClient.get<RoadmapDetailRaw, RoadmapDetailRaw>(
+                `/roadmap/${id}`,
+            );
+        },
+        enabled: !!id,
+    });
+};
+
+export const useGetMultipleCourses = (courseIds: string[]) => {
+    return useQuery<CourseDetailResponse[], ApiError | Error>({
+        queryKey: ['roadmap-courses', courseIds],
+        queryFn: async () => {
+            if (!courseIds || courseIds.length === 0) return [];
+            const promises = courseIds.map((id) =>
+                apiClient.get<CourseDetailResponse, CourseDetailResponse>(
+                    `/course/${id}`,
+                ),
+            );
+            return await Promise.all(promises);
+        },
+        enabled: !!courseIds && courseIds.length > 0,
+    });
+};
+
+export const useApplyRoadmap = () => {
+    return useMutation<void, ApiError | Error, string>({
+        mutationFn: async (id) => {
+            await apiClient.post(`/roadmap/${id}/apply`, {});
+        },
+        onSuccess: () => {
+            toast.success('Successfully enrolled in the roadmap!');
+        },
+        onError: (error) => {
+            toast.error(error.message || 'Failed to enroll roadmap');
+        },
     });
 };
