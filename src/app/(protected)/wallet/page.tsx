@@ -9,8 +9,6 @@ import {
     Loader2,
     ArrowRightLeft,
     Wallet,
-    ShoppingBag,
-    Landmark,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -31,6 +29,7 @@ import {
     useGetWalletHistories,
     useCreatePaymentLink,
     usePaymentCallback,
+    useWithdraw,
 } from '@/lib/service/wallet';
 import { RoleGuard } from '@/components/layout/role-gaurd';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -43,44 +42,6 @@ const formatCurrency = (amount: number) => {
     }).format(amount);
 };
 
-const MOCK_HISTORIES = [
-    {
-        id: 'tx-1',
-        amount: 500000,
-        detail: 'Deposit via PayOS',
-        created_at: '2026-03-24T10:00:00Z',
-        type: 'deposit',
-    },
-    {
-        id: 'tx-2',
-        amount: 150000,
-        detail: 'Course Purchase: Advanced React',
-        created_at: '2026-03-23T14:30:00Z',
-        type: 'purchase',
-    },
-    {
-        id: 'tx-3',
-        amount: 200000,
-        detail: 'Withdraw to Techcombank',
-        created_at: '2026-03-20T09:15:00Z',
-        type: 'withdraw',
-    },
-    {
-        id: 'tx-4',
-        amount: 1000000,
-        detail: 'Deposit via Momo',
-        created_at: '2026-03-15T16:45:00Z',
-        type: 'deposit',
-    },
-    {
-        id: 'tx-5',
-        amount: 50000,
-        detail: 'Course Purchase: UI/UX Masterclass',
-        created_at: '2026-03-10T11:20:00Z',
-        type: 'purchase',
-    },
-];
-
 export default function WalletPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -89,8 +50,10 @@ export default function WalletPage() {
         useGetWalletHistories();
     const { mutateAsync: createPaymentLink, isPending: isCreatingLink } =
         useCreatePaymentLink();
-    const { mutateAsync: paymentCallback, isPending: isProcessingCallback } =
-        usePaymentCallback();
+    const { mutateAsync: paymentCallback } = usePaymentCallback();
+    const [withdrawAmount, setWithdrawAmount] = useState('');
+    const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
+    const { mutateAsync: withdraw, isPending: isWithdrawing } = useWithdraw();
 
     const [depositAmount, setDepositAmount] = useState('');
     const [isDepositOpen, setIsDepositOpen] = useState(false);
@@ -148,8 +111,25 @@ export default function WalletPage() {
             console.error('Deposit failed', error);
         }
     };
-    const displayHistories =
-        realHistories.length > 0 ? realHistories : MOCK_HISTORIES;
+
+    const handleWithdraw = async () => {
+        const amount = Number(withdrawAmount);
+        if (wallet && amount > wallet.balance) {
+            toast.error('Insufficient balance to complete this transaction');
+            return;
+        }
+
+        try {
+            await withdraw({
+                amount,
+                description: `Withdraw ${formatCurrency(amount)} to wallet`,
+            });
+            setIsWithdrawOpen(false);
+            setWithdrawAmount('');
+        } catch (error) {
+            console.error('Withdraw failed', error);
+        }
+    };
 
     return (
         <RoleGuard allowedRoles={['student', 'instructor', 'admin']}>
@@ -188,7 +168,7 @@ export default function WalletPage() {
                             </div>
                         </div>
 
-                        <div className="flex min-w-[200px] shrink-0 flex-col gap-3 sm:flex-row md:flex-col">
+                        <div className="flex min-w-50 shrink-0 flex-col gap-3 sm:flex-row md:flex-col">
                             <Dialog
                                 open={isDepositOpen}
                                 onOpenChange={setIsDepositOpen}
@@ -250,14 +230,79 @@ export default function WalletPage() {
                                     </div>
                                 </DialogContent>
                             </Dialog>
-
-                            <Button
-                                variant="outline"
-                                className="h-12 w-full rounded-xl border-white/20 bg-black/20 text-base font-semibold text-white backdrop-blur-xs transition-all hover:bg-black/40 hover:text-white"
+                            <Dialog
+                                open={isWithdrawOpen}
+                                onOpenChange={setIsWithdrawOpen}
                             >
-                                <ArrowUpFromLine className="mr-2 h-5 w-5" />
-                                Withdraw
-                            </Button>
+                                <DialogTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        className="h-12 w-full rounded-xl border-white/20 bg-black/20 text-base font-semibold text-white backdrop-blur-xs transition-all hover:bg-black/40 hover:text-white"
+                                    >
+                                        <ArrowUpFromLine className="mr-2 h-5 w-5" />
+                                        Withdraw
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-md">
+                                    <DialogHeader>
+                                        <DialogTitle className="text-xl">
+                                            Withdraw Funds
+                                        </DialogTitle>
+                                        <DialogDescription>
+                                            Enter the money
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <div className="space-y-4 py-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="withdraw-amount">
+                                                How much money you want to
+                                                withdraw?
+                                            </Label>
+                                            <Input
+                                                id="withdraw-amount"
+                                                type="number"
+                                                className="py-6 text-lg"
+                                                placeholder="10.000"
+                                                value={withdrawAmount}
+                                                onChange={(e) =>
+                                                    setWithdrawAmount(
+                                                        e.target.value,
+                                                    )
+                                                }
+                                            />
+                                        </div>
+                                        <div className="text-muted-foreground text-right text-sm">
+                                            Có thể rút:{' '}
+                                            <span className="text-foreground font-bold">
+                                                {formatCurrency(
+                                                    wallet?.balance || 0,
+                                                )}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-end gap-3">
+                                        <Button
+                                            variant="outline"
+                                            onClick={() =>
+                                                setIsWithdrawOpen(false)
+                                            }
+                                        >
+                                            Cancel
+                                        </Button>
+                                        <Button
+                                            onClick={handleWithdraw}
+                                            disabled={
+                                                isWithdrawing || !withdrawAmount
+                                            }
+                                        >
+                                            {isWithdrawing ? (
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            ) : null}
+                                            Withdraw
+                                        </Button>
+                                    </div>
+                                </DialogContent>
+                            </Dialog>{' '}
                         </div>
                     </CardContent>
                 </Card>
@@ -274,7 +319,7 @@ export default function WalletPage() {
                             <div className="flex justify-center p-12">
                                 <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
                             </div>
-                        ) : displayHistories.length === 0 ? (
+                        ) : realHistories?.length === 0 ? (
                             <div className="text-muted-foreground flex flex-col items-center justify-center p-16 text-center">
                                 <ArrowRightLeft className="mb-4 h-12 w-12 opacity-20" />
                                 <p className="text-foreground text-lg font-medium">
@@ -305,13 +350,16 @@ export default function WalletPage() {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-border divide-y">
-                                        {displayHistories.map((tx) => {
-                                            const detailStr =
-                                                tx.detail.toLowerCase();
-                                            const isPurchase =
-                                                detailStr.includes('purchase');
-                                            const isWithdraw =
-                                                detailStr.includes('withdraw');
+                                        {realHistories?.map((tx) => {
+                                            const isDeduction = tx.amount < 0;
+                                            const displayAmount = Math.abs(
+                                                tx.amount,
+                                            );
+                                            const detailText =
+                                                tx.detail ||
+                                                (isDeduction
+                                                    ? 'Withdrawal'
+                                                    : 'Deposit');
 
                                             let Icon = ArrowDownToLine;
                                             let iconBg =
@@ -320,17 +368,11 @@ export default function WalletPage() {
                                                 'text-emerald-600';
                                             let sign = '+';
 
-                                            if (isPurchase) {
-                                                Icon = ShoppingBag;
+                                            if (isDeduction) {
+                                                Icon = ArrowUpFromLine;
                                                 iconBg =
-                                                    'bg-blue-500/10 text-blue-600';
-                                                amountColor = 'text-foreground';
-                                                sign = '-';
-                                            } else if (isWithdraw) {
-                                                Icon = Landmark;
-                                                iconBg =
-                                                    'bg-amber-500/10 text-amber-600';
-                                                amountColor = 'text-foreground';
+                                                    'bg-rose-500/10 text-rose-600';
+                                                amountColor = 'text-rose-600';
                                                 sign = '-';
                                             }
 
@@ -347,7 +389,7 @@ export default function WalletPage() {
                                                                 <Icon className="h-4 w-4" />
                                                             </div>
                                                             <span className="text-foreground font-semibold">
-                                                                {tx.detail}
+                                                                {detailText}
                                                             </span>
                                                         </div>
                                                     </td>
@@ -369,12 +411,12 @@ export default function WalletPage() {
                                                     >
                                                         {sign}
                                                         {formatCurrency(
-                                                            tx.amount,
+                                                            displayAmount,
                                                         )}
                                                     </td>
                                                 </tr>
                                             );
-                                        })}
+                                        })}{' '}
                                     </tbody>
                                 </table>
                             </div>
