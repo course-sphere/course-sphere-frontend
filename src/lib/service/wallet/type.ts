@@ -52,3 +52,32 @@ export interface WithdrawRequest {
     created_at: string;
     updated_at: string;
 }
+//-------------------
+// API Integration
+export interface WalletResponse {
+    id: string;
+    user_id: string;
+    balance: number;
+}
+
+export interface WalletHistory {
+    id: string;
+    amount: number;
+    detail: string;
+    created_at: string;
+}
+
+export interface CreatePaymentPayload {
+    amount: number;
+}
+
+export interface PaymentCallbackPayload {
+    amount: number;
+    description: string;
+    orderCode: number;
+}
+
+export interface WithdrawPayload {
+    amount: number;
+    description: string;
+}
