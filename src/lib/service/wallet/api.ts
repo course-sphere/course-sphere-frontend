@@ -47,31 +47,41 @@ export const useCreatePaymentLink = () => {
 
 export const useWithdraw = () => {
     const queryClient = useQueryClient();
-    return useMutation<string, ApiError | Error, WithdrawPayload>({
+
+    return useMutation<void, ApiError | Error, WithdrawPayload>({
         mutationFn: async (payload) => {
-            return await apiClient.post<string, string, WithdrawPayload>(
+            return await apiClient.post<void, void, WithdrawPayload>(
                 '/payment/withdraw',
                 payload,
             );
         },
         onSuccess: () => {
-            toast.success('Withdrawal request submitted successfully');
+            toast.success('Yêu cầu rút tiền thành công!');
             queryClient.invalidateQueries({ queryKey: ['wallet'] });
             queryClient.invalidateQueries({ queryKey: ['wallet-histories'] });
         },
         onError: (error) => {
-            toast.error(error.message || 'Failed to process withdrawal');
+            toast.error(error.message || 'Lỗi khi rút tiền');
         },
     });
 };
 
 export const usePaymentCallback = () => {
+    const queryClient = useQueryClient();
+
     return useMutation<string, ApiError | Error, PaymentCallbackPayload>({
         mutationFn: async (payload) => {
             return await apiClient.post<string, string, PaymentCallbackPayload>(
                 '/payment/callback',
                 payload,
             );
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['wallet'] });
+            queryClient.invalidateQueries({ queryKey: ['wallet-histories'] });
+        },
+        onError: (error) => {
+            toast.error(error.message || 'Error when update money');
         },
     });
 };

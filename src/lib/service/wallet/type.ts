@@ -69,6 +69,7 @@ export interface WalletHistory {
 
 export interface CreatePaymentPayload {
     amount: number;
+    description: string;
 }
 
 export interface PaymentCallbackPayload {
