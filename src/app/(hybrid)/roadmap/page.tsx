@@ -1,88 +1,14 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import {
-    Search,
-    Map,
-    ChevronRight,
-    BookOpen,
-    Route,
-    MapPin,
-} from 'lucide-react';
+import { Search, Map, Route, MapPin, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { useDebounce } from '@/hooks/use-debounce';
-import {
-    RoadmapAggregated,
-    useGetAllRoadmapsAggregated,
-} from '@/lib/service/roadmap';
-
-const MOCK_ROADMAPS: RoadmapAggregated[] = [
-    {
-        id: 'mock-1',
-        author_id: 'author-1',
-        position: 1,
-        title: 'Frontend Developer Masterclass',
-        description:
-            'Step-by-step guide to becoming a modern Frontend Engineer in 2026. Covers React, Next.js, Tailwind, and State Management.',
-        courseIds: ['c1', 'c2', 'c3', 'c4', 'c5', 'c6'],
-        courseCount: 6,
-    },
-    {
-        id: 'mock-2',
-        author_id: 'author-2',
-        position: 2,
-        title: 'Backend Engineering with Go',
-        description:
-            'Master scalable backend systems, microservices, and high-performance APIs using Golang and PostgreSQL.',
-        courseIds: ['c7', 'c8', 'c9', 'c10', 'c11'],
-        courseCount: 5,
-    },
-    {
-        id: 'mock-3',
-        author_id: 'author-3',
-        position: 3,
-        title: 'DevOps & Cloud Architect',
-        description:
-            'From zero to deploying scalable infrastructure. Learn Docker, Kubernetes, AWS, and CI/CD pipelines.',
-        courseIds: ['c12', 'c13', 'c14', 'c15', 'c16', 'c17', 'c18'],
-        courseCount: 7,
-    },
-    {
-        id: 'mock-4',
-        author_id: 'author-4',
-        position: 4,
-        title: 'Fullstack Next.js Developer',
-        description:
-            'The complete path to building full-stack applications with Next.js App Router, Prisma, and tRPC.',
-        courseIds: ['c19', 'c20', 'c21', 'c22'],
-        courseCount: 4,
-    },
-    {
-        id: 'mock-5',
-        author_id: 'author-5',
-        position: 5,
-        title: 'UI/UX Design Foundation',
-        description:
-            'Learn the principles of user interface and user experience design. Master Figma and design systems.',
-        courseIds: ['c23', 'c24', 'c25'],
-        courseCount: 3,
-    },
-    {
-        id: 'mock-6',
-        author_id: 'author-6',
-        position: 6,
-        title: 'Data Science & Machine Learning',
-        description:
-            'Dive into Python, Pandas, Scikit-learn, and build real-world ML models from scratch.',
-        courseIds: ['c26', 'c27', 'c28', 'c29', 'c30', 'c31'],
-        courseCount: 6,
-    },
-];
+import { useGetAllRoadmapsAggregated } from '@/lib/service/roadmap';
 
 export default function RoadmapExplorerPage() {
     const [search, setSearch] = useState('');
@@ -91,15 +17,12 @@ export default function RoadmapExplorerPage() {
     const { data: apiRoadmaps = [], isLoading } = useGetAllRoadmapsAggregated();
 
     const filteredRoadmaps = useMemo(() => {
-        const validApiRoadmaps = apiRoadmaps.filter(
+        const sourceData = apiRoadmaps.filter(
             (rm) =>
                 rm.title &&
                 rm.title.toLowerCase() !== 'string' &&
                 rm.title.length > 4,
         );
-
-        const sourceData =
-            validApiRoadmaps.length > 0 ? validApiRoadmaps : MOCK_ROADMAPS;
 
         if (!debouncedSearch) return sourceData;
 
@@ -116,69 +39,73 @@ export default function RoadmapExplorerPage() {
 
     return (
         <div className="bg-background min-h-screen">
-            <section className="bg-muted/30 border-border relative overflow-hidden border-b">
-                <div className="absolute top-0 right-0 translate-x-1/3 -translate-y-12">
-                    <div className="bg-primary/5 h-96 w-96 rounded-full blur-3xl" />
+            {/* HERO SECTION - Thu nhỏ font size và khoảng cách */}
+            <section className="relative overflow-hidden pt-12 pb-10">
+                <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [bg-size:16px_16px] dark:bg-black dark:bg-[radial-gradient(#ffffff33_1px,#00091d_1px)]" />
+                <div className="absolute top-0 left-1/2 -z-10 -translate-x-1/2 -translate-y-1/2">
+                    <div className="bg-primary/15 h-64 w-150 rounded-full blur-[80px]" />
                 </div>
 
-                <div className="relative z-10 mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-                    <div className="mx-auto max-w-3xl space-y-6 text-center">
+                <div className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+                    <div className="mx-auto max-w-2xl space-y-6 text-center">
                         <Badge
                             variant="secondary"
-                            className="bg-primary/10 text-primary hover:bg-primary/20 border-primary/20 mx-auto"
+                            className="bg-primary/10 text-primary hover:bg-primary/20 border-primary/20 mx-auto px-3 py-1 text-xs"
                         >
-                            <Map className="mr-2 h-4 w-4" />
+                            <Map className="mr-2 h-3.5 w-3.5" />
                             Learning Pathways
                         </Badge>
                         <h1 className="text-foreground text-4xl font-extrabold tracking-tight sm:text-5xl">
-                            Master Your Career Path
+                            Master Your{' '}
+                            <span className="text-primary">Career Path</span>
                         </h1>
-                        <p className="text-muted-foreground text-lg">
+                        <p className="text-muted-foreground mx-auto max-w-xl text-base">
                             Stop wandering. Follow structured learning paths
-                            curated by industry experts and reach your career
-                            goals efficiently.
+                            curated by industry experts and reach your goals.
                         </p>
 
                         <div className="relative mx-auto mt-8 max-w-md">
-                            <Search className="text-muted-foreground absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2" />
-                            <Input
-                                type="search"
-                                placeholder="Search roadmaps (e.g. Backend, DevOps)..."
-                                className="bg-background focus:border-primary rounded-xl py-6 pl-12 text-base shadow-sm"
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                            />
+                            <div className="bg-background/80 focus-within:ring-primary focus-within:border-primary border-border/50 relative flex items-center overflow-hidden rounded-xl border shadow-sm backdrop-blur-sm transition-all focus-within:ring-2">
+                                <div className="text-muted-foreground pr-2 pl-4">
+                                    <Search className="h-4 w-4" />
+                                </div>
+                                <Input
+                                    type="search"
+                                    placeholder="Search roadmaps..."
+                                    className="h-12 border-0 bg-transparent px-0 text-sm shadow-none focus-visible:ring-0"
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-                <div className="mb-8 flex items-center justify-between">
-                    <h2 className="text-foreground text-2xl font-bold">
+            <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+                <div className="border-border/50 mb-8 flex items-center justify-between border-b pb-4">
+                    <h2 className="text-foreground text-2xl font-bold tracking-tight">
                         Available Roadmaps
                     </h2>
-                    <p className="text-muted-foreground text-sm font-medium">
-                        {isLoading
-                            ? 'Discovering pathways...'
-                            : `${filteredRoadmaps.length} pathways found`}
-                    </p>
+                    <div className="bg-muted text-muted-foreground rounded-full px-3 py-1 text-xs font-semibold">
+                        {isLoading ? '...' : `${filteredRoadmaps.length} paths`}
+                    </div>
                 </div>
 
                 {isLoading ? (
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                        {[1, 2, 3, 4, 5, 6].map((i) => (
+                        {[1, 2, 3].map((i) => (
                             <div
                                 key={i}
-                                className="bg-muted/60 border-border/50 h-[280px] w-full animate-pulse rounded-2xl border"
+                                className="bg-muted/40 border-border/50 h-64 w-full animate-pulse rounded-2xl border"
                             />
                         ))}
                     </div>
                 ) : filteredRoadmaps.length === 0 ? (
                     <EmptyState
-                        className="py-16"
+                        className="py-12"
                         title="No roadmaps found"
-                        description="We couldn't find any learning paths matching your search criteria."
+                        description="Try a different search term."
                         icons={[MapPin, Route, Search]}
                         action={{
                             label: 'Clear search',
@@ -191,45 +118,30 @@ export default function RoadmapExplorerPage() {
                             <Link
                                 key={roadmap.id}
                                 href={`/roadmap/${roadmap.id}`}
+                                className="group"
                             >
-                                <div className="group bg-card border-border hover:border-primary/50 relative flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl border p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
-                                    {/* Dashed line decor */}
-                                    <div className="border-border/50 group-hover:border-primary/30 absolute top-0 right-0 bottom-0 w-8 border-l border-dashed opacity-50 transition-colors" />
-
-                                    <div className="mb-5 flex items-start justify-between">
-                                        <div className="bg-primary/10 text-primary rounded-xl p-3 shadow-xs">
+                                <div className="bg-card border-border hover:border-primary/50 flex h-64 flex-col overflow-hidden rounded-2xl border p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+                                    <div className="mb-4 flex items-start justify-between">
+                                        <div className="bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground rounded-xl p-3 transition-colors">
                                             <Route className="h-6 w-6" />
                                         </div>
                                         <Badge
-                                            variant="outline"
-                                            className="bg-background text-xs font-bold tracking-wide"
+                                            variant="secondary"
+                                            className="bg-muted text-foreground/80 px-2.5 py-0.5 text-[10px] font-bold uppercase"
                                         >
                                             {roadmap.courseCount} Courses
                                         </Badge>
                                     </div>
-
-                                    <h3 className="text-foreground group-hover:text-primary mb-3 line-clamp-2 text-xl font-extrabold transition-colors">
+                                    <h3 className="text-foreground group-hover:text-primary mb-2 line-clamp-2 text-lg font-bold transition-colors">
                                         {roadmap.title}
                                     </h3>
-
-                                    <p className="text-muted-foreground mb-6 line-clamp-3 flex-1 text-sm leading-relaxed font-medium">
+                                    <p className="text-muted-foreground mb-4 line-clamp-2 flex-1 text-sm">
                                         {roadmap.description ||
-                                            'No description provided for this roadmap. Dive in to explore the courses!'}
+                                            'Explore the courses in this curated path.'}
                                     </p>
-
-                                    <div className="border-border/60 mt-auto flex items-center justify-between border-t pt-5">
-                                        <div className="text-muted-foreground flex items-center gap-2 text-xs font-semibold tracking-wider uppercase">
-                                            <BookOpen className="text-primary/70 h-4 w-4" />
-                                            <span>Structured Path</span>
-                                        </div>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="group-hover:bg-primary group-hover:text-primary-foreground rounded-full font-bold shadow-xs transition-all"
-                                        >
-                                            Explore
-                                            <ChevronRight className="ml-1 h-4 w-4" />
-                                        </Button>
+                                    <div className="text-primary mt-auto flex items-center text-sm font-bold">
+                                        Explore Pathway{' '}
+                                        <ArrowRight className="ml-1.5 h-4 w-4 transition-transform group-hover:translate-x-1" />
                                     </div>
                                 </div>
                             </Link>

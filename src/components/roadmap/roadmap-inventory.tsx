@@ -1,7 +1,13 @@
 'use client';
 
 import { useState, useMemo, DragEvent } from 'react';
-import { Search, BookOpen, ClipboardX, Loader2, Send } from 'lucide-react';
+import {
+    Search,
+    BookOpen,
+    ClipboardX,
+    Loader2,
+    CheckCircle,
+} from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -110,7 +116,6 @@ export function RoadmapInventory({
                         placeholder="Add a detailed description..."
                     />
                 </div>
-
                 <Button
                     onClick={onPublish}
                     disabled={isPublishing}
@@ -119,10 +124,10 @@ export function RoadmapInventory({
                     {isPublishing ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
-                        <Send className="mr-2 h-4 w-4" />
+                        <CheckCircle className="mr-2 h-4 w-4" />
                     )}
-                    Publish Roadmap
-                </Button>
+                    Complete & View Roadmaps
+                </Button>{' '}
             </div>
 
             <div className="flex flex-1 flex-col overflow-hidden">

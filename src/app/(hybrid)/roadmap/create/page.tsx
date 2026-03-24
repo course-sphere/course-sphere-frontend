@@ -27,6 +27,7 @@ import {
     useMoveRoadmapCourse,
 } from '@/lib/service/roadmap';
 import { RoleGuard } from '@/components/layout/role-gaurd';
+import { useRouter } from 'next/navigation';
 
 const nodeTypes = { courseNode: CourseCustomNode };
 
@@ -45,6 +46,7 @@ export default function CreateRoadmapPage() {
         connectEdgesOnCanvas,
         removeEdge,
     } = useRoadmapStore();
+    const router = useRouter();
 
     const reactFlowWrapper = useRef<HTMLDivElement>(null);
     const isFirstMount = useRef(true);
@@ -102,12 +104,12 @@ export default function CreateRoadmapPage() {
     };
 
     const handlePublish = () => {
-        // Tương lai anh có thể gọi API đổi status thành "published" ở đây
         setIsPublishing(true);
         setTimeout(() => {
             setIsPublishing(false);
             toast.success('Roadmap has been published successfully!');
-        }, 1000);
+            router.push('/roadmap');
+        }, 500);
     };
 
     // CANVAS HANDLERS
@@ -166,8 +168,9 @@ export default function CreateRoadmapPage() {
                 await moveCourse({
                     id: roadmapId,
                     payload: {
-                        prev_id: sourceNode.data.courseId,
+                        current_id: sourceNode.data.courseId,
                         next_id: targetNode.data.courseId,
+                        prev_id: undefined,
                     },
                 });
             } catch {

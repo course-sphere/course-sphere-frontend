@@ -28,8 +28,9 @@ export interface RoadmapCoursePayload {
 }
 
 export interface MoveRoadmapCoursePayload {
-    prev_id: string;
-    next_id: string;
+    current_id: string;
+    prev_id?: string | null;
+    next_id?: string | null;
 }
 
 export interface RoadmapDetailRaw {
