@@ -67,6 +67,7 @@ import {
     mapTypeToKind,
 } from '@/lib/service/curriculum/api';
 import { useUpdateCourse } from '@/lib/service/course';
+import { toast } from 'sonner';
 
 const MATERIAL_CONFIG: Record<
     LessonItemType,
@@ -112,10 +113,14 @@ export default function CurriculumManagerPage() {
 
     const handlePublish = async () => {
         try {
-            await updateCourseMutation.mutateAsync({ status: 'approved' });
+            await updateCourseMutation.mutateAsync({ status: 'reviewing' });
+            toast.success(
+                'The course has been submitted and is awaiting approval!',
+            );
             router.push(`/`);
         } catch (error) {
             console.error('Lỗi khi publish:', error);
+            toast.error('Có lỗi xảy ra khi submit!');
         }
     };
 
@@ -343,15 +348,18 @@ export default function CurriculumManagerPage() {
             );
 
             const prev_id =
-                newActiveIdx > 0 ? sortedItems[newActiveIdx - 1].id : null;
+                newActiveIdx > 0 ? sortedItems[newActiveIdx - 1].id : '';
             const next_id =
                 newActiveIdx < sortedItems.length - 1
                     ? sortedItems[newActiveIdx + 1].id
-                    : null;
+                    : '';
 
             moveMatMutation.mutate({
                 materialId: activeId,
-                payload: { prev_id, next_id },
+                payload: {
+                    prev_id: prev_id,
+                    next_id: next_id,
+                },
             });
         }
     };
@@ -526,26 +534,26 @@ export default function CurriculumManagerPage() {
                         >
                             {activeDragItem
                                 ? (() => {
-                                    const dragConfig =
-                                        MATERIAL_CONFIG[
-                                        activeDragItem.item_type as LessonItemType
-                                        ] || MATERIAL_CONFIG.file;
-                                    return (
-                                        <div className="bg-primary/5 border-primary/30 flex cursor-grabbing items-center gap-2 rounded-xl border p-2.5 opacity-90 shadow-2xl backdrop-blur-sm">
-                                            <GripVertical className="text-primary h-4 w-4 shrink-0" />
-                                            <div
-                                                className={`rounded-md p-1.5 ${dragConfig.bgColor}`}
-                                            >
-                                                <dragConfig.icon
-                                                    className={`h-4 w-4 ${dragConfig.color}`}
-                                                />
-                                            </div>
-                                            <span className="text-primary text-sm font-medium">
-                                                {activeDragItem.title}
-                                            </span>
-                                        </div>
-                                    );
-                                })()
+                                      const dragConfig =
+                                          MATERIAL_CONFIG[
+                                              activeDragItem.item_type as LessonItemType
+                                          ] || MATERIAL_CONFIG.file;
+                                      return (
+                                          <div className="bg-primary/5 border-primary/30 flex cursor-grabbing items-center gap-2 rounded-xl border p-2.5 opacity-90 shadow-2xl backdrop-blur-sm">
+                                              <GripVertical className="text-primary h-4 w-4 shrink-0" />
+                                              <div
+                                                  className={`rounded-md p-1.5 ${dragConfig.bgColor}`}
+                                              >
+                                                  <dragConfig.icon
+                                                      className={`h-4 w-4 ${dragConfig.color}`}
+                                                  />
+                                              </div>
+                                              <span className="text-primary text-sm font-medium">
+                                                  {activeDragItem.title}
+                                              </span>
+                                          </div>
+                                      );
+                                  })()
                                 : null}
                         </DragOverlay>
                     </DndContext>
@@ -603,7 +611,7 @@ export default function CurriculumManagerPage() {
                             (() => {
                                 const activeConfig =
                                     MATERIAL_CONFIG[
-                                    activeMaterial.item_type as LessonItemType
+                                        activeMaterial.item_type as LessonItemType
                                     ] || MATERIAL_CONFIG.file;
                                 return (
                                     <div className="animate-in fade-in zoom-in-95 space-y-6 duration-300">
@@ -626,44 +634,44 @@ export default function CurriculumManagerPage() {
                                         <div className="bg-background border-border rounded-2xl border p-6 shadow-xl md:p-8">
                                             {activeMaterial.item_type ===
                                                 'video' && (
-                                                    <VideoEditor
-                                                        initialData={activeMaterial}
-                                                        onSave={handleSaveContent}
-                                                        onCancel={() => { }}
-                                                    />
-                                                )}
+                                                <VideoEditor
+                                                    initialData={activeMaterial}
+                                                    onSave={handleSaveContent}
+                                                    onCancel={() => {}}
+                                                />
+                                            )}
                                             {activeMaterial.item_type ===
                                                 'reading' && (
-                                                    <ReadingEditor
-                                                        initialData={activeMaterial}
-                                                        onSave={handleSaveContent}
-                                                        onCancel={() => { }}
-                                                    />
-                                                )}
+                                                <ReadingEditor
+                                                    initialData={activeMaterial}
+                                                    onSave={handleSaveContent}
+                                                    onCancel={() => {}}
+                                                />
+                                            )}
                                             {activeMaterial.item_type ===
                                                 'coding' && (
-                                                    <CodingEditor
-                                                        initialData={activeMaterial}
-                                                        onSave={handleSaveContent}
-                                                        onCancel={() => { }}
-                                                    />
-                                                )}
+                                                <CodingEditor
+                                                    initialData={activeMaterial}
+                                                    onSave={handleSaveContent}
+                                                    onCancel={() => {}}
+                                                />
+                                            )}
                                             {activeMaterial.item_type ===
                                                 'file' && (
-                                                    <FileEditor
-                                                        initialData={activeMaterial}
-                                                        onSave={handleSaveContent}
-                                                        onCancel={() => { }}
-                                                    />
-                                                )}
+                                                <FileEditor
+                                                    initialData={activeMaterial}
+                                                    onSave={handleSaveContent}
+                                                    onCancel={() => {}}
+                                                />
+                                            )}
                                             {activeMaterial.item_type ===
                                                 'quiz' && (
-                                                    <QuizEditor
-                                                        initialData={activeMaterial}
-                                                        onSave={handleSaveContent}
-                                                        onCancel={() => { }}
-                                                    />
-                                                )}
+                                                <QuizEditor
+                                                    initialData={activeMaterial}
+                                                    onSave={handleSaveContent}
+                                                    onCancel={() => {}}
+                                                />
+                                            )}
                                         </div>
                                     </div>
                                 );

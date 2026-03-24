@@ -11,6 +11,7 @@ import {
     CreateCoursePayload,
     UpdateCoursePayload,
 } from '@/lib/service/course';
+import { MoveMaterialPayload } from '../curriculum';
 
 const mapToCreatePayload = (data: CourseInitFormData): CreateCoursePayload => ({
     title: data.title,
@@ -122,5 +123,23 @@ export const useGetCourseMaterials = (courseId: string) => {
             return Array.isArray(res) ? res : [];
         },
         enabled: !!courseId,
+    });
+};
+
+export const useMoveMaterial = () => {
+    return useMutation<
+        unknown,
+        ApiError | Error,
+        { materialId: string; payload: MoveMaterialPayload }
+    >({
+        mutationFn: async ({ materialId, payload }) => {
+            return await apiClient.post(
+                `/material/${materialId}/move`,
+                payload,
+            );
+        },
+        onError: (error) => {
+            console.error('Lỗi khi move material:', error);
+        },
     });
 };

@@ -66,12 +66,10 @@ export default function AllCoursesPage() {
 
     const { paginatedCourses, totalElements, totalApprovedCourses } =
         useMemo(() => {
-            // 1. LỌC CỨNG: Chỉ lấy những khoá học có status là 'approved'
             const approvedCourses = allCourses.filter(
                 (course) => course.status === 'approved',
             );
 
-            // 2. Lọc theo UX của user (Search, Category, Level)
             const filtered = approvedCourses.filter((course) => {
                 const matchesSearch =
                     course.title
@@ -98,7 +96,7 @@ export default function AllCoursesPage() {
             return {
                 paginatedCourses: filtered.slice(start, end),
                 totalElements: filtered.length,
-                totalApprovedCourses: approvedCourses.length, // Lấy tổng số để show trên header
+                totalApprovedCourses: approvedCourses.length,
             };
         }, [
             allCourses,

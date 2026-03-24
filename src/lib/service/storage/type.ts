@@ -16,3 +16,8 @@ export interface PresignedUrlResponse {
         policy: string;
     };
 }
+
+export interface UploadResponse {
+    url: string;
+    key: string;
+}

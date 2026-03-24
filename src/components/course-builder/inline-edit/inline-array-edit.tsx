@@ -11,7 +11,7 @@ interface InlineArrayEditProps {
     renderItem: (item: string, index: number) => React.ReactNode;
     emptyMessage?: string;
     className?: string;
-    listClassName?: string; // 👈 Vũ khí mới để nắn gân giao diện
+    listClassName?: string;
     label?: string;
 }
 
@@ -21,7 +21,7 @@ export function InlineArrayEdit({
     renderItem,
     emptyMessage = 'Click to add items...',
     className = '',
-    listClassName, // 👈 Nhận vũ khí
+    listClassName,
     label,
 }: InlineArrayEditProps) {
     const [isEditing, setIsEditing] = useState(false);

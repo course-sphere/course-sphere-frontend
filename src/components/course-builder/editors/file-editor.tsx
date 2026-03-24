@@ -28,7 +28,8 @@ import {
     type DraftLessonItem,
 } from '@/lib/service/lesson';
 
-import { useGetPresignedUrl, uploadFileToS3 } from '@/lib/service/storage';
+import { useParams } from 'next/navigation';
+import { useUploadPrivateFile } from '@/lib/service/storage';
 
 interface FileEditorProps {
     initialData: DraftLessonItem | null;
@@ -37,9 +38,10 @@ interface FileEditorProps {
 }
 
 export function FileEditor({ initialData, onSave, onCancel }: FileEditorProps) {
+    const { id: courseId } = useParams() as { id: string };
+    const { mutateAsync: uploadPrivateFile } = useUploadPrivateFile();
     const [isUploading, setIsUploading] = useState(false);
     const [uploadSuccess, setUploadSuccess] = useState(false);
-    const { mutateAsync: getPresignedUrl } = useGetPresignedUrl();
 
     const form = useForm<FileMaterialFormValues>({
         resolver: zodResolver(fileMaterialSchema),
@@ -74,16 +76,9 @@ export function FileEditor({ initialData, onSave, onCancel }: FileEditorProps) {
         setUploadSuccess(false);
 
         try {
-            console.log('GET Presigned URL...');
-            const presignedData = await getPresignedUrl({
-                contentType: file.type,
-                fileName: file.name.replace(/[^a-zA-Z0-9.]/g, '_'),
-            });
+            const res = await uploadPrivateFile({ file, courseId });
+            const finalUrl = res.url;
 
-            console.log('Upload cloud:');
-            const finalUrl = await uploadFileToS3(file, presignedData);
-
-            console.log('Map data to form:');
             const fileExtension = file.name.split('.').pop() || 'unknown';
             const fileSizeKB = Math.round(file.size / 1024);
 
@@ -142,7 +137,6 @@ export function FileEditor({ initialData, onSave, onCancel }: FileEditorProps) {
                     )}
                 </div>
 
-                {/* --- Phần UI ở dưới Form y chang của sếp, em thu gọn lại cho bớt dòng nha --- */}
                 <div className="bg-muted/30 border-border space-y-4 rounded-xl border p-4">
                     <FormField
                         control={form.control}
