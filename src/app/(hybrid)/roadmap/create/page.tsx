@@ -102,7 +102,6 @@ export default function CreateRoadmapPage() {
     };
 
     const handlePublish = () => {
-        // Tương lai anh có thể gọi API đổi status thành "published" ở đây
         setIsPublishing(true);
         setTimeout(() => {
             setIsPublishing(false);
@@ -166,8 +165,9 @@ export default function CreateRoadmapPage() {
                 await moveCourse({
                     id: roadmapId,
                     payload: {
+                        current_id: targetNode.data.courseId,
                         prev_id: sourceNode.data.courseId,
-                        next_id: targetNode.data.courseId,
+                        next_id: '',
                     },
                 });
             } catch {

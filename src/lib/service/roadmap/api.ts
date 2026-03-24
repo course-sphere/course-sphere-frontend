@@ -71,12 +71,16 @@ export const useAddRoadmapCourse = () => {
 
 export const useMoveRoadmapCourse = () => {
     return useMutation<
-        void,
+        string,
         ApiError | Error,
         { id: string; payload: MoveRoadmapCoursePayload }
     >({
         mutationFn: async ({ id, payload }) => {
-            await apiClient.post(`/roadmap/${id}/move`, payload);
+            return await apiClient.post<
+                string,
+                string,
+                MoveRoadmapCoursePayload
+            >(`/roadmap/${id}/move-course`, payload);
         },
         onError: (error) => {
             toast.error(error.message || 'Failed to connect courses');

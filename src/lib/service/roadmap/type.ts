@@ -28,6 +28,7 @@ export interface RoadmapCoursePayload {
 }
 
 export interface MoveRoadmapCoursePayload {
+    current_id: string;
     prev_id: string;
     next_id: string;
 }

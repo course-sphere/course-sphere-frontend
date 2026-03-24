@@ -37,18 +37,16 @@ export function CourseCustomNode({
             >
                 <Trash2 className="h-3.5 w-3.5" />
             </button>
-
             <Handle
                 type="target"
                 position={Position.Left}
                 className={cn(
-                    'border-background z-20 h-5 w-5 border-2 transition-colors',
+                    'border-background z-20 -ml-3! h-6! w-6! cursor-crosshair rounded-full border-4 transition-all hover:scale-125',
                     selected
                         ? 'bg-primary'
-                        : 'bg-muted-foreground/30 hover:bg-primary',
+                        : 'bg-muted-foreground/40 hover:bg-primary shadow-sm',
                 )}
             />
-
             <div className="p-4">
                 <div className="flex gap-3">
                     <div className="bg-muted border-border/50 relative h-16 w-20 shrink-0 overflow-hidden rounded-lg border">
@@ -86,17 +84,16 @@ export function CourseCustomNode({
                     </div>
                 </div>
             </div>
-
             <Handle
                 type="source"
                 position={Position.Right}
                 className={cn(
-                    'border-background z-20 h-5 w-5 border-2 transition-colors',
+                    'border-background z-20 -mr-3! h-6! w-6! cursor-crosshair rounded-full border-4 transition-all hover:scale-125',
                     selected
                         ? 'bg-primary'
-                        : 'bg-muted-foreground/30 hover:bg-primary',
+                        : 'bg-muted-foreground/40 hover:bg-primary shadow-sm',
                 )}
-            />
+            />{' '}
         </div>
     );
 }
