@@ -1,10 +1,12 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 import { apiClient, ApiError } from '@/lib/api/axios-config';
 import {
     CreateRoadmapPayload,
     MoveRoadmapCoursePayload,
+    RoadmapAggregated,
+    RoadmapDetailRaw,
     UpdateRoadmapPayload,
 } from '@/lib/service/roadmap';
 
@@ -79,5 +81,41 @@ export const useMoveRoadmapCourse = () => {
         onError: (error) => {
             toast.error(error.message || 'Failed to connect courses');
         },
+    });
+};
+
+export const useGetAllRoadmapsAggregated = () => {
+    return useQuery<RoadmapAggregated[], ApiError | Error>({
+        queryKey: ['roadmaps-aggregated'],
+        queryFn: async () => {
+            const ids = await apiClient.get<string[], string[]>('/roadmap/');
+            if (!ids || !Array.isArray(ids) || ids.length === 0) return [];
+
+            const promises = ids.map(async (id) => {
+                try {
+                    const detail = await apiClient.get<
+                        RoadmapDetailRaw,
+                        RoadmapDetailRaw
+                    >(`/roadmap/${id}`);
+                    return {
+                        id,
+                        author_id: detail.author_id,
+                        position: detail.position,
+                        title: detail.title,
+                        description: detail.description,
+                        courseIds: detail.courses || [],
+                        courseCount: (detail.courses || []).length,
+                    } as RoadmapAggregated;
+                } catch (error) {
+                    console.error(`Failed to fetch roadmap ${id}`, error);
+                    return null;
+                }
+            });
+
+            const results = await Promise.all(promises);
+
+            return results.filter(Boolean) as RoadmapAggregated[];
+        },
+        staleTime: 1000 * 60 * 5,
     });
 };
