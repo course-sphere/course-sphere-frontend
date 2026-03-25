@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { CheckCircle } from 'lucide-react';
 import { mockLearnSyllabus, mockMaterialDetails } from '@constant/sample-data';
 import { ReadingViewer } from '@/components/course-builder/viewers/reading-viewer';
-import { use } from 'react';
+import { use, useState } from 'react';
 import { VideoViewer } from '@/components/course-builder/viewers/video-viewer';
 import { FileViewer } from '@/components/course-builder/viewers/file-viewer';
 import { CodingViewer } from '@/components/course-builder/viewers/coding-viewer';
@@ -30,16 +30,21 @@ export default function LearnPage({
     const material = currentMaterialId
         ? mockMaterialDetails[currentMaterialId]
         : null;
+    const [isCompleting, setIsCompleting] = useState(false);
 
     // TODO: API Complete, mark as done
-    const handleComplete = () => {
+    const handleComplete = async () => {
+        setIsCompleting(true);
+
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+
         if (currentMaterialId === 'mat-10') {
             router.push('/achievements');
         } else {
             toast.success('Material completed!');
+            setIsCompleting(false);
         }
     };
-
     const handleCodingSubmit = async (code?: string) => {
         if (!currentMaterialId) return;
 
