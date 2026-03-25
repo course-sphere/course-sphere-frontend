@@ -1,6 +1,6 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { CheckCircle } from 'lucide-react';
 import { mockLearnSyllabus, mockMaterialDetails } from '@constant/sample-data';
@@ -11,12 +11,14 @@ import { FileViewer } from '@/components/course-builder/viewers/file-viewer';
 import { CodingViewer } from '@/components/course-builder/viewers/coding-viewer';
 import { QuizViewer } from '@/components/course-builder/viewers/quiz-viewer';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 export default function LearnPage({
     params,
 }: {
     params: Promise<{ id: string }>;
 }) {
+    const router = useRouter();
     const { id } = use(params);
     console.log(id);
     const searchParams = useSearchParams();
@@ -31,10 +33,11 @@ export default function LearnPage({
 
     // TODO: API Complete, mark as done
     const handleComplete = () => {
-        console.log(
-            'POST /api/learn/materials/complete for:',
-            currentMaterialId,
-        );
+        if (currentMaterialId === 'mat-10') {
+            router.push('/achievements');
+        } else {
+            toast.success('Material completed!');
+        }
     };
 
     const handleCodingSubmit = async (code?: string) => {

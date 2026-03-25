@@ -25,17 +25,20 @@ import {
     useGetCourseDetail,
     useGetCourseMaterials,
     CourseCategory,
+    CourseDetailResponse,
+    CourseMaterialItem,
 } from '@/lib/service/course';
 import { useAuthStore } from '@/lib/stores/use-auth-store';
 import { getYouTubeEmbedUrl } from '@/lib/utils';
+import { mockStudentSyllabus } from '@constant/sample-data'; // Lấy mảng bài học mock
 
 const materialIconMap: Record<string, React.ElementType> = {
     video: Play,
     reading: BookOpen,
-    text: BookOpen, // fallback cho data thật
+    text: BookOpen,
     quiz: HelpCircle,
     coding: CodeIcon,
-    assignment: CodeIcon, // fallback cho data thật
+    assignment: CodeIcon,
     file: FileText,
 };
 
@@ -57,25 +60,153 @@ interface CoursePageProps {
     }>;
 }
 
+const FAKE_FREE_UUID = 'f47ac10b-58cc-4372-a567-0e02b2c3d479';
+const FAKE_PAID_UUID = 'c90a1b6a-9631-4475-b82b-030910f54508';
+
+const getFakeCourseDetail = (id: string): CourseDetailResponse => {
+    if (id === FAKE_FREE_UUID) {
+        return {
+            id: FAKE_FREE_UUID,
+            title: 'Introduction to Generative AI & ChatGPT',
+            subtitle: 'Master the basics of Prompt Engineering and AI tooling.',
+            description:
+                'A comprehensive guide for beginners to start using AI to boost productivity.\n\nIn this course, you will learn how to write effective prompts, understand the inner workings of LLMs, and apply AI tools to your daily workflow.',
+            categories: ['Technology', 'AI'] as unknown as CourseCategory[],
+            level: 'beginner',
+            price: 0,
+            discount_price: 0,
+            is_free: true,
+            thumbnail_url:
+                'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=1200',
+            promo_video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+            instructor: {
+                id: 'ins-1',
+                name: 'Andrew Ng',
+                email: 'andrew@stanford.edu',
+                image: 'https://i.pravatar.cc/150?u=andrew',
+            },
+            learning_objectives: [
+                'Understand LLM architecture',
+                'Write advanced prompts',
+                'Automate daily tasks',
+            ],
+            requirements: [
+                'Basic computer skills',
+                'No programming experience required',
+            ],
+            prerequisites: [],
+            target_audience: ['Beginners', 'Productivity Seekers'],
+            rating: 4.9,
+            rating_count: 1250,
+            enrolled_students: 5430,
+            status: 'approved',
+            total_video_duration_minutes: 120,
+            total_coding_exercises: 0,
+            total_file_resources: 5,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+        };
+    }
+    return {
+        id: FAKE_PAID_UUID,
+        title: 'Advanced Microservices with Go & gRPC',
+        subtitle: 'Build highly scalable and distributed systems.',
+        description:
+            'Learn how to architect, develop, and deploy enterprise-grade microservices.\n\nWe will cover gRPC, Protocol Buffers, Docker, Kubernetes, and observability patterns used by top tech companies.',
+        categories: [
+            'Software Engineering',
+            'Backend',
+        ] as unknown as CourseCategory[],
+        level: 'advanced',
+        price: 99000,
+        discount_price: 99000,
+        is_free: false,
+        thumbnail_url:
+            'https://images.unsplash.com/photo-1618401471353-b98a520d9e46?auto=format&fit=crop&q=80&w=1200',
+        promo_video_url: 'https://www.youtube.com/watch?v=dpw9EHDh2bM',
+        instructor: {
+            id: 'ins-2',
+            name: 'Alex Developer',
+            email: 'alex@dev.com',
+            image: 'https://i.pravatar.cc/150?u=alex',
+        },
+        learning_objectives: [
+            'Design microservices architecture',
+            'Implement gRPC communication',
+            'Deploy with Kubernetes',
+        ],
+        requirements: ['Proficiency in Go', 'Basic understanding of Docker'],
+        prerequisites: [],
+        target_audience: ['Backend Developers', 'Software Architects'],
+        rating: 4.8,
+        rating_count: 850,
+        enrolled_students: 2100,
+        status: 'approved',
+        total_video_duration_minutes: 350,
+        total_coding_exercises: 12,
+        total_file_resources: 10,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+    };
+};
+
+const getFakeMaterials = (): CourseMaterialItem[] => {
+    // Tự động map từ mockStudentSyllabus ra cho khớp
+    const mats: CourseMaterialItem[] = [];
+    mockStudentSyllabus.modules.forEach((mod) => {
+        mod.lessons.forEach((les) => {
+            les.materials.forEach((mat) => {
+                mats.push({
+                    id: mat.id,
+                    title: mat.title,
+                    kind:
+                        mat.item_type === 'coding'
+                            ? 'assignment'
+                            : mat.item_type === 'reading'
+                              ? 'text'
+                              : mat.item_type,
+                    lesson: mod.title, // Group chung thành 1 cục to cho UI
+                    position: mat.sort_order,
+                    is_required: mat.is_required,
+                });
+            });
+        });
+    });
+    return mats;
+};
+// ------------------------------------
+
 export default function CoursePage({ params }: CoursePageProps) {
     const { id } = use(params);
     const router = useRouter();
 
     const { user, isAuthenticated, isCheckingAuth } = useAuthStore();
     const isInstructor = user?.role === 'instructor' || user?.role === 'admin';
-    const isEnrolled = false; // TODO: Lấy status enroll sau
+    const isEnrolled = false;
 
-    const [expandedModules, setExpandedModules] = useState<string[] | null>(null);
+    const [expandedModules, setExpandedModules] = useState<string[] | null>(
+        null,
+    );
     const [isPlayingPreview, setIsPlayingPreview] = useState(false);
 
-    // 1. Gọi API lấy thông tin khoá học
-    const { data: course, isLoading: isCourseLoading } = useGetCourseDetail(id);
+    // Kích hoạt chế độ tà đạo nếu khớp UUID
+    const isFakeMode = id === FAKE_FREE_UUID || id === FAKE_PAID_UUID;
 
-    // 2. GỌI HOOK MỚI: Lấy danh sách Material
-    const { data: rawMaterials = [], isLoading: isMaterialsLoading } =
-        useGetCourseMaterials(id);
+    // 1. Gọi API (Sẽ bị disable ngầm nếu là hàng fake)
+    const { data: realCourse, isLoading: isCourseLoading } = useGetCourseDetail(
+        isFakeMode ? '' : id,
+    );
+    const { data: realMaterials = [], isLoading: isMaterialsLoading } =
+        useGetCourseMaterials(isFakeMode ? '' : id);
 
-    // 3. XÀO NẤU DATA: Biến mảng phẳng thành cây Syllabus Accordion
+    // 2. Chốt data cuối cùng
+    const course = isFakeMode ? getFakeCourseDetail(id) : realCourse;
+    const rawMaterials = isFakeMode ? getFakeMaterials() : realMaterials;
+    const isLoading = isFakeMode
+        ? false
+        : isCourseLoading || isMaterialsLoading;
+
+    // 3. XÀO NẤU DATA
     const syllabusModules = useMemo(() => {
         if (!rawMaterials || rawMaterials.length === 0) return [];
 
@@ -88,18 +219,16 @@ export default function CoursePage({ params }: CoursePageProps) {
             }
             lessonMap.get(lessonName)!.push({
                 ...mat,
-                // Đổi type của backend ('text', 'assignment') sang type icon UI hiểu ('reading', 'coding')
                 item_type:
                     mat.kind === 'text'
                         ? 'reading'
                         : mat.kind === 'assignment'
-                            ? 'coding'
-                            : mat.kind,
-                is_preview: false, // Mặc định false nếu backend chưa trả
+                          ? 'coding'
+                          : mat.kind,
+                is_preview: false,
             });
         });
 
-        // Nhào nặn ra mảng module UI
         const modules = Array.from(lessonMap.entries()).map(
             ([lName, mats], index) => ({
                 id: `mod-${index}`,
@@ -107,7 +236,7 @@ export default function CoursePage({ params }: CoursePageProps) {
                 lessons: [
                     {
                         id: `les-${index}`,
-                        title: '', // Không in ra tựa đề bài học phụ
+                        title: '',
                         materials: mats.sort((a, b) => a.position - b.position),
                     },
                 ],
@@ -117,7 +246,6 @@ export default function CoursePage({ params }: CoursePageProps) {
         return modules;
     }, [rawMaterials]);
 
-    // Auto-expand first module via derived state (avoids setState in useEffect)
     const resolvedExpanded = useMemo(() => {
         if (expandedModules !== null) return expandedModules;
         if (syllabusModules.length > 0) return [syllabusModules[0].id];
@@ -133,7 +261,7 @@ export default function CoursePage({ params }: CoursePageProps) {
         });
     };
 
-    if (isCourseLoading) {
+    if (isLoading) {
         return (
             <div className="bg-background flex h-screen items-center justify-center">
                 <Loader2 className="text-primary h-10 w-10 animate-spin" />
@@ -150,16 +278,28 @@ export default function CoursePage({ params }: CoursePageProps) {
         course.instructor?.name ||
         course.instructor?.displayUsername ||
         'Course Sphere Instructor';
-    const instructorImage = course.instructor?.image || '/placeholder.svg';
+    const instructorImage =
+        course.instructor?.image || 'https://i.pravatar.cc/150?u=admin';
     const thumbnailUrl =
         course.thumbnail_url ||
         'https://fakeimg.pl/1200x800/1e293b/909090?text=Course+Cover';
     const rating = course.rating || 0;
     const ratingCount = course.rating_count || 0;
 
+    // Helper format tiền tệ chuẩn chỉ
+    const formatPrice = (price: number) => {
+        if (price > 1000) {
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND',
+            }).format(price);
+        }
+        return `$${price}`;
+    };
+
     return (
         <div className="bg-background min-h-screen pb-20">
-            {/* --- HEADER KHÓA HỌC (Giữ nguyên) --- */}
+            {/* --- HEADER KHÓA HỌC --- */}
             <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
                 <div className="relative overflow-hidden rounded-3xl bg-slate-900 px-6 py-12 text-slate-50 shadow-xl md:px-12 md:py-20">
                     <div className="absolute inset-0 z-0 bg-slate-950">
@@ -200,7 +340,7 @@ export default function CoursePage({ params }: CoursePageProps) {
                             <p className="max-w-2xl text-lg text-pretty text-slate-300">
                                 {course.subtitle ||
                                     course.description?.substring(0, 150) +
-                                    '...'}
+                                        '...'}
                             </p>
 
                             <div className="flex items-center gap-3 pt-2">
@@ -270,9 +410,9 @@ export default function CoursePage({ params }: CoursePageProps) {
                         <div className="bg-card border-border overflow-hidden rounded-2xl border shadow-xl">
                             <div className="group border-border/50 relative flex aspect-video w-full overflow-hidden border-b bg-black">
                                 {isPlayingPreview &&
-                                    getYouTubeEmbedUrl(
-                                        course.promo_video_url || '',
-                                    ) ? (
+                                getYouTubeEmbedUrl(
+                                    course.promo_video_url || '',
+                                ) ? (
                                     <iframe
                                         width="100%"
                                         height="100%"
@@ -326,7 +466,7 @@ export default function CoursePage({ params }: CoursePageProps) {
                                         ) : (
                                             <div className="flex items-end gap-3">
                                                 <span className="text-foreground text-4xl font-extrabold">
-                                                    ${course.price}
+                                                    {formatPrice(course.price)}
                                                 </span>
                                             </div>
                                         )}
@@ -386,7 +526,7 @@ export default function CoursePage({ params }: CoursePageProps) {
                                             >
                                                 {isFree
                                                     ? 'Enroll for Free'
-                                                    : 'Add to Cart'}
+                                                    : 'Add to Cart & Learn'}
                                             </Button>
                                             {!isFree && (
                                                 <Button
@@ -456,7 +596,7 @@ export default function CoursePage({ params }: CoursePageProps) {
                             </p>
                         </div>
 
-                        {/* --- SYLLABUS SECTION ĐÃ ĐƯỢC XÀO NẤU --- */}
+                        {/* --- SYLLABUS SECTION --- */}
                         <div>
                             <div className="mb-6 flex items-end justify-between">
                                 <h2 className="text-2xl font-bold">
@@ -480,7 +620,9 @@ export default function CoursePage({ params }: CoursePageProps) {
                                 <div className="space-y-4">
                                     {syllabusModules.map((module) => {
                                         const isExpanded =
-                                            resolvedExpanded.includes(module.id);
+                                            resolvedExpanded.includes(
+                                                module.id,
+                                            );
                                         return (
                                             <Card
                                                 key={module.id}
@@ -521,7 +663,7 @@ export default function CoursePage({ params }: CoursePageProps) {
                                                                     }
                                                                     className={
                                                                         idx !==
-                                                                            0
+                                                                        0
                                                                             ? 'mt-6'
                                                                             : ''
                                                                     }
@@ -531,11 +673,10 @@ export default function CoursePage({ params }: CoursePageProps) {
                                                                             (
                                                                                 material: SyllabusMaterial,
                                                                             ) => {
-                                                                                // Ánh xạ Icon chuẩn xác
                                                                                 const MaterialIcon =
                                                                                     materialIconMap[
-                                                                                    material
-                                                                                        .item_type
+                                                                                        material
+                                                                                            .item_type
                                                                                     ] ||
                                                                                     FileText;
                                                                                 return (

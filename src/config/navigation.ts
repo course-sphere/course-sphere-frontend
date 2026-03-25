@@ -13,6 +13,9 @@ import {
     BarChart3,
     Trophy,
     Scroll,
+    Map,
+    MapPin,
+    Banknote,
 } from 'lucide-react';
 
 export interface NavItem {
@@ -33,6 +36,17 @@ export const STUDENT_MENU: NavGroup[] = [
             { title: 'My Courses', href: '/course', icon: BookOpen },
             { title: 'Achievements', href: '/achievements', icon: Trophy },
         ],
+    },
+    {
+        groupLabel: 'Career',
+        items: [
+            { title: 'My Roadmaps', href: '/roadmap', icon: Map },
+            { title: 'Create Roadmap', href: '/roadmap/create', icon: MapPin },
+        ],
+    },
+    {
+        groupLabel: 'Finance',
+        items: [{ title: 'My Wallet', href: '/wallet', icon: Banknote }],
     },
     {
         groupLabel: 'Account',
@@ -61,7 +75,7 @@ export const INSTRUCTOR_MENU: NavGroup[] = [
         items: [
             {
                 title: 'My Courses',
-                href: '/instructor/courses',
+                href: '/courses',
                 icon: BookOpen,
             },
             {
@@ -72,7 +86,7 @@ export const INSTRUCTOR_MENU: NavGroup[] = [
         ],
     },
     {
-        groupLabel: 'Community',
+        groupLabel: 'Community & Finance',
         items: [
             {
                 title: 'Students',
@@ -80,8 +94,8 @@ export const INSTRUCTOR_MENU: NavGroup[] = [
                 icon: Users,
             },
             {
-                title: 'Earnings',
-                href: '/teacher/earnings',
+                title: 'My Wallet',
+                href: '/wallet',
                 icon: Wallet,
             },
         ],

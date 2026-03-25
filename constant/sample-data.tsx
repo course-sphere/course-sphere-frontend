@@ -22,10 +22,7 @@ import { LearnMaterialContent, Lesson, LessonItem } from '@/lib/service/lesson';
 import { Module } from '@/lib/service/module';
 import { Quiz } from '@/lib/service/quiz/type';
 import { Report } from '@/lib/service/report/type';
-import {
-    CourseSyllabusResponse,
-    LearnSyllabusResponse,
-} from '@/lib/service/syllabus/type';
+import { CourseSyllabusResponse } from '@/lib/service/syllabus/type';
 import { User } from '@/lib/service/user';
 import {
     Transaction,
@@ -743,41 +740,52 @@ export const levels = ['All', 'Beginner', 'Intermediate', 'Advanced'];
 // course-syllabus-sample use in /course/{id} and /course/{id}/learn sidebar
 export const mockStudentSyllabus: CourseSyllabusResponse = {
     course_id: '10',
-    course_title: 'Python for Machine Learning',
+    course_title: 'Fullstack Web Development Bootcamp 2026',
     modules: [
         {
             id: 'mod-1',
             course_id: '10',
-            title: 'Module 1: Introduction & Environment',
+            title: 'Module 1: Fundamentals',
             sort_order: 1,
             lessons: [
                 {
                     id: 'les-1-1',
                     module_id: 'mod-1',
-                    title: '1.1. Getting Started with Python ML',
+                    title: '1.1 Getting Started',
                     sort_order: 1,
                     materials: [
                         {
                             id: 'mat-1',
                             lesson_id: 'les-1-1',
                             item_type: 'video',
-                            title: 'Course Introduction',
+                            title: 'Welcome to the Course',
                             sort_order: 1,
                             is_required: true,
                             is_preview: true,
                             is_completed: true,
-                            duration: 15,
+                            duration: 5,
                         },
                         {
                             id: 'mat-2',
                             lesson_id: 'les-1-1',
                             item_type: 'reading',
-                            title: 'Jupyter Notebook Setup Guide',
+                            title: 'Web Architecture Basics',
                             sort_order: 2,
                             is_required: true,
                             is_preview: false,
                             is_completed: true,
                             duration: 10,
+                        },
+                        {
+                            id: 'mat-3',
+                            lesson_id: 'les-1-1',
+                            item_type: 'file',
+                            title: 'Starter Code Template (ZIP)',
+                            sort_order: 3,
+                            is_required: false,
+                            is_preview: false,
+                            is_completed: true,
+                            file_type: 'zip',
                         },
                     ],
                 },
@@ -786,206 +794,326 @@ export const mockStudentSyllabus: CourseSyllabusResponse = {
         {
             id: 'mod-2',
             course_id: '10',
-            title: 'Module 2: Data Preprocessing',
+            title: 'Module 2: React & Frontend',
             sort_order: 2,
             lessons: [
                 {
                     id: 'les-2-1',
                     module_id: 'mod-2',
-                    title: '2.1. Feature Engineering',
+                    title: '2.1 Core React Concepts',
                     sort_order: 1,
                     materials: [
                         {
-                            id: 'mat-3',
+                            id: 'mat-4',
                             lesson_id: 'les-2-1',
-                            item_type: 'coding',
-                            title: 'Clean the Titanic Dataset',
+                            item_type: 'video',
+                            title: 'Understanding Hooks',
                             sort_order: 1,
                             is_required: true,
                             is_preview: false,
-                            is_completed: false,
-                        },
-                        {
-                            id: 'mat-4',
-                            lesson_id: 'les-2-1',
-                            item_type: 'quiz',
-                            title: 'Pandas Knowledge Check',
-                            sort_order: 2,
-                            is_required: true,
-                            is_preview: false,
-                            is_completed: false,
-                            duration: 15,
-                        },
+                            is_completed: true,
+                            duration: 18,
+                        }, // Đã đổi true
                         {
                             id: 'mat-5',
                             lesson_id: 'les-2-1',
-                            item_type: 'file',
-                            title: 'Download Dataset (CSV)',
+                            item_type: 'coding',
+                            title: 'Build a Counter App',
+                            sort_order: 2,
+                            is_required: true,
+                            is_preview: false,
+                            is_completed: true,
+                        }, // Đã đổi true
+                        {
+                            id: 'mat-6',
+                            lesson_id: 'les-2-1',
+                            item_type: 'reading',
+                            title: 'Component Lifecycle',
                             sort_order: 3,
-                            is_required: false,
+                            is_required: true,
+                            is_preview: false,
+                            is_completed: true,
+                            duration: 8,
+                        }, // Đã đổi true
+                    ],
+                },
+            ],
+        },
+        {
+            id: 'mod-3',
+            course_id: '10',
+            title: 'Module 3: Final Assessment',
+            sort_order: 3,
+            lessons: [
+                {
+                    id: 'les-3-1',
+                    module_id: 'mod-3',
+                    title: '3.1 Graduation',
+                    sort_order: 1,
+                    materials: [
+                        {
+                            id: 'mat-7',
+                            lesson_id: 'les-3-1',
+                            item_type: 'video',
+                            title: 'Final Project Brief',
+                            sort_order: 1,
+                            is_required: true,
+                            is_preview: false,
+                            is_completed: true,
+                            duration: 10,
+                        }, // Đã đổi true
+                        {
+                            id: 'mat-8',
+                            lesson_id: 'les-3-1',
+                            item_type: 'file',
+                            title: 'Project Assets (PDF)',
+                            sort_order: 2,
+                            is_required: true,
+                            is_preview: false,
+                            is_completed: true,
+                            file_type: 'pdf',
+                        }, // Đã đổi true
+                        {
+                            id: 'mat-9',
+                            lesson_id: 'les-3-1',
+                            item_type: 'coding',
+                            title: 'E-commerce API Integration',
+                            sort_order: 3,
+                            is_required: true,
+                            is_preview: false,
+                            is_completed: true,
+                        }, // Đã đổi true
+                        {
+                            id: 'mat-10',
+                            lesson_id: 'les-3-1',
+                            item_type: 'quiz',
+                            title: 'Final Certification Exam',
+                            sort_order: 4,
+                            is_required: true,
                             is_preview: false,
                             is_completed: false,
-                            file_type: 'csv',
-                        },
+                            duration: 30,
+                        }, // DUY NHẤT BÀI NÀY LÀ FALSE
                     ],
                 },
             ],
         },
     ],
 };
-
 export const mockMaterialDetails: Record<string, LearnMaterialContent> = {
     'mat-1': {
         id: 'mat-1',
         lesson_id: 'les-1-1',
         item_type: 'video',
-        title: 'Course Introduction',
+        title: 'Welcome to the Course',
         sort_order: 1,
         is_required: true,
         is_preview: true,
         is_completed: true,
         video_data: {
-            video_url:
-                'https://www.youtube.com/watch?v=RlTDbIutJsU&list=RDRlTDbIutJsU',
-            duration: 15,
+            video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+            duration: 5,
             description:
-                '<p class="text-node">Welcome to Python for Machine Learning! In this introductory video, instructor Sarah Chen walks you through the curriculum.</p>',
+                '<p>Welcome to the Fullstack Web Development Bootcamp. In this video, we cover the course objectives.</p>',
         },
     },
-
     'mat-2': {
         id: 'mat-2',
         lesson_id: 'les-1-1',
         item_type: 'reading',
-        title: 'Jupyter Notebook Setup Guide',
+        title: 'Web Architecture Basics',
         sort_order: 2,
         is_required: true,
         is_preview: false,
         is_completed: true,
         reading_data: {
-            duration: 5,
-            content: `
-                <h2>1. The Importance of Virtual Environments</h2>
-                <p>Welcome to the <strong>first step</strong> of your Machine Learning journey. Before we write any <code>pandas</code> code, we must configure our environment properly.</p>
-                <p>It is highly recommended to isolate your project dependencies to avoid version conflicts. Here is how you do it:</p>
-                <h3>Step-by-step Setup</h3>
-                <ul>
-                    <li>Open your terminal or command prompt.</li>
-                    <li>Navigate to your project folder.</li>
-                    <li>Execute the environment creation command.</li>
-                </ul>
-
-                <pre><code>python -m venv ml_env
-source ml_env/bin/activate  # On macOS/Linux
-ml_env\\Scripts\\activate   # On Windows</code></pre>
-
-                <h2>2. Installing Core Packages</h2>
-                <p>Once your environment is active (you should see <code>(ml_env)</code> in your terminal prompt), it's time to install the holy trinity of Data Science:</p>
-                <blockquote>
-                    <p>"A clean environment is the foundation of a bug-free model." - Unknown Data Scientist</p>
-                </blockquote>
-
-                <p>Run the following pip command:</p>
-                <pre><code>pip install jupyter pandas numpy matplotlib scikit-learn</code></pre>
-                <p><em>Congratulations! You are now ready to launch Jupyter. Type <code>jupyter notebook</code> and move to the next lesson.</em></p>
-            `,
+            duration: 10,
+            content:
+                '<h2>How the Web Works</h2><p>The web is built on a client-server architecture. You have the Frontend (React) and Backend (Node.js/Go).</p><p>Understanding HTTP requests and REST APIs is crucial for your success.</p>',
         },
     },
-
     'mat-3': {
         id: 'mat-3',
+        lesson_id: 'les-1-1',
+        item_type: 'file',
+        title: 'Starter Code Template (ZIP)',
+        sort_order: 3,
+        is_required: false,
+        is_preview: false,
+        is_completed: true,
+        file_data: {
+            file_url: 'https://example.com/starter-template.zip',
+            file_type: 'zip',
+            file_size: 2048,
+        },
+    },
+    'mat-4': {
+        id: 'mat-4',
         lesson_id: 'les-2-1',
-        item_type: 'coding',
-        title: 'Clean the Titanic Dataset',
+        item_type: 'video',
+        title: 'Understanding Hooks',
         sort_order: 1,
         is_required: true,
         is_preview: false,
-        is_completed: false,
+        is_completed: true,
+        video_data: {
+            video_url: 'https://www.youtube.com/watch?v=dpw9EHDh2bM',
+            duration: 18,
+            description:
+                '<p>Dive deep into React Hooks like useState and useEffect.</p>',
+        },
+    },
+    'mat-5': {
+        id: 'mat-5',
+        lesson_id: 'les-2-1',
+        item_type: 'coding',
+        title: 'Build a Counter App',
+        sort_order: 2,
+        is_required: true,
+        is_preview: false,
+        is_completed: true,
         coding_data: {
             description:
-                'Apply data cleaning techniques on the Titanic dataset.',
+                'Create a simple counter application using React state.',
             instructions:
-                '<p class="text-node"><strong>Task:</strong> Drop all rows with missing "Age" values in the dataframe <code>df</code>.</p>',
+                '<p>Use <code>useState</code> to create a counter that increments when you click a button.</p>',
             starter_code:
-                'import pandas as pd\n\ndef clean_titanic_data(df):\n    # Drop remaining NA rows\n    \n    return df\n',
-            language: 'python',
+                'import React, { useState } from "react";\n\nexport default function App() {\n  // Add your code here\n  return <div>0</div>;\n}',
+            language: 'javascript',
             max_score: 100,
             due_days: 7,
         },
     },
-
-    'mat-4': {
-        id: 'mat-4',
+    'mat-6': {
+        id: 'mat-6',
         lesson_id: 'les-2-1',
-        item_type: 'quiz',
-        title: 'Pandas Knowledge Check',
+        item_type: 'reading',
+        title: 'Component Lifecycle',
+        sort_order: 3,
+        is_required: true,
+        is_preview: false,
+        is_completed: true,
+        reading_data: {
+            duration: 8,
+            content:
+                '<h2>React Lifecycle</h2><p>Components mount, update, and unmount. Modern React uses hooks to tap into these phases.</p>',
+        },
+    },
+    'mat-7': {
+        id: 'mat-7',
+        lesson_id: 'les-3-1',
+        item_type: 'video',
+        title: 'Final Project Brief',
+        sort_order: 1,
+        is_required: true,
+        is_preview: false,
+        is_completed: true,
+        video_data: {
+            video_url: 'https://www.youtube.com/watch?v=O6P86uwfdR0',
+            duration: 10,
+            description:
+                '<p>It is time to build your capstone project: A full-scale E-commerce platform.</p>',
+        },
+    },
+    'mat-8': {
+        id: 'mat-8',
+        lesson_id: 'les-3-1',
+        item_type: 'file',
+        title: 'Project Assets (PDF)',
         sort_order: 2,
         is_required: true,
         is_preview: false,
-        is_completed: false,
+        is_completed: true,
+        file_data: {
+            file_url: 'https://example.com/project-assets.pdf',
+            file_type: 'pdf',
+            file_size: 5120,
+        },
+    },
+    'mat-9': {
+        id: 'mat-9',
+        lesson_id: 'les-3-1',
+        item_type: 'coding',
+        title: 'E-commerce API Integration',
+        sort_order: 3,
+        is_required: true,
+        is_preview: false,
+        is_completed: true,
+        coding_data: {
+            description: 'Fetch data from the backend API.',
+            instructions:
+                '<p>Use fetch or axios to GET the product list from <code>/api/products</code>.</p>',
+            starter_code:
+                'const fetchProducts = async () => {\n  // Fetch code here\n};',
+            language: 'javascript',
+            max_score: 100,
+            due_days: 7,
+        },
+    },
+    'mat-10': {
+        id: 'mat-10',
+        lesson_id: 'les-3-1',
+        item_type: 'quiz',
+        title: 'Final Certification Exam',
+        sort_order: 4,
+        is_required: true,
+        is_preview: false,
+        is_completed: false, // Bài cuối CHƯA LÀM
         quiz_data: {
             description:
-                '<p class="text-node">Do not use AI for this quiz.</p>',
-            time_limit_minutes: 15,
-            passing_score: 50,
+                '<p>This is your final exam. You must score 100% to get your certificate. Good luck!</p>',
+            time_limit_minutes: 30,
+            passing_score: 100,
             questions: [
                 {
                     id: 'q1',
-                    title: 'Which Pandas method is used to drop missing values?',
+                    title: 'What is React primarily used for?',
                     question_type: 'single',
-                    score: 10,
+                    score: 50,
                     explanation:
-                        '<p class="text-node">dropna() is the standard method to remove missing values in pandas.</p>',
+                        '<p>React is a JavaScript library for building user interfaces.</p>',
                     answers: [
-                        { id: 'a-1', content: 'df.dropna()', is_correct: true },
                         {
-                            id: 'a-2',
-                            content: 'df.remove_na()',
+                            id: 'a1',
+                            content: 'Building User Interfaces',
+                            is_correct: true,
+                        },
+                        {
+                            id: 'a2',
+                            content: 'Database Management',
+                            is_correct: false,
+                        },
+                        {
+                            id: 'a3',
+                            content: 'Server-side routing',
                             is_correct: false,
                         },
                     ],
                 },
                 {
                     id: 'q2',
-                    title: 'Pandas is built on top of NumPy?',
+                    title: 'Is Next.js a React framework?',
                     question_type: 'true_false',
-                    score: 5,
+                    score: 50,
                     explanation:
-                        '<p class="text-node">Yes, Pandas Series and DataFrames heavily rely on NumPy arrays.</p>',
+                        '<p>Next.js is indeed a React framework providing SSR and SSG features.</p>',
                     answers: [
-                        { id: 'a-3', content: 'True', is_correct: true },
-                        { id: 'a-4', content: 'False', is_correct: false },
+                        { id: 'a4', content: 'True', is_correct: true },
+                        { id: 'a5', content: 'False', is_correct: false },
                     ],
                 },
             ],
         },
     },
-
-    'mat-5': {
-        id: 'mat-5',
-        lesson_id: 'les-2-1',
-        item_type: 'file',
-        title: 'Download Dataset (CSV)',
-        sort_order: 3,
-        is_required: false,
-        is_preview: false,
-        is_completed: false,
-        file_data: {
-            file_url: 'https://s3.your-bucket.com/uploads/titanic_dataset.csv',
-            file_type: 'csv',
-            file_size: 102450,
-        },
-    },
 };
-
-export const mockLearnSyllabus: LearnSyllabusResponse = {
+export const mockLearnSyllabus = {
     ...mockStudentSyllabus,
     progress: {
-        percentage: 40,
-        completed_materials: 2,
-        total_materials: 5,
+        percentage: 90,
+        completed_materials: 9,
+        total_materials: 10,
     },
-    active_material_id: 'mat-3',
+    active_material_id: 'mat-10',
 };
 
 // sample user
