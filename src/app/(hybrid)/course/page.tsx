@@ -17,8 +17,51 @@ import { CourseCard } from '@/components/course-card';
 import type { PaginationState } from '@tanstack/react-table';
 import { categories, levels } from '@constant/sample-data';
 import { useDebounce } from '@/hooks/use-debounce';
-import { useGetAllCourses } from '@/lib/service/course';
+import { useGetAllCourses, CourseResponse } from '@/lib/service/course';
 
+const MOCK_FREE_COURSE: CourseResponse = {
+    id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+    title: 'Introduction to Generative AI & ChatGPT',
+    subtitle: 'Master the basics of Prompt Engineering and AI tooling.',
+    description:
+        'A comprehensive guide for beginners to start using AI to boost productivity.',
+    status: 'approved',
+    level: 'beginner',
+    price: 0,
+    total: 12,
+    total_required: 12,
+    thumbnail_url:
+        'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=600',
+    categories: ['Technology', 'AI'],
+    instructor: {
+        id: 'inst-1',
+        name: 'Andrew Ng',
+        email: 'andrew@example.com',
+        image: 'https://i.pravatar.cc/150?u=andrew',
+    },
+};
+
+const MOCK_PAID_COURSE: CourseResponse = {
+    id: 'c90a1b6a-9631-4475-b82b-030910f54508',
+    title: 'Advanced Microservices with Go & gRPC',
+    subtitle: 'Build highly scalable and distributed systems.',
+    description:
+        'Learn how to architect, develop, and deploy enterprise-grade microservices.',
+    status: 'approved',
+    level: 'advanced',
+    price: 99000,
+    total: 35,
+    total_required: 30,
+    thumbnail_url:
+        'https://images.unsplash.com/photo-1616222584144-8df634f19b9e?auto=format&fit=crop&q=80&w=600',
+    categories: ['Software Engineering', 'Backend'],
+    instructor: {
+        id: 'inst-2',
+        name: 'Alex Developer',
+        email: 'alex@example.com',
+        image: 'https://i.pravatar.cc/150?u=alex',
+    },
+};
 export default function AllCoursesPage() {
     const [search, setSearch] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
@@ -29,14 +72,16 @@ export default function AllCoursesPage() {
         pageIndex: 0,
     });
 
-    // Gọi API thật lấy khóa học
-    const { data: allCourses = [], isLoading: isApiLoading } =
+    const { data: apiCourses = [], isLoading: isApiLoading } =
         useGetAllCourses();
+
+    const allCourses = useMemo(() => {
+        return [MOCK_FREE_COURSE, MOCK_PAID_COURSE, ...apiCourses];
+    }, [apiCourses]);
 
     const [isPending, setIsPending] = useState(false);
     const debouncedSearch = useDebounce(search, 400);
 
-    // Gom chung 2 trạng thái loading (API loading + UX loading lúc gõ phím)
     const showLoading = isPending || isApiLoading;
 
     useEffect(() => {
@@ -66,11 +111,13 @@ export default function AllCoursesPage() {
 
     const { paginatedCourses, totalElements, totalApprovedCourses } =
         useMemo(() => {
-            const approvedCourses = allCourses.filter(
-                (course) => course.status === 'approved',
+            const visibleCourses = allCourses.filter(
+                (course) =>
+                    course.status === 'approved' ||
+                    course.status === 'reviewing',
             );
 
-            const filtered = approvedCourses.filter((course) => {
+            const filtered = visibleCourses.filter((course) => {
                 const matchesSearch =
                     course.title
                         ?.toLowerCase()
@@ -96,7 +143,7 @@ export default function AllCoursesPage() {
             return {
                 paginatedCourses: filtered.slice(start, end),
                 totalElements: filtered.length,
-                totalApprovedCourses: approvedCourses.length,
+                totalApprovedCourses: visibleCourses.length,
             };
         }, [
             allCourses,
@@ -117,7 +164,6 @@ export default function AllCoursesPage() {
                             All Courses
                         </Badge>
                         <h1 className="text-foreground text-4xl font-bold text-balance sm:text-5xl">
-                            {/* Hiển thị số lượng khóa học thật đã được approve */}
                             Expand Your Skills with {totalApprovedCourses}+
                             Courses
                         </h1>
